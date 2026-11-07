@@ -1,0 +1,227 @@
+// Prisma Schema for PropDesk Real Estate Platform
+// Supports Neon Serverless PostgreSQL & Standard PostgreSQL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String             @id @default(cuid())
+  email        String             @unique
+  name         String             @default("")
+  phone        String?
+  activeRole   String?
+  status       String             @default("ACTIVE")
+  roles        String             // JSON string array e.g. ["INDIVIDUAL_BUYER", "INVESTOR"]
+  staffRoles   String?            // JSON string array e.g. ["SUPER_ADMIN"]
+  isOnboarded  Boolean            @default(false)
+  preferences  String?            // JSON object with builderOpportunityType, category, purpose
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  activities   PropertyActivity[]
+  leads        Lead[]
+
+  @@index([email])
+}
+
+model Property {
+  id                       String             @id @default(cuid())
+  slug                     String             @unique
+  title                    String
+  description              String
+  category                 String             // FLAT, HOUSE, PLOT, INDUSTRIAL_LAND, WAREHOUSE, FACTORY, BUILDING_WITH_LAND, DISPUTED
+  subtype                  String?
+  transactionType          String?            // BUY, RENT, BUY_OR_RENT
+  inventoryType            String             @default("NON_BANK_NBFC") // BANK_NBFC, NON_BANK_NBFC
+  isJointVenture           Boolean            @default(false)
+  isDisputed               Boolean            @default(false)
+  purposeAvailability      String             @default("BUY") // BUY, RENT, BUY_OR_RENT
+  visibility               String             @default("PUBLIC") // PUBLIC, PRIVATE, BUILDER_ONLY
+  state                    String
+  city                     String
+  locality                 String
+  pincode                  String?
+  area                     Float
+  areaUnit                 String             @default("sq.ft.")
+  builtUpArea              Float?
+  carpetArea               Float?
+  plotArea                 Float?
+  bedrooms                 Int?
+  bathrooms                Int?
+  balconies                Int?
+  floorNumber              Int?
+  totalFloors              Int?
+  furnishing               String?
+  facing                   String?
+  parkingCount             Int?
+  ageOfProperty            String?
+  amenities                String?            // JSON string array of amenities
+  demarcation              String             @default("Demarcated with boundary markers.")
+  status                   String             @default("PUBLISHED") // DRAFT, PUBLISHED, PAUSED, ARCHIVED, SOLD, RENTED
+
+  // Strictly Private Server-Side Fields — NEVER leaked in public DTOs
+  internalAskingPrice      Float?
+  privateSalePrice         Float?
+  privateRentAmount        Float?
+  privateDeposit           Float?
+  priceNegotiable          Boolean?           @default(false)
+  internalNotes            String?
+  internalOwnershipDetails String?
+  ownerContactName         String?
+  ownerContactPhone        String?
+  createdByStaffId         String?
+  allowedRoles             String?            // JSON string array e.g. ["BUILDER"]
+  publishedAt              DateTime?          @default(now())
+  createdAt                DateTime           @default(now())
+  updatedAt                DateTime           @updatedAt
+
+  images                   PropertyImage[]
+  activities               PropertyActivity[]
+  leads                    Lead[]
+
+  @@index([category])
+  @@index([city])
+  @@index([status])
+  @@index([isJointVenture])
+  @@index([isDisputed])
+}
+
+model PropertyImage {
+  id         String   @id @default(cuid())
+  propertyId String
+  url        String
+  label      String?
+  sortOrder  Int      @default(0)
+  altText    String?
+  isCover    Boolean  @default(false)
+
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([propertyId])
+  @@index([sortOrder])
+}
+
+model PropertyActivity {
+  id                 String    @id @default(cuid())
+  userId             String
+  propertyId         String
+  action             String    // VIEWED, SKIPPED, INTERESTED
+  isContactRequested Boolean   @default(false)
+  contactRequestedAt DateTime?
+  viewCount          Int       @default(1)
+  cycleId            String    @default("default")
+  firstViewedAt      DateTime  @default(now())
+  lastViewedAt       DateTime  @default(now())
+
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  property           Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, propertyId, cycleId])
+  @@index([userId, action])
+  @@index([cycleId])
+}
+
+model Lead {
+  id               String   @id @default(cuid())
+  userId           String
+  userName         String
+  userEmail        String
+  userPhone        String
+  userRoles        String   // JSON string array
+  propertyId       String
+  propertyTitle    String
+  propertyLocation String
+  propertyCategory String
+  opportunityType  String?
+  actionType       String   // INTERESTED, CONTACT_IMMEDIATELY
+  status           String   @default("NEW") // NEW, CONTACTED, FOLLOW_UP, NEGOTIATION, SITE_VISIT, CONVERTED, CLOSED, LOST
+  assignedTo       String?
+  notes            String?
+  publicReference  String?
+  jvTitle          String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  property         Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@index([propertyId])
+  @@index([actionType])
+}
+
+model PropertySubmission {
+  id                     String    @id @default(cuid())
+  userId                 String?
+  submittedByUserId      String?
+  submitterName          String
+  submitterEmail         String
+  submitterPhone         String
+  submitterRole          String
+  relationshipToProperty String?
+  category               String
+  subtype                String?
+  transactionType        String?
+  purpose                String?
+  title                  String
+  description            String
+  city                   String
+  state                  String
+  locality               String
+  area                   Float
+  areaUnit               String    @default("sq.ft.")
+  askingPrice            Float?
+  expectedPriceOrRent    String?
+  contactPreference      String?
+  isJointVenture         Boolean   @default(false)
+  isDisputed             Boolean   @default(false)
+  status                 String    @default("RECEIVED") // RECEIVED, PENDING_REVIEW, APPROVED, REJECTED, CONVERTED
+  convertedPropertyId    String?
+  adminReviewNotes       String?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+
+  @@index([submitterEmail])
+  @@index([status])
+}
+
+model PlatformConfig {
+  id                     String   @id @default("default")
+  pricePromiseText       String
+  adminNotificationEmail String   @default("admin@propdesk.demo")
+  updatedAt              DateTime @updatedAt
+}
+
+model AuditLog {
+  id             String   @id @default(cuid())
+  actorUserId    String
+  actorName      String
+  action         String
+  entityType     String
+  entityId       String
+  beforeSnapshot String?  // JSON string
+  afterSnapshot  String?  // JSON string
+  createdAt      DateTime @default(now())
+
+  @@index([actorUserId])
+  @@index([entityType])
+}
+
+model OtpRecord {
+  id         String   @id @default(cuid())
+  email      String   @unique
+  code       String
+  attempts   Int      @default(0)
+  lastSentAt DateTime @default(now())
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+
+  @@index([email])
+}

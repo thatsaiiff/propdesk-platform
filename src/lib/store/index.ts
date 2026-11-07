@@ -22,6 +22,7 @@ import {
   INITIAL_LEADS,
   INITIAL_SUBMISSIONS,
 } from "./seedData";
+import { PrismaAdapter } from "../db/prismaAdapter";
 
 interface OtpRecord {
   code: string;
@@ -61,6 +62,8 @@ class Store {
   private otps: Map<string, OtpRecord> = new Map();
   private userCycleMap: Map<string, string> = new Map(); // userId -> cycleId
 
+  private isHydrated = false;
+
   constructor() {
     // Seed initial activity for demo buyer
     this.activities.push({
@@ -74,6 +77,30 @@ class Store {
       lastViewedAt: "2026-11-01T14:30:00Z",
       cycleId: "cycle-init",
     });
+
+    if (typeof window === "undefined" && process.env.DATABASE_URL) {
+      this.ensureHydrated().catch((err) => {
+        console.warn("Background database hydration notice:", err?.message || err);
+      });
+    }
+  }
+
+  async ensureHydrated() {
+    if (this.isHydrated) return;
+    this.isHydrated = true;
+    try {
+      const synced = await PrismaAdapter.syncFromDb();
+      if (synced) {
+        if (synced.users && synced.users.length > 0) this.users = synced.users;
+        if (synced.properties && synced.properties.length > 0) this.properties = synced.properties;
+        if (synced.activities) this.activities = synced.activities;
+        if (synced.leads) this.leads = synced.leads;
+        if (synced.submissions) this.submissions = synced.submissions;
+        if (synced.config) this.config = synced.config;
+      }
+    } catch (e) {
+      console.warn("Hydration failed, keeping in-memory state:", e);
+    }
   }
 
   // --- Platform Config ---
@@ -83,6 +110,7 @@ class Store {
 
   updateConfig(updates: Partial<PlatformConfig>): PlatformConfig {
     this.config = { ...this.config, ...updates };
+    PrismaAdapter.persistConfig(this.config);
     return { ...this.config };
   }
 
@@ -163,6 +191,7 @@ class Store {
         updatedAt: new Date().toISOString(),
       };
       this.users.push(user);
+      PrismaAdapter.persistUser(user);
     }
 
     return {
@@ -189,6 +218,7 @@ class Store {
         updatedAt: new Date().toISOString(),
       };
       this.users.push(user);
+      PrismaAdapter.persistUser(user);
     }
     return { ...user };
   }
@@ -267,6 +297,8 @@ class Store {
       ...updates,
       updatedAt: new Date().toISOString(),
     };
+
+    PrismaAdapter.persistUser(this.users[idx]);
 
     return { ...this.users[idx] };
   }
@@ -393,6 +425,8 @@ class Store {
       this.activities.push(activity);
     }
 
+    PrismaAdapter.persistActivity(activity);
+
     let leadId: string | undefined;
 
     // Create or update Lead for Admin whenever user is INTERESTED or CONTACT_IMMEDIATELY
@@ -439,6 +473,9 @@ class Store {
         property: prop,
         timestamp: now,
       });
+
+      const savedLead = this.leads.find((l) => l.id === leadId);
+      if (savedLead) PrismaAdapter.persistLead(savedLead);
     }
 
     return { success: true, leadId };
@@ -568,6 +605,7 @@ Sent to Admin Email: ${this.config.adminNotificationEmail}
       updatedAt: new Date().toISOString(),
     };
     this.properties.unshift(newProp);
+    PrismaAdapter.persistProperty(newProp);
     return { ...newProp };
   }
 
@@ -580,6 +618,7 @@ Sent to Admin Email: ${this.config.adminNotificationEmail}
       ...updates,
       updatedAt: new Date().toISOString(),
     };
+    PrismaAdapter.persistProperty(this.properties[idx]);
     return { ...this.properties[idx] };
   }
 
@@ -603,6 +642,7 @@ Sent to Admin Email: ${this.config.adminNotificationEmail}
       lead.assignedTo = assignedTo;
     }
     lead.updatedAt = new Date().toISOString();
+    PrismaAdapter.persistLead(lead);
     return { ...lead };
   }
 
@@ -616,6 +656,7 @@ Sent to Admin Email: ${this.config.adminNotificationEmail}
       updatedAt: new Date().toISOString(),
     };
     this.submissions.unshift(sub);
+    PrismaAdapter.persistSubmission(sub);
     return { ...sub };
   }
 
@@ -630,6 +671,7 @@ Sent to Admin Email: ${this.config.adminNotificationEmail}
     sub.status = status;
     if (adminReviewNotes) sub.adminReviewNotes = adminReviewNotes;
     sub.updatedAt = new Date().toISOString();
+    PrismaAdapter.persistSubmission(sub);
 
     let publishedProperty: Property | undefined;
 
