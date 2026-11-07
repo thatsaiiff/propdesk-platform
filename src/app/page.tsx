@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { PublicPropertyDTO } from "@/types";
 import PropertyCard from "@/components/property/PropertyCard";
 import ComparisonDrawer from "@/components/property/ComparisonDrawer";
@@ -15,13 +16,13 @@ import {
   Briefcase, 
   Clock, 
   ArrowRight, 
-  Compass,
-  Home,
-  Factory,
-  Layers,
-  CheckCircle2,
-  ChevronDown,
-  Sparkles
+  Compass, 
+  Home, 
+  Factory, 
+  Layers, 
+  CheckCircle2, 
+  ChevronDown, 
+  Sparkles 
 } from "lucide-react";
 
 export default function HomePage() {
@@ -108,11 +109,27 @@ export default function HomePage() {
 
   return (
     <div className="space-y-24 pb-28">
-      {/* Hero Section with Claude Editorial Typography & Liquid Glass */}
-      <section className="pt-20 sm:pt-28 pb-16 px-4 sm:px-6 lg:px-8 relative">
-        <div className="max-w-4xl mx-auto text-center space-y-7">
+      {/* Hero Section with Architectural Estate Image Backdrop & Liquid Glass */}
+      <section className="relative min-h-[90vh] flex items-center justify-center pt-24 sm:pt-32 pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
+        {/* Full-bleed Architectural Luxury Estate Backdrop */}
+        <div className="absolute inset-0 -z-10 pointer-events-none select-none overflow-hidden">
+          <Image
+            src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2400&q=85"
+            alt="Curated Indian architectural estate at twilight"
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-center scale-105 transform-gpu"
+          />
+          {/* Multi-layer luxury glass vignette & darkness mask for optimal readability */}
+          <div className="absolute inset-0 bg-[#08080A]/60 backdrop-blur-[1px]" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#08080A] via-[#08080A]/40 to-[#08080A]/85" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(8,8,10,0.3)_0%,_rgba(8,8,10,0.8)_75%,_#08080A_100%)]" />
+        </div>
+
+        <div className="max-w-4xl mx-auto text-center space-y-7 relative z-10">
           {/* Eyebrow Pill */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full liquid-glass-pill text-[#EDE8E1] text-xs">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full liquid-glass-pill text-[#EDE8E1] text-xs shadow-lg">
             <span className="w-1.5 h-1.5 rounded-full bg-[#CC785C] animate-pulse" />
             <span className="font-medium text-[#EDE8E1]">Curated Indian Real Estate</span>
             <span className="text-[#706D67]">•</span>
@@ -120,43 +137,43 @@ export default function HomePage() {
           </div>
 
           {/* Claude Signature Headline */}
-          <h1 className="font-claude-serif text-4xl sm:text-6xl md:text-7xl font-medium tracking-tight text-[#EDE8E1] leading-[1.08] text-balance">
+          <h1 className="font-claude-serif text-4xl sm:text-6xl md:text-7xl font-medium tracking-tight text-[#EDE8E1] leading-[1.08] text-balance drop-shadow-md">
             Curated Indian real estate, <br />
             <span className="italic font-normal text-[#CC785C]">refined with discretion.</span>
           </h1>
 
-          <p className="font-claude-sans text-base sm:text-lg text-[#A39E96] max-w-2xl mx-auto leading-relaxed text-pretty">
+          <p className="font-claude-sans text-base sm:text-lg text-[#EDE8E1]/85 max-w-2xl mx-auto leading-relaxed text-pretty drop-shadow-sm">
             Browse verified luxury residential, Grade A commercial, and prime development assets across India as a guest. Receive private certified pricing upon inquiry.
           </p>
 
           {/* Liquid Glass Search Container */}
           <div className="pt-2 max-w-2xl mx-auto">
-            <div className="liquid-glass-elevated p-2.5 sm:p-3 rounded-2xl flex flex-col sm:flex-row gap-2 transition-all duration-300">
-              <div className="flex-1 flex items-center gap-2.5 px-3.5 py-2.5 liquid-glass rounded-xl border-white/[0.08]">
+            <div className="liquid-glass-elevated p-2.5 sm:p-3 rounded-2xl flex flex-col sm:flex-row gap-2 transition-all duration-300 shadow-2xl">
+              <div className="flex-1 flex items-center gap-2.5 px-3.5 py-2.5 liquid-glass rounded-xl border-white/[0.1]">
                 <MapPin className="w-4 h-4 text-[#CC785C] shrink-0" />
                 <input
                   type="text"
                   placeholder="City (e.g. Mumbai, Bengaluru, Pune)"
                   value={searchCity}
                   onChange={(e) => setSearchCity(e.target.value)}
-                  className="w-full bg-transparent text-xs sm:text-sm text-[#EDE8E1] placeholder:text-[#706D67] focus:outline-none"
+                  className="w-full bg-transparent text-xs sm:text-sm text-[#EDE8E1] placeholder:text-[#A39E96] focus:outline-none"
                 />
               </div>
 
-              <div className="flex-1 flex items-center gap-2.5 px-3.5 py-2.5 liquid-glass rounded-xl border-white/[0.08]">
-                <Search className="w-4 h-4 text-[#706D67] shrink-0" />
+              <div className="flex-1 flex items-center gap-2.5 px-3.5 py-2.5 liquid-glass rounded-xl border-white/[0.1]">
+                <Search className="w-4 h-4 text-[#A39E96] shrink-0" />
                 <input
                   type="text"
                   placeholder="Locality, project, or keyword"
                   value={searchKeyword}
                   onChange={(e) => setSearchKeyword(e.target.value)}
-                  className="w-full bg-transparent text-xs sm:text-sm text-[#EDE8E1] placeholder:text-[#706D67] focus:outline-none"
+                  className="w-full bg-transparent text-xs sm:text-sm text-[#EDE8E1] placeholder:text-[#A39E96] focus:outline-none"
                 />
               </div>
 
               <Link
                 href={`/properties?city=${encodeURIComponent(searchCity)}&q=${encodeURIComponent(searchKeyword)}`}
-                className="py-2.5 px-6 liquid-glass-btn-accent text-white text-xs sm:text-sm font-semibold rounded-xl flex items-center justify-center gap-1.5 shrink-0 active:scale-[0.98]"
+                className="py-2.5 px-6 liquid-glass-btn-accent text-white text-xs sm:text-sm font-semibold rounded-xl flex items-center justify-center gap-1.5 shrink-0 active:scale-[0.98] shadow-lg"
               >
                 <span>Search</span>
                 <ArrowRight className="w-4 h-4" />
@@ -166,19 +183,19 @@ export default function HomePage() {
 
           {/* Proof signals row */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-3 text-left max-w-3xl mx-auto">
-            <div className="liquid-glass p-3 rounded-xl text-xs text-[#A39E96] flex items-center gap-2">
+            <div className="liquid-glass p-3 rounded-xl text-xs text-[#EDE8E1] flex items-center gap-2 shadow-md">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
               <span>Guest browsing</span>
             </div>
-            <div className="liquid-glass p-3 rounded-xl text-xs text-[#A39E96] flex items-center gap-2">
+            <div className="liquid-glass p-3 rounded-xl text-xs text-[#EDE8E1] flex items-center gap-2 shadow-md">
               <Lock className="w-3.5 h-3.5 text-[#CC785C] shrink-0" />
               <span>Private pricing</span>
             </div>
-            <div className="liquid-glass p-3 rounded-xl text-xs text-[#A39E96] flex items-center gap-2">
+            <div className="liquid-glass p-3 rounded-xl text-xs text-[#EDE8E1] flex items-center gap-2 shadow-md">
               <Briefcase className="w-3.5 h-3.5 text-amber-400 shrink-0" />
               <span>Builder JV area</span>
             </div>
-            <div className="liquid-glass p-3 rounded-xl text-xs text-[#A39E96] flex items-center gap-2">
+            <div className="liquid-glass p-3 rounded-xl text-xs text-[#EDE8E1] flex items-center gap-2 shadow-md">
               <Clock className="w-3.5 h-3.5 text-purple-400 shrink-0" />
               <span>Target response</span>
             </div>
