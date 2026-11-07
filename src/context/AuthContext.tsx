@@ -7,8 +7,17 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   refreshUser: () => Promise<void>;
-  requestOtp: (email: string) => Promise<{ success: boolean; message?: string; isNewUser?: boolean; demoCodeHint?: string; error?: string; cooldownSeconds?: number }>;
+  requestOtp: (email: string) => Promise<{
+    success: boolean;
+    message?: string;
+    isNewUser?: boolean;
+    devCode?: string;
+    liveDispatched?: boolean;
+    error?: string;
+    cooldownSeconds?: number;
+  }>;
   verifyOtp: (email: string, code: string) => Promise<{ success: boolean; user?: User; isNewUser?: boolean; error?: string }>;
+  adminLogin: (email: string, password: string) => Promise<{ success: boolean; user?: User; error?: string }>;
   updateOnboarding: (data: {
     name?: string;
     phone?: string;
@@ -77,6 +86,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const adminLogin = async (email: string, password: string) => {
+    try {
+      const res = await fetch("/api/admin/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (data.success && data.user) {
+        setUser(data.user);
+        return { success: true, user: data.user };
+      }
+      return { success: false, error: data.error || "Administrator authentication failed." };
+    } catch {
+      return { success: false, error: "Network error during administrator authentication." };
+    }
+  };
+
   const updateOnboarding = async (data: {
     name?: string;
     phone?: string;
@@ -120,6 +147,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         refreshUser,
         requestOtp,
         verifyOtp,
+        adminLogin,
         updateOnboarding,
         signOut,
         quickLoginAs,

@@ -11,8 +11,8 @@ export async function sendOtpEmail({
   toEmail,
   code,
   isNewUser,
-}: SendOtpEmailParams): Promise<{ success: boolean; error?: string }> {
-  const fromEmail = process.env.EMAIL_FROM || "PropDesk <verify@propdesk.demo>";
+}: SendOtpEmailParams): Promise<{ success: boolean; liveDispatched: boolean; error?: string }> {
+  const fromEmail = process.env.EMAIL_FROM || "PropDesk <onboarding@resend.dev>";
   const subject = `Your PropDesk Verification Code: ${code}`;
 
   const htmlBody = `
@@ -56,17 +56,22 @@ export async function sendOtpEmail({
   if (process.env.RESEND_API_KEY) {
     try {
       const resend = new Resend(process.env.RESEND_API_KEY);
-      await resend.emails.send({
+      const resendResult = await resend.emails.send({
         from: fromEmail,
         to: toEmail,
         subject,
         html: htmlBody,
         text: textBody,
       });
-      console.log(`[EMAIL DISPATCH] Sent OTP to ${toEmail} via Resend.`);
-      return { success: true };
+      if (resendResult.error) {
+        console.error("[RESEND ERROR] Failed to send email via Resend:", resendResult.error);
+        return { success: false, liveDispatched: false, error: resendResult.error.message };
+      }
+      console.log(`[EMAIL DISPATCH] Sent OTP to ${toEmail} via Resend. ID: ${resendResult.data?.id}`);
+      return { success: true, liveDispatched: true };
     } catch (err: any) {
       console.error("[RESEND ERROR] Failed to send email via Resend:", err?.message || err);
+      return { success: false, liveDispatched: false, error: err?.message };
     }
   }
 
@@ -84,7 +89,7 @@ export async function sendOtpEmail({
       });
 
       await transporter.sendMail({
-        from: fromEmail,
+        from: process.env.EMAIL_FROM || process.env.SMTP_USER,
         to: toEmail,
         subject,
         html: htmlBody,
@@ -92,9 +97,10 @@ export async function sendOtpEmail({
       });
 
       console.log(`[EMAIL DISPATCH] Sent OTP to ${toEmail} via SMTP.`);
-      return { success: true };
+      return { success: true, liveDispatched: true };
     } catch (err: any) {
       console.error("[SMTP ERROR] Failed to send email via SMTP:", err?.message || err);
+      return { success: false, liveDispatched: false, error: err?.message };
     }
   }
 
@@ -105,9 +111,9 @@ export async function sendOtpEmail({
 To:       ${toEmail}
 Subject:  ${subject}
 Code:     ${code}
-Mode:     Server Dispatch (Configure RESEND_API_KEY or SMTP_* for direct mail delivery)
+Mode:     Sandbox / Standalone Dispatch (Configure RESEND_API_KEY or SMTP_* for direct mail delivery)
 ============================================================
   `);
 
-  return { success: true };
+  return { success: true, liveDispatched: false };
 }

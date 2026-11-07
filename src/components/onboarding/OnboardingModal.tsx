@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { UserRole, PropertyCategory, PropertyPurpose, BuilderOpportunityType } from "@/types";
@@ -61,12 +61,30 @@ export default function OnboardingModal({ isOpen, onClose }: OnboardingModalProp
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [cooldown, setCooldown] = useState(0);
+  const [devCode, setDevCode] = useState<string | null>(null);
+  const [liveDispatched, setLiveDispatched] = useState(false);
+
+  // Countdown timer for resend OTP cooldown
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = setInterval(() => {
+      setCooldown((prev) => Math.max(0, prev - 1));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [cooldown]);
+
+  // Clear throttling error once cooldown reaches 0
+  useEffect(() => {
+    if (cooldown === 0 && error && error.toLowerCase().includes("wait")) {
+      setError(null);
+    }
+  }, [cooldown, error]);
 
   if (!isOpen) return null;
 
   // Step 1: Send OTP
-  const handleRequestOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleRequestOtp = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     if (!email || !email.includes("@")) {
       setError("Please enter a valid email address.");
       return;
@@ -79,6 +97,9 @@ export default function OnboardingModal({ isOpen, onClose }: OnboardingModalProp
 
     if (res.success) {
       setIsNewUser(!!res.isNewUser);
+      setDevCode(res.devCode || null);
+      setLiveDispatched(!!res.liveDispatched);
+      setCooldown(res.cooldownSeconds || 30);
       setStep("OTP");
     } else {
       setError(res.error || "Failed to send code.");
@@ -310,6 +331,37 @@ export default function OnboardingModal({ isOpen, onClose }: OnboardingModalProp
                 </p>
               </div>
 
+              {/* Live email dispatched indicator */}
+              {liveDispatched && (
+                <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-xs text-emerald-200 flex items-center gap-2">
+                  <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>Verification code sent to <strong>{email}</strong>. Check your inbox and spam folder.</span>
+                </div>
+              )}
+
+              {/* Dev/Sandbox Fallback helper if email service is not configured in Vercel */}
+              {devCode && (
+                <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-200 space-y-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-1.5 font-bold text-amber-300">
+                      <Sparkles className="w-4 h-4 text-amber-400" />
+                      <span>Verification Code</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setOtp(devCode)}
+                      className="px-2.5 py-1 rounded-lg bg-amber-400 hover:bg-amber-300 text-black font-bold text-xs transition-colors flex items-center gap-1 shadow cursor-pointer active:scale-95"
+                    >
+                      <span>Auto-fill</span>
+                      <span className="font-mono tracking-wider">{devCode}</span>
+                    </button>
+                  </div>
+                  <p className="text-[11px] text-slate-300 leading-relaxed">
+                    Notice: Real email delivery requires <code className="text-amber-300 font-mono">RESEND_API_KEY</code> or <code className="text-amber-300 font-mono">SMTP_*</code> in Vercel env variables. In the meantime, use the code above to verify instantly.
+                  </p>
+                </div>
+              )}
+
               <form onSubmit={handleVerifyOtp} className="space-y-4">
                 <input
                   type="text"
@@ -334,16 +386,19 @@ export default function OnboardingModal({ isOpen, onClose }: OnboardingModalProp
                 <div className="flex items-center justify-between text-xs text-slate-400 pt-1">
                   <button
                     type="button"
-                    onClick={() => setStep("EMAIL")}
+                    onClick={() => {
+                      setStep("EMAIL");
+                      setDevCode(null);
+                    }}
                     className="hover:text-white transition-colors"
                   >
                     Change email
                   </button>
                   <button
                     type="button"
-                    onClick={handleRequestOtp}
+                    onClick={() => handleRequestOtp()}
                     disabled={loading || cooldown > 0}
-                    className="text-amber-400 hover:text-amber-300 transition-colors disabled:opacity-50"
+                    className="text-amber-400 hover:text-amber-300 transition-colors disabled:opacity-40 font-semibold cursor-pointer disabled:cursor-not-allowed"
                   >
                     {cooldown > 0 ? `Resend code (${cooldown}s)` : "Resend code"}
                   </button>

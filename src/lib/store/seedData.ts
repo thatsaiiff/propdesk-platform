@@ -2,11 +2,26 @@ import { Property, User, Lead, PropertySubmission, PlatformConfig } from "@/type
 
 export const INITIAL_CONFIG: PlatformConfig = {
   pricePromiseText: "If you find the same property available at a lower verified price elsewhere, show us the proof. We promise to pay you 10% extra and buy the property.",
-  adminNotificationEmail: "admin@propdesk.demo",
+  adminNotificationEmail: "shadab707waris@gmail.com",
   commissionRatePercent: 2.0,
 };
 
 export const INITIAL_USERS: User[] = [
+  {
+    id: "user-admin-shadab",
+    email: "shadab707waris@gmail.com",
+    name: "Shadab Waris (Admin)",
+    phone: "+919820011223",
+    roles: ["INVESTOR", "BUILDER", "PROPERTY_OWNER"],
+    staffRoles: ["SUPER_ADMIN"],
+    isOnboarded: true,
+    preferences: {
+      category: "BUILDING_WITH_LAND",
+      purpose: "BUY",
+    },
+    createdAt: "2026-11-01T10:00:00Z",
+    updatedAt: "2026-11-01T10:00:00Z",
+  },
   {
     id: "user-admin-1",
     email: "admin@propdesk.demo",

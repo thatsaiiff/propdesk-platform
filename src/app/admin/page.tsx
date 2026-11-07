@@ -23,6 +23,7 @@ import {
   Lock, 
   Plus, 
   Eye, 
+  EyeOff,
   Edit, 
   Check, 
   X, 
@@ -43,7 +44,7 @@ import {
 
 export default function AdminPage() {
   const router = useRouter();
-  const { user, requestOtp, verifyOtp, refreshUser, signOut } = useAuth();
+  const { user, requestOtp, verifyOtp, adminLogin, refreshUser, signOut } = useAuth();
 
   const [activeTab, setActiveTab] = useState<"overview" | "properties" | "leads" | "users" | "submissions" | "settings">("overview");
 
@@ -93,9 +94,13 @@ export default function AdminPage() {
   const [editingProperty, setEditingProperty] = useState<Property | null>(null);
 
   // Admin Auth States
-  const [adminEmail, setAdminEmail] = useState("admin@propdesk.demo");
+  const [authMethod, setAuthMethod] = useState<"PASSWORD" | "OTP">("PASSWORD");
+  const [adminEmail, setAdminEmail] = useState("shadab707waris@gmail.com");
+  const [adminPassword, setAdminPassword] = useState("S@if7246");
+  const [showPassword, setShowPassword] = useState(false);
   const [adminOtp, setAdminOtp] = useState("");
   const [adminOtpSent, setAdminOtpSent] = useState(false);
+  const [adminDevCode, setAdminDevCode] = useState<string | null>(null);
   const [adminAuthLoading, setAdminAuthLoading] = useState(false);
   const [adminAuthError, setAdminAuthError] = useState<string | null>(null);
 
@@ -230,6 +235,27 @@ export default function AdminPage() {
     }
   };
 
+  const handleAdminPasswordLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!adminEmail || !adminEmail.includes("@")) {
+      setAdminAuthError("Please enter a valid administrator email.");
+      return;
+    }
+    if (!adminPassword) {
+      setAdminAuthError("Please enter your administrator password.");
+      return;
+    }
+    setAdminAuthLoading(true);
+    setAdminAuthError(null);
+    const res = await adminLogin(adminEmail, adminPassword);
+    setAdminAuthLoading(false);
+    if (res.success) {
+      await refreshUser();
+    } else {
+      setAdminAuthError(res.error || "Incorrect administrator email or password.");
+    }
+  };
+
   const handleAdminRequestOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!adminEmail || !adminEmail.includes("@")) {
@@ -242,6 +268,7 @@ export default function AdminPage() {
     setAdminAuthLoading(false);
     if (res.success) {
       setAdminOtpSent(true);
+      if (res.devCode) setAdminDevCode(res.devCode);
     } else {
       setAdminAuthError(res.error || "Failed to send verification code.");
     }
@@ -342,8 +369,40 @@ export default function AdminPage() {
           <div className="text-center space-y-1">
             <h2 className="font-claude-serif text-2xl font-bold text-white">Administrator Portal</h2>
             <p className="text-xs text-slate-300 leading-relaxed">
-              Sign in with your authorized administrator email address to access inventory governance and lead pipelines.
+              Sign in with your authorized administrator credentials to manage inventory and leads.
             </p>
+          </div>
+
+          {/* Auth Method Selector */}
+          <div className="flex p-1 bg-white/5 rounded-2xl border border-white/10">
+            <button
+              type="button"
+              onClick={() => {
+                setAuthMethod("PASSWORD");
+                setAdminAuthError(null);
+              }}
+              className={`flex-1 py-2 rounded-xl text-xs font-semibold transition-all ${
+                authMethod === "PASSWORD"
+                  ? "bg-purple-600 text-white shadow"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              Password Login
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setAuthMethod("OTP");
+                setAdminAuthError(null);
+              }}
+              className={`flex-1 py-2 rounded-xl text-xs font-semibold transition-all ${
+                authMethod === "OTP"
+                  ? "bg-purple-600 text-white shadow"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              Email OTP
+            </button>
           </div>
 
           {user && (
@@ -365,65 +424,145 @@ export default function AdminPage() {
             </div>
           )}
 
-          {!adminOtpSent ? (
-            <form onSubmit={handleAdminRequestOtp} className="space-y-4">
-              <div>
-                <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1.5">Admin Email</label>
-                <input
-                  type="email"
-                  value={adminEmail}
-                  onChange={(e) => setAdminEmail(e.target.value)}
-                  placeholder="admin@propdesk.demo"
-                  required
-                  className="w-full py-3 px-4 rounded-xl liquid-glass-input text-sm text-white placeholder:text-slate-500 focus:outline-none"
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={adminAuthLoading}
-                className="w-full py-3.5 px-6 rounded-xl bg-purple-600 hover:bg-purple-500 font-bold text-sm text-white shadow-xl transition-all active:scale-[0.98] disabled:opacity-50"
-              >
-                {adminAuthLoading ? "Sending Verification Code..." : "Send Verification Code →"}
-              </button>
-            </form>
-          ) : (
-            <form onSubmit={handleAdminVerifyOtp} className="space-y-4">
+          {/* METHOD 1: PASSWORD LOGIN */}
+          {authMethod === "PASSWORD" && (
+            <form onSubmit={handleAdminPasswordLogin} className="space-y-4">
               <div>
                 <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1.5">
-                  6-Digit Verification Code
+                  Admin Email
                 </label>
-                <input
-                  type="text"
-                  maxLength={6}
-                  value={adminOtp}
-                  onChange={(e) => setAdminOtp(e.target.value)}
-                  placeholder="• • • • • •"
-                  autoFocus
-                  required
-                  className="w-full tracking-[0.4em] text-center py-3.5 rounded-xl liquid-glass-input text-2xl font-mono font-bold text-white placeholder:text-slate-600 focus:outline-none"
-                />
-                <p className="text-[11px] text-slate-400 mt-1.5 text-center">
-                  Verification code dispatched to <strong>{adminEmail}</strong>
-                </p>
+                <div className="relative">
+                  <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+                  <input
+                    type="email"
+                    value={adminEmail}
+                    onChange={(e) => setAdminEmail(e.target.value)}
+                    placeholder="shadab707waris@gmail.com"
+                    required
+                    className="w-full py-3 pl-10 pr-4 rounded-xl liquid-glass-input text-sm text-white placeholder:text-slate-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1.5">
+                  Password
+                </label>
+                <div className="relative">
+                  <KeyRound className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={adminPassword}
+                    onChange={(e) => setAdminPassword(e.target.value)}
+                    placeholder="••••••••"
+                    required
+                    className="w-full py-3 pl-10 pr-11 rounded-xl liquid-glass-input text-sm text-white placeholder:text-slate-500 focus:outline-none font-mono"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3.5 top-3.5 text-slate-400 hover:text-white transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
 
               <button
                 type="submit"
                 disabled={adminAuthLoading}
-                className="w-full py-3.5 px-6 rounded-xl bg-purple-600 hover:bg-purple-500 font-bold text-sm text-white shadow-xl transition-all active:scale-[0.98] disabled:opacity-50"
+                className="w-full py-3.5 px-6 rounded-xl bg-purple-600 hover:bg-purple-500 font-bold text-sm text-white shadow-xl transition-all active:scale-[0.98] disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
               >
-                {adminAuthLoading ? "Verifying..." : "Verify & Unlock Admin Panel →"}
+                <span>{adminAuthLoading ? "Authenticating..." : "Sign In as Administrator →"}</span>
               </button>
 
-              <button
-                type="button"
-                onClick={() => setAdminOtpSent(false)}
-                className="block text-center text-xs text-slate-400 hover:text-white w-full pt-1"
-              >
-                Change admin email
-              </button>
+              <div className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-[11px] text-slate-300 flex items-center justify-between">
+                <span>Default credentials pre-filled</span>
+                <span className="font-mono text-purple-300">shadab707waris@gmail.com</span>
+              </div>
             </form>
+          )}
+
+          {/* METHOD 2: OTP LOGIN */}
+          {authMethod === "OTP" && (
+            <div>
+              {!adminOtpSent ? (
+                <form onSubmit={handleAdminRequestOtp} className="space-y-4">
+                  <div>
+                    <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1.5">Admin Email</label>
+                    <input
+                      type="email"
+                      value={adminEmail}
+                      onChange={(e) => setAdminEmail(e.target.value)}
+                      placeholder="shadab707waris@gmail.com"
+                      required
+                      className="w-full py-3 px-4 rounded-xl liquid-glass-input text-sm text-white placeholder:text-slate-500 focus:outline-none"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={adminAuthLoading}
+                    className="w-full py-3.5 px-6 rounded-xl bg-purple-600 hover:bg-purple-500 font-bold text-sm text-white shadow-xl transition-all active:scale-[0.98] disabled:opacity-50 cursor-pointer"
+                  >
+                    {adminAuthLoading ? "Sending Verification Code..." : "Send Verification Code →"}
+                  </button>
+                </form>
+              ) : (
+                <form onSubmit={handleAdminVerifyOtp} className="space-y-4">
+                  {adminDevCode && (
+                    <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-200 flex items-center justify-between">
+                      <span>Code: <strong className="font-mono">{adminDevCode}</strong></span>
+                      <button
+                        type="button"
+                        onClick={() => setAdminOtp(adminDevCode)}
+                        className="px-2 py-0.5 rounded bg-amber-400 text-black text-[10px] font-bold"
+                      >
+                        Auto-fill
+                      </button>
+                    </div>
+                  )}
+
+                  <div>
+                    <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1.5">
+                      6-Digit Verification Code
+                    </label>
+                    <input
+                      type="text"
+                      maxLength={6}
+                      value={adminOtp}
+                      onChange={(e) => setAdminOtp(e.target.value)}
+                      placeholder="• • • • • •"
+                      autoFocus
+                      required
+                      className="w-full tracking-[0.4em] text-center py-3.5 rounded-xl liquid-glass-input text-2xl font-mono font-bold text-white placeholder:text-slate-600 focus:outline-none"
+                    />
+                    <p className="text-[11px] text-slate-400 mt-1.5 text-center">
+                      Verification code dispatched to <strong>{adminEmail}</strong>
+                    </p>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={adminAuthLoading}
+                    className="w-full py-3.5 px-6 rounded-xl bg-purple-600 hover:bg-purple-500 font-bold text-sm text-white shadow-xl transition-all active:scale-[0.98] disabled:opacity-50 cursor-pointer"
+                  >
+                    {adminAuthLoading ? "Verifying..." : "Verify & Unlock Admin Panel →"}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAdminOtpSent(false);
+                      setAdminDevCode(null);
+                    }}
+                    className="block text-center text-xs text-slate-400 hover:text-white w-full pt-1 cursor-pointer"
+                  >
+                    Change admin email
+                  </button>
+                </form>
+              )}
+            </div>
           )}
 
           <div className="pt-2 border-t border-white/10 text-center">

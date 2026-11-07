@@ -32,6 +32,9 @@ export async function POST(req: NextRequest) {
       success: true,
       message: result.message,
       isNewUser: result.isNewUser,
+      devCode: result.code,
+      liveDispatched: result.liveDispatched,
+      cooldownSeconds: result.cooldownSeconds || 30,
     });
   } catch (err) {
     console.error("OTP request error:", err);

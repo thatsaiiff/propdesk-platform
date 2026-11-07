@@ -116,14 +116,27 @@ class Store {
   }
 
   // --- OTP Verification ---
-  requestOtp(email: string): { success: boolean; message: string; cooldownSeconds?: number; isNewUser: boolean } {
+  requestOtp(email: string): { 
+    success: boolean; 
+    message: string; 
+    cooldownSeconds?: number; 
+    isNewUser: boolean; 
+    code?: string;
+    liveDispatched?: boolean;
+  } {
     const normalizedEmail = email.toLowerCase().trim();
     const now = Date.now();
     const existing = this.otps.get(normalizedEmail);
 
     if (existing && now - existing.lastSentAt < 30 * 1000) {
       const wait = Math.ceil((30 * 1000 - (now - existing.lastSentAt)) / 1000);
-      return { success: false, message: `Please wait ${wait} seconds before requesting a new code.`, cooldownSeconds: wait, isNewUser: false };
+      return { 
+        success: false, 
+        message: `Please wait ${wait} seconds before requesting a new code.`, 
+        cooldownSeconds: wait, 
+        isNewUser: false,
+        liveDispatched: false,
+      };
     }
 
     // Generate a secure, dynamic 6-digit numeric verification code
@@ -139,6 +152,11 @@ class Store {
 
     const isNewUser = !this.users.some((u) => u.email.toLowerCase() === normalizedEmail);
 
+    const hasLiveProvider = Boolean(
+      process.env.RESEND_API_KEY ||
+      (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS)
+    );
+
     // Dispatch real email via Resend / SMTP
     sendOtpEmail({ toEmail: normalizedEmail, code, isNewUser }).catch((e) => {
       console.error("Email dispatch failed:", e);
@@ -146,8 +164,13 @@ class Store {
 
     return {
       success: true,
-      message: `Verification code sent to ${normalizedEmail}`,
+      message: hasLiveProvider
+        ? `Verification code sent to ${normalizedEmail}. Check your inbox and spam folder.`
+        : `Verification code generated for ${normalizedEmail}.`,
       isNewUser,
+      code: hasLiveProvider ? undefined : code,
+      liveDispatched: hasLiveProvider,
+      cooldownSeconds: 30,
     };
   }
 
