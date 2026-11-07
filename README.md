@@ -51,3 +51,39 @@ Build a mobile-first, premium Indian real-estate discovery and inquiry platform 
 - Do not silently resolve material business ambiguities. Record proposed decisions in `DECISIONS_AND_OPEN_QUESTIONS.md` and ask the product owner when needed.
 - Implement in vertical slices with tests. Do not scaffold the whole application and claim it is complete.
 - Never seed real personal data, real customer contact details, or fabricated property inventory. Use clearly marked demo data only.
+
+---
+
+## MVP Implementation & Deployment Guide
+
+### Stack
+- **Framework:** Next.js 15 (App Router, TypeScript)
+- **Styling:** Tailwind CSS, responsive mobile-first UI
+- **Icons & Components:** Lucide React, accessible modal & drawer primitives
+- **Validation:** Zod runtime validation at all boundaries
+- **Security & Authorization:** Server-side HMAC-SHA256 session management, builder-only JV protection, strict price-omission Public DTOs
+- **Testing:** Vitest automated test suite with security & privacy invariant assertions
+- **Hosting & CI/CD:** Vercel + GitHub (`thatsaiiff/propdesk-platform`)
+
+### Running Locally
+```bash
+# Install dependencies
+npm install
+
+# Run automated tests
+npm test
+
+# Run development server
+npm run dev
+
+# Run production build
+npm run build
+```
+
+### Key URLs & Demo Roles
+- **Public Discovery:** `/` and `/properties`
+- **Builder-Only Joint Ventures:** `/joint-ventures` (protected: requires `BUILDER` role)
+- **Property Submission Intake:** `/submit-property` (owner/broker intake, never auto-publishes)
+- **Account & Multi-Role Manager:** `/account`
+- **Admin Console:** `/admin` (staff role gated: manage listings, private prices, submissions, and lead inbox)
+
