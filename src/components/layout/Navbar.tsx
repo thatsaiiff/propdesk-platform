@@ -47,55 +47,65 @@ export default function Navbar() {
 
   return (
     <>
-      {/* Top Demo Simulation Bar */}
-      <div className="bg-[#131209] text-[#9B9B9B] caption-4 py-2 px-4 border-b border-[#272727]">
-        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+      {/* Top Demo Simulation Bar - Frosted Glass Strip */}
+      <div className="bg-[#08080A]/80 backdrop-blur-md text-[#A39E96] text-xs py-2 px-4 border-b border-white/[0.08] relative z-50">
+        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2.5">
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 bg-[#272727] text-white px-2.5 py-0.5 rounded-full caption-3 border border-[#313131]">
-              <Sparkles className="w-3 h-3 text-amber-400" /> Demo Evaluation
+            <span className="inline-flex items-center gap-1.5 liquid-glass-pill text-[#EDE8E1] px-2.5 py-0.5 rounded-full text-[11px] font-medium border border-white/[0.12]">
+              <Sparkles className="w-3 h-3 text-[#CC785C]" /> Demo Persona Selector
             </span>
-            <span className="hidden sm:inline caption-4 text-[#9B9B9B]">
-              Simulate role authorization and private pricing schedules:
+            <span className="hidden sm:inline text-xs text-[#A39E96]">
+              Test real-estate role authorizations & discretion boundaries:
             </span>
           </div>
 
           <div className="flex items-center gap-1.5 flex-wrap">
             <button
               onClick={() => signOut()}
-              className={`px-2.5 py-1 rounded-lg caption-3 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-                !user ? "bg-white text-black font-semibold shadow-sm" : "bg-[#181818] hover:bg-[#272727] text-white border border-[#272727]"
+              className={`px-2.5 py-1 rounded-lg text-xs transition-all duration-300 font-medium ${
+                !user 
+                  ? "bg-[#EDE8E1] text-[#08080A] shadow-sm font-semibold" 
+                  : "liquid-glass hover:border-white/30 text-[#EDE8E1]"
               }`}
             >
               Guest (Anonymous)
             </button>
             <button
               onClick={() => quickLoginAs("arjun@example.demo")}
-              className={`px-2.5 py-1 rounded-lg caption-3 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-                user?.email === "arjun@example.demo" ? "bg-blue-600 text-white font-semibold" : "bg-[#181818] hover:bg-[#272727] text-white border border-[#272727]"
+              className={`px-2.5 py-1 rounded-lg text-xs transition-all duration-300 font-medium ${
+                user?.email === "arjun@example.demo" 
+                  ? "liquid-glass-btn-accent text-white font-semibold" 
+                  : "liquid-glass hover:border-white/30 text-[#EDE8E1]"
               }`}
             >
               Buyer / Investor
             </button>
             <button
               onClick={() => quickLoginAs("builder@apexinfra.demo")}
-              className={`px-2.5 py-1 rounded-lg caption-3 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-                user?.email === "builder@apexinfra.demo" ? "bg-emerald-600 text-white font-semibold" : "bg-[#181818] hover:bg-[#272727] text-white border border-[#272727]"
+              className={`px-2.5 py-1 rounded-lg text-xs transition-all duration-300 font-medium ${
+                user?.email === "builder@apexinfra.demo" 
+                  ? "bg-emerald-600/90 text-white border border-emerald-400/50 shadow-sm font-semibold" 
+                  : "liquid-glass hover:border-white/30 text-[#EDE8E1]"
               }`}
             >
               Builder (JV View)
             </button>
             <button
               onClick={() => quickLoginAs("rajesh@primeholdings.demo")}
-              className={`px-2.5 py-1 rounded-lg caption-3 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-                user?.email === "rajesh@primeholdings.demo" ? "bg-amber-600 text-white font-semibold" : "bg-[#181818] hover:bg-[#272727] text-white border border-[#272727]"
+              className={`px-2.5 py-1 rounded-lg text-xs transition-all duration-300 font-medium ${
+                user?.email === "rajesh@primeholdings.demo" 
+                  ? "bg-amber-600/90 text-white border border-amber-400/50 shadow-sm font-semibold" 
+                  : "liquid-glass hover:border-white/30 text-[#EDE8E1]"
               }`}
             >
               Owner Mandate
             </button>
             <button
               onClick={() => quickLoginAs("admin@propdesk.demo")}
-              className={`px-2.5 py-1 rounded-lg caption-3 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-                isAdmin ? "bg-purple-600 text-white font-semibold" : "bg-[#181818] hover:bg-[#272727] text-white border border-[#272727]"
+              className={`px-2.5 py-1 rounded-lg text-xs transition-all duration-300 font-medium ${
+                isAdmin 
+                  ? "bg-purple-600/90 text-white border border-purple-400/50 shadow-sm font-semibold" 
+                  : "liquid-glass hover:border-white/30 text-[#EDE8E1]"
               }`}
             >
               Super Admin
@@ -104,18 +114,20 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Floating Modern Header per B7 */}
+      {/* Floating Liquid Glass Header */}
       <header className="sticky top-3 z-40 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
-        <div className="bg-[#181818]/90 backdrop-blur-xl border border-[#272727] rounded-2xl px-4 sm:px-6 h-16 flex items-center justify-between shadow-2xl transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]">
+        <div className="liquid-glass-elevated rounded-2xl px-4 sm:px-6 h-16 flex items-center justify-between transition-all duration-500">
           {/* Logo */}
           <div className="flex items-center gap-6">
             <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="w-9 h-9 rounded-xl bg-white text-black flex items-center justify-center font-bold shadow-md group-hover:scale-105 transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]">
-                <Building2 className="w-5 h-5" />
+              <div className="w-9 h-9 rounded-xl liquid-glass text-[#EDE8E1] flex items-center justify-center font-bold border border-white/20 group-hover:scale-105 group-hover:border-[#CC785C]/60 transition-all duration-300">
+                <Building2 className="w-5 h-5 text-[#CC785C]" />
               </div>
               <div>
-                <span className="font-bold tracking-tight text-lg text-white">PROPDESK</span>
-                <span className="block caption-5 tracking-widest uppercase text-[#9B9B9B] -mt-1 font-semibold">
+                <span className="font-claude-serif font-semibold tracking-tight text-xl text-[#EDE8E1] flex items-center gap-1">
+                  PropDesk<span className="text-[#CC785C] text-lg font-serif">.</span>
+                </span>
+                <span className="block text-[10px] tracking-widest uppercase text-[#A39E96] -mt-1 font-semibold">
                   Curated India
                 </span>
               </div>
@@ -129,10 +141,10 @@ export default function Navbar() {
                   <Link
                     key={link.href}
                     href={link.href}
-                    className={`px-3 py-1.5 rounded-lg body-5 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                    className={`px-3 py-1.5 rounded-lg text-sm transition-all duration-300 ${
                       isActive
-                        ? "bg-[#272727] text-white font-medium"
-                        : "text-[#9B9B9B] hover:text-white hover:bg-[#1F1F1F]"
+                        ? "liquid-glass text-white font-medium border-white/25 shadow-sm"
+                        : "text-[#A39E96] hover:text-[#EDE8E1] hover:bg-white/[0.04]"
                     }`}
                   >
                     {link.label}
@@ -144,22 +156,22 @@ export default function Navbar() {
               {isBuilder ? (
                 <Link
                   href="/joint-ventures"
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg body-5 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-all duration-300 ${
                     pathname.startsWith("/joint-ventures")
-                      ? "bg-emerald-950/80 text-emerald-300 border border-emerald-800"
-                      : "text-emerald-400 hover:bg-emerald-950/50"
+                      ? "bg-emerald-950/70 text-emerald-300 border border-emerald-500/40 shadow-sm font-medium"
+                      : "text-emerald-400 hover:bg-emerald-950/40"
                   }`}
                 >
                   <Briefcase className="w-3.5 h-3.5" />
                   <span>Joint Ventures</span>
-                  <span className="bg-emerald-900 text-emerald-200 caption-4 px-1.5 py-0.2 rounded font-bold">
+                  <span className="bg-emerald-500/20 text-emerald-300 text-[10px] px-1.5 py-0.5 rounded font-semibold border border-emerald-500/30">
                     BUILDER
                   </span>
                 </Link>
               ) : (
                 <Link
                   href="/joint-ventures"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg body-5 text-[#666666] hover:text-[#9B9B9B] transition-colors duration-300"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-[#706D67] hover:text-[#A39E96] transition-colors duration-300"
                   title="Restricted to Builder Accounts"
                 >
                   <Lock className="w-3.5 h-3.5" />
@@ -173,20 +185,20 @@ export default function Navbar() {
           <div className="flex items-center gap-2 sm:gap-3">
             <Link
               href="/submit-property"
-              className="hidden sm:inline-flex items-center gap-1.5 py-2 px-3 rounded-xl button-sm bg-[#272727] hover:bg-[#313131] text-white border border-[#313131] transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] active:scale-[0.98]"
+              className="hidden sm:inline-flex items-center gap-1.5 py-1.5 px-3.5 rounded-xl text-xs font-semibold liquid-glass hover:border-white/30 text-[#EDE8E1] transition-all duration-300 active:scale-[0.98]"
             >
-              <PlusCircle className="w-3.5 h-3.5 text-blue-400" />
+              <PlusCircle className="w-3.5 h-3.5 text-[#CC785C]" />
               <span>Submit Property</span>
             </Link>
 
             <Link
               href="/saved"
-              className="p-2 text-[#9B9B9B] hover:text-white relative rounded-xl hover:bg-[#1F1F1F] transition-colors duration-300"
+              className="p-2 text-[#A39E96] hover:text-[#EDE8E1] relative rounded-xl hover:bg-white/[0.05] transition-colors duration-300"
               title="Saved Properties"
             >
               <Heart className="w-5 h-5" />
               {favourites.length > 0 && (
-                <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-blue-600 text-white caption-5 font-bold flex items-center justify-center">
+                <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-[#CC785C] text-white text-[10px] font-bold flex items-center justify-center shadow-sm">
                   {favourites.length}
                 </span>
               )}
@@ -195,9 +207,9 @@ export default function Navbar() {
             {isAdmin && (
               <Link
                 href="/admin"
-                className="hidden md:inline-flex items-center gap-1.5 py-2 px-3 rounded-xl button-sm bg-purple-950/80 text-purple-200 border border-purple-800 hover:bg-purple-900 transition-colors"
+                className="hidden md:inline-flex items-center gap-1.5 py-1.5 px-3 rounded-xl text-xs font-semibold bg-purple-950/60 text-purple-200 border border-purple-500/40 hover:bg-purple-900/60 transition-colors"
               >
-                <ShieldAlert className="w-3.5 h-3.5" />
+                <ShieldAlert className="w-3.5 h-3.5 text-purple-400" />
                 <span>Admin</span>
               </Link>
             )}
@@ -206,29 +218,29 @@ export default function Navbar() {
               <div className="relative">
                 <button
                   onClick={() => setRoleDropdownOpen(!roleDropdownOpen)}
-                  className="inline-flex items-center gap-2 py-1.5 px-3 rounded-xl bg-[#272727] border border-[#313131] hover:bg-[#313131] text-white body-5 transition-all duration-300"
+                  className="inline-flex items-center gap-2 py-1.5 px-3 rounded-xl liquid-glass text-[#EDE8E1] text-xs font-medium transition-all duration-300 hover:border-white/30"
                 >
-                  <div className="w-6 h-6 rounded-lg bg-blue-600 text-white flex items-center justify-center caption-4 font-bold">
+                  <div className="w-6 h-6 rounded-lg bg-[#CC785C] text-white flex items-center justify-center text-xs font-bold shadow-sm">
                     {user.name.charAt(0)}
                   </div>
                   <div className="text-left hidden md:block">
-                    <div className="leading-tight caption-2 text-white font-medium">{user.name.split(" ")[0]}</div>
-                    <div className="caption-5 text-blue-400 uppercase font-bold tracking-wider">
+                    <div className="leading-tight text-xs text-[#EDE8E1] font-medium">{user.name.split(" ")[0]}</div>
+                    <div className="text-[10px] text-[#CC785C] uppercase font-bold tracking-wider">
                       {user.activeRole || "BUYER"}
                     </div>
                   </div>
-                  <ChevronDown className="w-3.5 h-3.5 text-[#9B9B9B]" />
+                  <ChevronDown className="w-3.5 h-3.5 text-[#A39E96]" />
                 </button>
 
                 {roleDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-64 bg-[#181818] rounded-2xl shadow-2xl border border-[#272727] p-2 z-50 animate-in fade-in zoom-in-95 duration-200">
-                    <div className="p-3 border-b border-[#272727]">
-                      <div className="body-4 text-white">{user.name}</div>
-                      <div className="caption-2 text-[#9B9B9B] truncate">{user.email}</div>
+                  <div className="absolute right-0 mt-2 w-64 liquid-glass-elevated rounded-2xl p-2 z-50 animate-in fade-in zoom-in-95 duration-200">
+                    <div className="p-3 border-b border-white/[0.08]">
+                      <div className="text-sm font-semibold text-[#EDE8E1]">{user.name}</div>
+                      <div className="text-xs text-[#A39E96] truncate">{user.email}</div>
                     </div>
 
-                    <div className="py-2 px-2 border-b border-[#272727]">
-                      <div className="caption-4 uppercase text-[#666666] tracking-wider mb-2 font-bold">
+                    <div className="py-2 px-2 border-b border-white/[0.08]">
+                      <div className="text-[10px] uppercase text-[#706D67] tracking-wider mb-2 font-bold">
                         Switch Active Role
                       </div>
                       <div className="space-y-1">
@@ -236,15 +248,15 @@ export default function Navbar() {
                           <button
                             key={r}
                             onClick={() => handleRoleSelect(r)}
-                            className={`w-full text-left px-2.5 py-1.5 rounded-lg body-5 flex items-center justify-between transition-colors ${
+                            className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs flex items-center justify-between transition-colors ${
                               user.activeRole === r
-                                ? "bg-blue-600/20 text-blue-400 font-semibold border border-blue-500/30"
-                                : "text-[#9B9B9B] hover:text-white hover:bg-[#1F1F1F]"
+                                ? "liquid-glass text-[#CC785C] font-semibold border-[#CC785C]/40"
+                                : "text-[#A39E96] hover:text-[#EDE8E1] hover:bg-white/[0.05]"
                             }`}
                           >
                             <span>{r}</span>
                             {user.activeRole === r && (
-                              <span className="caption-5 bg-blue-600 text-white px-1.5 py-0.2 rounded font-bold">
+                              <span className="text-[10px] bg-[#CC785C]/20 text-[#CC785C] px-1.5 py-0.2 rounded font-bold border border-[#CC785C]/40">
                                 ACTIVE
                               </span>
                             )}
@@ -257,16 +269,16 @@ export default function Navbar() {
                       <Link
                         href="/account"
                         onClick={() => setRoleDropdownOpen(false)}
-                        className="flex items-center gap-2 px-2.5 py-2 rounded-lg body-5 text-[#9B9B9B] hover:text-white hover:bg-[#1F1F1F]"
+                        className="flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs text-[#A39E96] hover:text-[#EDE8E1] hover:bg-white/[0.05]"
                       >
-                        <User className="w-4 h-4 text-[#666666]" />
+                        <User className="w-4 h-4 text-[#706D67]" />
                         <span>Account & Roles</span>
                       </Link>
                       {isAdmin && (
                         <Link
                           href="/admin"
                           onClick={() => setRoleDropdownOpen(false)}
-                          className="flex items-center gap-2 px-2.5 py-2 rounded-lg body-5 text-purple-300 hover:bg-purple-950/40"
+                          className="flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs text-purple-300 hover:bg-purple-950/40"
                         >
                           <ShieldAlert className="w-4 h-4 text-purple-400" />
                           <span>Admin Console</span>
@@ -277,7 +289,7 @@ export default function Navbar() {
                           setRoleDropdownOpen(false);
                           signOut();
                         }}
-                        className="w-full flex items-center gap-2 px-2.5 py-2 rounded-lg body-5 text-red-400 hover:bg-red-950/30 text-left"
+                        className="w-full flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs text-red-400 hover:bg-red-950/30 text-left"
                       >
                         <LogOut className="w-4 h-4 text-red-400" />
                         <span>Sign Out</span>
@@ -289,16 +301,16 @@ export default function Navbar() {
             ) : (
               <button
                 onClick={() => setAuthModalOpen(true)}
-                className="py-2 px-3 rounded-xl button-sm bg-white hover:bg-[#e0e0e0] text-black transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] active:scale-[0.98]"
+                className="py-1.5 px-4 rounded-xl text-xs font-semibold liquid-glass-btn-accent text-white transition-all duration-300 active:scale-[0.98]"
               >
                 Sign In
               </button>
             )}
 
-            {/* Mobile Menu Toggle with Animated Icons per B7 */}
+            {/* Mobile Menu Toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 text-[#9B9B9B] hover:text-white rounded-xl hover:bg-[#1F1F1F] transition-all duration-300"
+              className="lg:hidden p-2 text-[#A39E96] hover:text-[#EDE8E1] rounded-xl hover:bg-white/[0.05] transition-all duration-300"
               aria-label="Toggle Navigation"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -306,17 +318,17 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Full-Height Mobile Navigation Panel per B7 */}
+        {/* Mobile Navigation Panel */}
         {mobileMenuOpen && (
-          <div className="lg:hidden fixed inset-x-0 top-20 bottom-0 bg-[#181818]/95 backdrop-blur-2xl border-t border-[#272727] p-6 space-y-6 z-50 overflow-y-auto animate-in fade-in duration-300">
-            <div className="grid grid-cols-1 gap-2 pb-6 border-b border-[#272727]">
+          <div className="lg:hidden fixed inset-x-0 top-20 bottom-0 bg-[#08080A]/95 backdrop-blur-3xl border-t border-white/[0.1] p-6 space-y-6 z-50 overflow-y-auto animate-in fade-in duration-300">
+            <div className="grid grid-cols-1 gap-2 pb-6 border-b border-white/[0.08]">
               {navLinks.map((link, idx) => (
                 <Link
                   key={link.href}
                   href={link.href}
                   onClick={() => setMobileMenuOpen(false)}
                   style={{ animationDelay: `${idx * 60}ms` }}
-                  className="px-4 py-3 rounded-xl title-3 text-[#9B9B9B] hover:text-white hover:bg-[#1F1F1F] animate-in slide-in-from-bottom-3 duration-300"
+                  className="px-4 py-3 rounded-xl text-base text-[#A39E96] hover:text-[#EDE8E1] hover:bg-white/[0.05] animate-in slide-in-from-bottom-3 duration-300"
                 >
                   {link.label}
                 </Link>
@@ -327,13 +339,13 @@ export default function Navbar() {
               <Link
                 href="/joint-ventures"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between px-4 py-3.5 rounded-xl title-4 bg-emerald-950/60 text-emerald-300 border border-emerald-800 font-semibold"
+                className="flex items-center justify-between px-4 py-3.5 rounded-xl text-sm bg-emerald-950/60 text-emerald-300 border border-emerald-600/40 font-semibold"
               >
                 <span className="flex items-center gap-2">
                   <Briefcase className="w-4 h-4" />
                   Joint Ventures
                 </span>
-                <span className="caption-4 bg-emerald-900 text-emerald-200 px-2 py-0.5 rounded font-bold">
+                <span className="text-[10px] bg-emerald-900 text-emerald-200 px-2 py-0.5 rounded font-bold border border-emerald-500/30">
                   BUILDER ONLY
                 </span>
               </Link>
@@ -341,9 +353,9 @@ export default function Navbar() {
               <Link
                 href="/submit-property"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-2 px-4 py-3.5 rounded-xl title-4 bg-[#272727] text-white font-semibold border border-[#313131]"
+                className="flex items-center gap-2 px-4 py-3.5 rounded-xl text-sm liquid-glass text-[#EDE8E1] font-semibold border-white/20"
               >
-                <PlusCircle className="w-4 h-4 text-blue-400" />
+                <PlusCircle className="w-4 h-4 text-[#CC785C]" />
                 Submit Property for Admin Review
               </Link>
             </div>

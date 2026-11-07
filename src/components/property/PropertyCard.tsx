@@ -14,7 +14,7 @@ import {
   Send, 
   Check, 
   Sparkles,
-  ArrowRight
+  ArrowUpRight
 } from "lucide-react";
 import InquiryModal from "../inquiry/InquiryModal";
 
@@ -33,25 +33,29 @@ export default function PropertyCard({ property, onCompareToggle, isCompared }: 
 
   return (
     <>
-      <div className="group bg-[#181818] rounded-3xl border border-[#272727] hover:border-[#3a3a3a] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] overflow-hidden flex flex-col justify-between shadow-xl">
+      <div className="group liquid-glass liquid-glass-interactive rounded-3xl overflow-hidden flex flex-col justify-between relative transform-gpu">
         <div>
           {/* Cover Media */}
-          <div className="relative aspect-[16/10] overflow-hidden bg-[#1F1F1F]">
+          <div className="relative aspect-[16/10] overflow-hidden bg-[#121215]">
             <Image
               src={coverImage}
               alt={property.title}
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              className="object-cover group-hover:scale-105 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
+              className="object-cover group-hover:scale-105 transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
             />
+            {/* Ambient glass tint overlay on image */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#08080A]/80 via-transparent to-black/20" />
 
             {/* Badges Overlay */}
             <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 z-10">
-              <span className="px-2.5 py-1 rounded-lg caption-3 font-semibold uppercase tracking-wider bg-[#181818]/90 text-white backdrop-blur-md border border-[#272727]">
+              <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wider liquid-glass-pill text-[#EDE8E1]">
                 {property.category.replace("_", " ")}
               </span>
-              <span className={`px-2.5 py-1 rounded-lg caption-3 font-semibold uppercase tracking-wider text-white backdrop-blur-md ${
-                property.transactionType === "SALE" ? "bg-blue-600/90" : "bg-emerald-600/90"
+              <span className={`px-2.5 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wider text-white backdrop-blur-md ${
+                property.transactionType === "SALE" 
+                  ? "bg-[#CC785C]/80 border border-[#CC785C]/40" 
+                  : "bg-emerald-600/80 border border-emerald-400/40"
               }`}>
                 For {property.transactionType}
               </span>
@@ -64,10 +68,10 @@ export default function PropertyCard({ property, onCompareToggle, isCompared }: 
                   type="button"
                   onClick={() => onCompareToggle(property.id)}
                   title="Compare specifications"
-                  className={`p-2 rounded-xl backdrop-blur-md transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] active:scale-[0.98] ${
+                  className={`p-2 rounded-xl backdrop-blur-md transition-all duration-300 active:scale-[0.98] ${
                     isCompared
-                      ? "bg-blue-600 text-white"
-                      : "bg-[#181818]/80 hover:bg-[#181818] text-[#9B9B9B] hover:text-white border border-[#272727]"
+                      ? "bg-[#CC785C] text-white border border-white/30 shadow-md"
+                      : "liquid-glass text-[#A39E96] hover:text-[#EDE8E1] hover:border-white/30"
                   }`}
                 >
                   <Check className="w-4 h-4" />
@@ -77,10 +81,10 @@ export default function PropertyCard({ property, onCompareToggle, isCompared }: 
               <button
                 type="button"
                 onClick={() => toggleFavourite(property.id)}
-                className={`p-2 rounded-xl backdrop-blur-md transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] active:scale-[0.98] ${
+                className={`p-2 rounded-xl backdrop-blur-md transition-all duration-300 active:scale-[0.98] ${
                   isFav
-                    ? "bg-red-600 text-white"
-                    : "bg-[#181818]/80 hover:bg-[#181818] text-[#9B9B9B] hover:text-white border border-[#272727]"
+                    ? "bg-red-500/90 text-white border border-red-400/40"
+                    : "liquid-glass text-[#A39E96] hover:text-[#EDE8E1] hover:border-white/30"
                 }`}
                 title={isFav ? "Saved to favourites" : "Save property"}
               >
@@ -90,32 +94,32 @@ export default function PropertyCard({ property, onCompareToggle, isCompared }: 
 
             {/* Subtype bottom badge */}
             <div className="absolute bottom-3 left-3 z-10">
-              <span className="caption-4 text-white font-medium bg-[#181818]/80 px-2 py-0.5 rounded-md backdrop-blur-sm border border-[#272727]">
+              <span className="text-xs text-[#EDE8E1] font-medium liquid-glass-pill px-2.5 py-0.5 rounded-full">
                 {property.subtype}
               </span>
             </div>
           </div>
 
           {/* Details Body */}
-          <div className="p-6 space-y-4">
+          <div className="p-5 sm:p-6 space-y-3.5">
             {/* Location */}
-            <div className="flex items-center gap-1.5 caption-4 text-[#9B9B9B]">
-              <MapPin className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+            <div className="flex items-center gap-1.5 text-xs text-[#A39E96]">
+              <MapPin className="w-3.5 h-3.5 text-[#CC785C] shrink-0" />
               <span className="truncate">{property.locality}, {property.city}</span>
             </div>
 
-            {/* Title */}
-            <Link href={`/properties/${property.slug}`}>
-              <h3 className="title-2 text-white group-hover:text-blue-400 transition-colors duration-300 line-clamp-2 leading-snug">
+            {/* Title - Claude Serif typography */}
+            <Link href={`/properties/${property.slug}`} className="block group/link">
+              <h3 className="font-claude-serif text-lg font-semibold text-[#EDE8E1] group-hover/link:text-[#CC785C] transition-colors duration-300 line-clamp-2 leading-snug">
                 {property.title}
               </h3>
             </Link>
 
             {/* Spec Bar */}
-            <div className="pt-3 border-t border-[#272727] flex items-center gap-4 caption-2 text-[#9B9B9B] flex-wrap">
+            <div className="pt-3 border-t border-white/[0.08] flex items-center gap-3 text-xs text-[#A39E96] flex-wrap">
               {(property.builtUpArea || property.plotArea) && (
                 <div className="flex items-center gap-1">
-                  <Maximize2 className="w-3.5 h-3.5 text-[#666666]" />
+                  <Maximize2 className="w-3.5 h-3.5 text-[#706D67]" />
                   <span>
                     {(property.builtUpArea || property.plotArea)?.toLocaleString()} {property.areaUnit}
                   </span>
@@ -123,18 +127,18 @@ export default function PropertyCard({ property, onCompareToggle, isCompared }: 
               )}
               {property.bedrooms && (
                 <div className="flex items-center gap-1">
-                  <Bed className="w-3.5 h-3.5 text-[#666666]" />
+                  <Bed className="w-3.5 h-3.5 text-[#706D67]" />
                   <span>{property.bedrooms} BHK</span>
                 </div>
               )}
               {property.bathrooms && (
                 <div className="flex items-center gap-1">
-                  <Bath className="w-3.5 h-3.5 text-[#666666]" />
+                  <Bath className="w-3.5 h-3.5 text-[#706D67]" />
                   <span>{property.bathrooms} Baths</span>
                 </div>
               )}
               {property.furnishing && (
-                <div className="caption-5 text-[#9B9B9B] bg-[#1F1F1F] border border-[#272727] px-2 py-0.5 rounded-md">
+                <div className="text-[11px] text-[#A39E96] liquid-glass px-2 py-0.5 rounded-md">
                   {property.furnishing.replace("_", " ")}
                 </div>
               )}
@@ -143,13 +147,13 @@ export default function PropertyCard({ property, onCompareToggle, isCompared }: 
         </div>
 
         {/* Pricing Policy Status & CTAs */}
-        <div className="p-6 pt-0 space-y-3">
-          <div className="flex items-center justify-between pt-3 border-t border-[#272727]">
-            <span className="caption-4 uppercase tracking-wider text-[#666666] font-bold">
-              Pricing Status
+        <div className="p-5 sm:p-6 pt-0 space-y-3">
+          <div className="flex items-center justify-between pt-3 border-t border-white/[0.08]">
+            <span className="text-[10px] uppercase tracking-wider text-[#706D67] font-bold">
+              Pricing Policy
             </span>
-            <span className="caption-4 text-blue-400 bg-blue-950/40 border border-blue-900/50 px-2 py-0.5 rounded-md font-semibold flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-blue-400" />
+            <span className="text-xs text-[#CC785C] liquid-glass-pill px-2.5 py-0.5 rounded-full font-medium flex items-center gap-1 border-[#CC785C]/30">
+              <Sparkles className="w-3 h-3 text-[#CC785C]" />
               Inquire for Schedule
             </span>
           </div>
@@ -157,17 +161,18 @@ export default function PropertyCard({ property, onCompareToggle, isCompared }: 
           <div className="grid grid-cols-2 gap-2">
             <Link
               href={`/properties/${property.slug}`}
-              className="py-2 px-3 rounded-xl button-sm text-center bg-[#1F1F1F] hover:bg-[#272727] text-white border border-[#272727] transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] active:scale-[0.98] flex items-center justify-center"
+              className="py-2 px-3 rounded-xl text-xs font-semibold text-center liquid-glass hover:border-white/30 text-[#EDE8E1] transition-all duration-300 active:scale-[0.98] flex items-center justify-center gap-1"
             >
-              View Specs
+              <span>View Specs</span>
+              <ArrowUpRight className="w-3.5 h-3.5 text-[#A39E96]" />
             </Link>
             <button
               type="button"
               onClick={() => setInquiryOpen(true)}
-              className="py-2 px-3 rounded-xl button-sm text-center bg-blue-600 hover:bg-blue-500 text-white transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] active:scale-[0.98] flex items-center justify-center gap-1.5"
+              className="py-2 px-3 rounded-xl text-xs font-semibold text-center liquid-glass-btn-accent text-white transition-all duration-300 active:scale-[0.98] flex items-center justify-center gap-1.5"
             >
               <Send className="w-3.5 h-3.5" />
-              <span>Get Price</span>
+              <span>Get Pricing</span>
             </button>
           </div>
         </div>

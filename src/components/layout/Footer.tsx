@@ -4,21 +4,23 @@ import { Building2, ShieldCheck, Mail, Phone, MapPin } from "lucide-react";
 
 export default function Footer() {
   return (
-    <footer className="bg-[#181818] text-[#9B9B9B] border-t border-[#272727] mt-32">
+    <footer className="mt-32 relative border-t border-white/[0.08] bg-[#08080A]/90 backdrop-blur-xl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
           {/* Brand info */}
           <div className="space-y-4">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-white text-black flex items-center justify-center font-bold">
-                <Building2 className="w-4 h-4" />
+              <div className="w-8 h-8 rounded-xl liquid-glass text-[#EDE8E1] flex items-center justify-center font-bold border border-white/20">
+                <Building2 className="w-4 h-4 text-[#CC785C]" />
               </div>
-              <span className="title-2 text-white font-bold tracking-tight">PROPDESK</span>
+              <span className="font-claude-serif text-xl font-semibold tracking-tight text-[#EDE8E1]">
+                PropDesk<span className="text-[#CC785C]">.</span>
+              </span>
             </div>
-            <p className="body-6 text-[#9B9B9B] leading-relaxed">
-              Curated Indian real estate discovery and advisory platform. Inquiry led pricing and role aware inventory for buyers, investors, and builders.
+            <p className="text-xs text-[#A39E96] leading-relaxed">
+              Curated Indian real estate discovery & discreet advisory platform. Inquiry-led pricing schedules, certified title records, and builder-only joint ventures.
             </p>
-            <div className="inline-flex items-center gap-2 caption-3 text-emerald-400 bg-emerald-950/40 border border-emerald-900/60 px-2.5 py-1 rounded-lg">
+            <div className="inline-flex items-center gap-2 text-xs text-emerald-400 liquid-glass-pill px-3 py-1 rounded-full border-emerald-500/30">
               <ShieldCheck className="w-3.5 h-3.5" />
               <span>Admin Curated Mandates</span>
             </div>
@@ -26,33 +28,33 @@ export default function Footer() {
 
           {/* Categories */}
           <div>
-            <h4 className="caption-3 uppercase tracking-wider text-white font-bold mb-4">
+            <h4 className="text-[11px] uppercase tracking-wider text-[#EDE8E1] font-bold mb-4 font-claude-sans">
               Inventory Categories
             </h4>
-            <ul className="space-y-2.5 body-5">
+            <ul className="space-y-2.5 text-xs text-[#A39E96]">
               <li>
-                <Link href="/properties?category=RESIDENTIAL" className="hover:text-white transition-colors duration-300">
-                  Residential Apartments and Villas
+                <Link href="/properties?category=RESIDENTIAL" className="hover:text-[#EDE8E1] transition-colors duration-300">
+                  Residential Apartments & Signature Villas
                 </Link>
               </li>
               <li>
-                <Link href="/properties?category=COMMERCIAL" className="hover:text-white transition-colors duration-300">
-                  Grade A Offices and High Street Retail
+                <Link href="/properties?category=COMMERCIAL" className="hover:text-[#EDE8E1] transition-colors duration-300">
+                  Grade A Offices & High Street Retail
                 </Link>
               </li>
               <li>
-                <Link href="/properties?category=MIXED_USE" className="hover:text-white transition-colors duration-300">
-                  Mixed Use Towers
+                <Link href="/properties?category=MIXED_USE" className="hover:text-[#EDE8E1] transition-colors duration-300">
+                  Mixed Use Towers & Integrated Hubs
                 </Link>
               </li>
               <li>
-                <Link href="/properties?category=INDUSTRIAL" className="hover:text-white transition-colors duration-300">
-                  Industrial Logistics and PEB Sheds
+                <Link href="/properties?category=INDUSTRIAL" className="hover:text-[#EDE8E1] transition-colors duration-300">
+                  Industrial Logistics & PEB Sheds
                 </Link>
               </li>
               <li>
-                <Link href="/properties?category=LAND" className="hover:text-white transition-colors duration-300">
-                  Commercial and Freehold Land Parcels
+                <Link href="/properties?category=LAND" className="hover:text-[#EDE8E1] transition-colors duration-300">
+                  Commercial & Freehold Land Parcels
                 </Link>
               </li>
               <li>
@@ -65,57 +67,56 @@ export default function Footer() {
 
           {/* Pricing Transparency Policy */}
           <div>
-            <h4 className="caption-3 uppercase tracking-wider text-white font-bold mb-4">
+            <h4 className="text-[11px] uppercase tracking-wider text-[#EDE8E1] font-bold mb-4 font-claude-sans">
               Pricing Integrity Standard
             </h4>
-            <p className="body-6 text-[#9B9B9B] leading-relaxed mb-3">
-              Unlike open listing portals where speculative rates circulate, PropDesk maintains private, admin verified pricing schedules. Certified valuations and title documents are shared upon qualified inquiry.
+            <p className="text-xs text-[#A39E96] leading-relaxed mb-3">
+              Unlike open listing portals where speculative rates circulate, PropDesk maintains private, admin-verified pricing schedules. Certified valuations and title documents are shared upon qualified inquiry.
             </p>
-            <div className="bg-[#1F1F1F] border border-[#272727] rounded-xl p-3 caption-4 text-[#9B9B9B]">
-              <strong className="text-white block mb-0.5">Response Time Target:</strong>
+            <div className="liquid-glass rounded-xl p-3 text-xs text-[#A39E96] border border-white/[0.08]">
+              <strong className="text-[#EDE8E1] block mb-0.5">Response Time Target:</strong>
               Submissions receive verified pricing details within business hours.
             </div>
           </div>
 
           {/* Contact & Submissions */}
           <div>
-            <h4 className="caption-3 uppercase tracking-wider text-white font-bold mb-4">
+            <h4 className="text-[11px] uppercase tracking-wider text-[#EDE8E1] font-bold mb-4 font-claude-sans">
               Advisory Desk
             </h4>
-            <ul className="space-y-3 body-6 text-[#9B9B9B]">
+            <ul className="space-y-3 text-xs text-[#A39E96]">
               <li className="flex items-start gap-2.5">
-                <MapPin className="w-4 h-4 text-white shrink-0 mt-0.5" />
+                <MapPin className="w-4 h-4 text-[#CC785C] shrink-0 mt-0.5" />
                 <span>Pan India Operations: Mumbai, Bengaluru, Delhi NCR, Pune, Hyderabad</span>
               </li>
               <li className="flex items-center gap-2.5">
-                <Mail className="w-4 h-4 text-white shrink-0" />
+                <Mail className="w-4 h-4 text-[#CC785C] shrink-0" />
                 <span>advisory@propdesk.demo</span>
               </li>
               <li className="flex items-center gap-2.5">
-                <Phone className="w-4 h-4 text-white shrink-0" />
+                <Phone className="w-4 h-4 text-[#CC785C] shrink-0" />
                 <span>+91 80000 00000 (Central Desk)</span>
               </li>
             </ul>
-            <div className="mt-4 pt-3 border-t border-[#272727]">
+            <div className="mt-4 pt-3 border-t border-white/[0.08]">
               <Link
                 href="/submit-property"
-                className="body-5 text-blue-400 hover:text-blue-300 transition-colors inline-block font-semibold"
+                className="text-xs text-[#CC785C] hover:text-[#D9886D] transition-colors inline-block font-semibold"
               >
-                Owner or Mandated Broker? Submit your asset for review &rarr;
+                Owner or Mandated Broker? Submit asset for review &rarr;
               </Link>
             </div>
           </div>
         </div>
 
-        <div className="mt-16 pt-8 border-t border-[#272727] flex flex-col sm:flex-row items-center justify-between caption-4 text-[#666666] gap-4">
+        <div className="mt-16 pt-8 border-t border-white/[0.08] flex flex-col sm:flex-row items-center justify-between text-xs text-[#706D67] gap-4">
           <p>© {new Date().getFullYear()} PropDesk Discovery Platform. All rights reserved.</p>
           <div className="flex items-center gap-6">
-            <Link href="/privacy" className="hover:text-[#9B9B9B] transition-colors">Privacy Policy</Link>
-            <Link href="/terms" className="hover:text-[#9B9B9B] transition-colors">Terms of Service</Link>
-            <span className="text-[#313131]">•</span>
-            <span className="text-[#9B9B9B]">Zero Public Prices</span>
-            <span className="text-[#313131]">•</span>
-            <span className="text-[#9B9B9B]">Builder Protected JV</span>
+            <Link href="/properties" className="hover:text-[#A39E96] transition-colors">Catalogue</Link>
+            <span className="text-white/10">•</span>
+            <span className="text-[#A39E96]">Zero Public Prices</span>
+            <span className="text-white/10">•</span>
+            <span className="text-[#A39E96]">Builder Protected JV</span>
           </div>
         </div>
       </div>

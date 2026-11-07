@@ -143,24 +143,24 @@ export default function InquiryModal({ isOpen, onClose, property, jvOpportunity 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="relative w-full max-w-lg bg-[#181818] rounded-3xl shadow-2xl border border-[#272727] overflow-hidden max-h-[90vh] flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl animate-in fade-in duration-200">
+      <div className="relative w-full max-w-lg liquid-glass-elevated rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 pb-4 border-b border-[#272727] bg-[#1F1F1F]">
+        <div className="flex items-center justify-between p-6 pb-4 border-b border-white/[0.08] liquid-glass">
           <div>
-            <span className="caption-5 font-bold uppercase tracking-wider text-blue-400 bg-blue-950/60 border border-blue-900/50 px-2 py-0.5 rounded">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#CC785C] liquid-glass-pill px-2.5 py-0.5 rounded-full border-[#CC785C]/30">
               {jvOpportunity ? "Builder JV Inquiry" : "Price & Advisory Request"}
             </span>
-            <h3 className="title-2 font-bold text-white mt-1 line-clamp-1">
+            <h3 className="font-claude-serif text-lg font-semibold text-[#EDE8E1] mt-1.5 line-clamp-1">
               {property?.title || jvOpportunity?.title || "Property Inquiry"}
             </h3>
-            <p className="caption-3 text-[#9B9B9B]">
+            <p className="text-xs text-[#A39E96]">
               {property ? `${property.locality}, ${property.city}` : jvOpportunity ? `${jvOpportunity.location}, ${jvOpportunity.city}` : ""}
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-full text-[#9B9B9B] hover:text-white hover:bg-[#272727]"
+            className="p-1.5 rounded-full text-[#A39E96] hover:text-[#EDE8E1] hover:bg-white/[0.05]"
           >
             <X className="w-5 h-5" />
           </button>
@@ -170,33 +170,33 @@ export default function InquiryModal({ isOpen, onClose, property, jvOpportunity 
         <div className="p-6 overflow-y-auto">
           {successReference ? (
             <div className="text-center py-6 space-y-4">
-              <div className="w-16 h-16 bg-emerald-950/80 text-emerald-400 rounded-2xl flex items-center justify-center mx-auto border border-emerald-800">
+              <div className="w-16 h-16 liquid-glass text-emerald-400 rounded-2xl flex items-center justify-center mx-auto border border-emerald-500/40 shadow-lg">
                 <CheckCircle2 className="w-8 h-8" />
               </div>
               <div className="space-y-1">
-                <h4 className="title-1 font-bold text-white">Inquiry Received</h4>
-                <p className="body-5 text-[#9B9B9B] max-w-sm mx-auto text-pretty">
+                <h4 className="font-claude-serif text-2xl font-semibold text-[#EDE8E1]">Inquiry Received</h4>
+                <p className="text-xs sm:text-sm text-[#A39E96] max-w-sm mx-auto leading-relaxed">
                   Your inquiry has been routed to our property advisory desk. A representative will contact you with official pricing schedules and verified documentation.
                 </p>
               </div>
 
-              <div className="bg-[#1F1F1F] border border-[#272727] rounded-2xl p-4 max-w-xs mx-auto">
-                <div className="caption-4 uppercase tracking-wider text-[#666666] font-bold">
+              <div className="liquid-glass rounded-2xl p-4 max-w-xs mx-auto border-white/[0.08]">
+                <div className="text-[10px] uppercase tracking-wider text-[#706D67] font-bold">
                   Public Inquiry Reference
                 </div>
-                <div className="heading-4 font-mono font-bold text-blue-400 mt-1">
+                <div className="text-xl font-mono font-bold text-[#CC785C] mt-1">
                   {successReference}
                 </div>
               </div>
 
-              <div className="flex items-center justify-center gap-2 caption-3 text-[#666666] pt-2">
-                <Clock className="w-4 h-4 text-blue-400" />
+              <div className="flex items-center justify-center gap-2 text-xs text-[#706D67] pt-2">
+                <Clock className="w-4 h-4 text-[#CC785C]" />
                 <span>Operational Target: Response within business hours</span>
               </div>
 
               <button
                 onClick={onClose}
-                className="w-full mt-4 py-3 bg-white text-black button-sm rounded-xl font-semibold transition-all active:scale-[0.98]"
+                className="w-full mt-4 py-3 liquid-glass-btn-accent text-white text-xs font-semibold rounded-xl transition-all active:scale-[0.98]"
               >
                 Close & Return to Browsing
               </button>
@@ -204,16 +204,16 @@ export default function InquiryModal({ isOpen, onClose, property, jvOpportunity 
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
-                <div className="p-3 bg-red-950/40 text-red-300 caption-3 rounded-xl border border-red-900">
+                <div className="p-3 bg-red-950/40 text-red-300 text-xs rounded-xl border border-red-900/60">
                   {error}
                 </div>
               )}
 
               {/* Informative notice on pricing */}
-              <div className="bg-[#1F1F1F] border border-[#272727] rounded-2xl p-4 flex items-start gap-3 text-xs text-[#9B9B9B]">
-                <ShieldCheck className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
+              <div className="liquid-glass rounded-2xl p-4 flex items-start gap-3 text-xs text-[#A39E96] border-white/[0.08]">
+                <ShieldCheck className="w-4 h-4 text-[#CC785C] shrink-0 mt-0.5" />
                 <div>
-                  <strong className="text-white block font-bold mb-0.5">Inquiry Led Pricing Model</strong>
+                  <strong className="text-[#EDE8E1] block font-bold mb-0.5 font-claude-sans">Inquiry-Led Pricing Model</strong>
                   Prices are not displayed publicly. Complete this inquiry to receive verified owner pricing, payment plans, and inspection scheduling.
                 </div>
               </div>
@@ -221,7 +221,7 @@ export default function InquiryModal({ isOpen, onClose, property, jvOpportunity 
               {/* Intent Selection */}
               {!jvOpportunity && (
                 <div className="space-y-1.5">
-                  <label className="caption-3 uppercase text-[#666666] font-bold block">
+                  <label className="text-[10px] uppercase text-[#706D67] font-bold block">
                     Your Participant Category
                   </label>
                   <div className="grid grid-cols-3 gap-2">
@@ -230,10 +230,10 @@ export default function InquiryModal({ isOpen, onClose, property, jvOpportunity 
                         key={cat}
                         type="button"
                         onClick={() => setIntent(cat)}
-                        className={`py-2 px-3 rounded-xl border button-xsm transition-all duration-300 ${
+                        className={`py-2 px-3 rounded-xl text-xs transition-all duration-300 font-medium ${
                           intent === cat
-                            ? "bg-white text-black font-semibold shadow-sm"
-                            : "border-[#272727] bg-[#1F1F1F] text-[#9B9B9B] hover:text-white"
+                            ? "liquid-glass-btn-accent text-white font-semibold shadow-sm"
+                            : "liquid-glass text-[#A39E96] hover:text-[#EDE8E1]"
                         }`}
                       >
                         {cat === "BUY" ? "Buyer" : cat === "RENT" ? "Tenant" : "Investor"}
@@ -246,33 +246,33 @@ export default function InquiryModal({ isOpen, onClose, property, jvOpportunity 
               {/* Contextual Questions */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="caption-3 uppercase text-[#666666] font-bold block">
+                  <label className="text-[10px] uppercase text-[#706D67] font-bold block">
                     Timeline
                   </label>
                   <select
                     value={timeline}
                     onChange={(e) => setTimeline(e.target.value)}
-                    className="w-full p-2.5 bg-[#1F1F1F] border border-[#272727] rounded-xl body-5 text-white focus:outline-none"
+                    className="w-full p-2.5 liquid-glass-input rounded-xl text-xs text-[#EDE8E1] focus:outline-none"
                   >
-                    <option>Immediate (within 30 days)</option>
-                    <option>1 to 3 months</option>
-                    <option>3 to 6 months</option>
-                    <option>Exploring / Long term</option>
+                    <option className="bg-[#121215]">Immediate (within 30 days)</option>
+                    <option className="bg-[#121215]">1 to 3 months</option>
+                    <option className="bg-[#121215]">3 to 6 months</option>
+                    <option className="bg-[#121215]">Exploring / Long term</option>
                   </select>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="caption-3 uppercase text-[#666666] font-bold block">
+                  <label className="text-[10px] uppercase text-[#706D67] font-bold block">
                     Objective
                   </label>
                   <select
                     value={purpose}
                     onChange={(e) => setPurpose(e.target.value)}
-                    className="w-full p-2.5 bg-[#1F1F1F] border border-[#272727] rounded-xl body-5 text-white focus:outline-none"
+                    className="w-full p-2.5 liquid-glass-input rounded-xl text-xs text-[#EDE8E1] focus:outline-none"
                   >
-                    <option>Self use / Primary residence</option>
-                    <option>Rental yield / Investment</option>
-                    <option>Corporate / Commercial operations</option>
+                    <option className="bg-[#121215]">Self use / Primary residence</option>
+                    <option className="bg-[#121215]">Rental yield / Investment</option>
+                    <option className="bg-[#121215]">Corporate / Commercial operations</option>
                   </select>
                 </div>
               </div>
@@ -280,29 +280,29 @@ export default function InquiryModal({ isOpen, onClose, property, jvOpportunity 
               {/* Contact Information */}
               <div className="space-y-3 pt-1">
                 <div className="space-y-1">
-                  <label className="caption-3 uppercase text-[#666666] font-bold block">
+                  <label className="text-[10px] uppercase text-[#706D67] font-bold block">
                     Your Full Name
                   </label>
                   <div className="relative">
-                    <UserIcon className="w-4 h-4 text-[#666666] absolute left-3 top-3 pointer-events-none" />
+                    <UserIcon className="w-4 h-4 text-[#706D67] absolute left-3 top-3 pointer-events-none" />
                     <input
                       type="text"
                       value={contactName}
                       onChange={(e) => setContactName(e.target.value)}
                       placeholder="e.g. Arjun Verma"
                       required
-                      className="w-full pl-9 pr-3 py-2 bg-[#1F1F1F] border border-[#272727] rounded-xl body-5 text-white focus:outline-none"
+                      className="w-full pl-9 pr-3 py-2 liquid-glass-input rounded-xl text-xs sm:text-sm text-[#EDE8E1] focus:outline-none"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="caption-3 uppercase text-[#666666] font-bold block">
+                    <label className="text-[10px] uppercase text-[#706D67] font-bold block">
                       Email Address
                     </label>
                     <div className="relative">
-                      <Mail className="w-4 h-4 text-[#666666] absolute left-3 top-3 pointer-events-none" />
+                      <Mail className="w-4 h-4 text-[#706D67] absolute left-3 top-3 pointer-events-none" />
                       <input
                         type="email"
                         value={contactEmail}
@@ -310,31 +310,31 @@ export default function InquiryModal({ isOpen, onClose, property, jvOpportunity 
                         placeholder="name@example.com"
                         required
                         disabled={!!user}
-                        className="w-full pl-9 pr-3 py-2 bg-[#1F1F1F] border border-[#272727] rounded-xl body-5 text-white focus:outline-none disabled:opacity-60"
+                        className="w-full pl-9 pr-3 py-2 liquid-glass-input rounded-xl text-xs text-[#EDE8E1] focus:outline-none disabled:opacity-60"
                       />
                     </div>
                   </div>
 
                   <div className="space-y-1">
-                    <label className="caption-3 uppercase text-[#666666] font-bold block">
+                    <label className="text-[10px] uppercase text-[#706D67] font-bold block">
                       Phone Number (For Price Call)
                     </label>
                     <div className="relative">
-                      <Phone className="w-4 h-4 text-[#666666] absolute left-3 top-3 pointer-events-none" />
+                      <Phone className="w-4 h-4 text-[#706D67] absolute left-3 top-3 pointer-events-none" />
                       <input
                         type="tel"
                         value={contactPhone}
                         onChange={(e) => setContactPhone(e.target.value)}
                         placeholder="+91 98765 43210"
                         required
-                        className="w-full pl-9 pr-3 py-2 bg-[#1F1F1F] border border-[#272727] rounded-xl body-5 text-white focus:outline-none"
+                        className="w-full pl-9 pr-3 py-2 liquid-glass-input rounded-xl text-xs text-[#EDE8E1] focus:outline-none"
                       />
                     </div>
                   </div>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="caption-3 uppercase text-[#666666] font-bold block">
+                  <label className="text-[10px] uppercase text-[#706D67] font-bold block">
                     Specific Requirements or Questions
                   </label>
                   <textarea
@@ -342,16 +342,16 @@ export default function InquiryModal({ isOpen, onClose, property, jvOpportunity 
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     required
-                    className="w-full p-2.5 bg-[#1F1F1F] border border-[#272727] rounded-xl body-5 text-white focus:outline-none"
+                    className="w-full p-2.5 liquid-glass-input rounded-xl text-xs text-[#EDE8E1] focus:outline-none"
                   />
                 </div>
               </div>
 
               {/* In-modal OTP Step for guests */}
               {!user && otpStep && (
-                <div className="bg-[#1F1F1F] p-4 rounded-2xl border border-[#272727] space-y-2">
-                  <div className="caption-3 font-bold text-white flex items-center gap-2">
-                    <KeyRound className="w-4 h-4 text-blue-400" />
+                <div className="liquid-glass p-4 rounded-2xl border-white/[0.1] space-y-2">
+                  <div className="text-xs font-bold text-[#EDE8E1] flex items-center gap-2">
+                    <KeyRound className="w-4 h-4 text-[#CC785C]" />
                     Enter 6-Digit Email Code
                   </div>
                   <input
@@ -360,17 +360,17 @@ export default function InquiryModal({ isOpen, onClose, property, jvOpportunity 
                     value={otpCode}
                     onChange={(e) => setOtpCode(e.target.value)}
                     placeholder="123456"
-                    className="w-full p-2.5 bg-[#181818] border border-[#272727] rounded-xl text-center font-mono text-base tracking-widest text-white focus:outline-none"
+                    className="w-full p-2.5 liquid-glass-input rounded-xl text-center font-mono text-base tracking-widest text-[#EDE8E1] focus:outline-none"
                   />
                   {demoOtpHint && (
-                    <div className="caption-4 text-[#9B9B9B] flex justify-between items-center">
+                    <div className="text-xs text-[#A39E96] flex justify-between items-center">
                       <span>{demoOtpHint}</span>
                       <button
                         type="button"
                         onClick={() => setOtpCode("123456")}
-                        className="text-blue-400 font-bold underline"
+                        className="text-[#CC785C] font-bold underline"
                       >
-                        Auto fill
+                        Auto-fill
                       </button>
                     </div>
                   )}
@@ -379,13 +379,13 @@ export default function InquiryModal({ isOpen, onClose, property, jvOpportunity 
 
               {/* Mandatory Consent Checkbox */}
               <div className="pt-1">
-                <label className="flex items-start gap-2.5 caption-4 text-[#9B9B9B] cursor-pointer">
+                <label className="flex items-start gap-2.5 text-xs text-[#A39E96] cursor-pointer">
                   <input
                     type="checkbox"
                     checked={consentAgreed}
                     onChange={(e) => setConsentAgreed(e.target.checked)}
                     required
-                    className="mt-0.5 rounded border-[#272727] bg-[#1F1F1F] text-blue-600 focus:ring-0"
+                    className="mt-0.5 rounded border-white/20 bg-white/5 text-[#CC785C] focus:ring-0"
                   />
                   <span className="leading-tight">
                     I consent to being contacted by PropDesk representatives regarding this property and private pricing details.
@@ -397,7 +397,7 @@ export default function InquiryModal({ isOpen, onClose, property, jvOpportunity 
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full py-3 bg-white hover:bg-[#e0e0e0] text-black button-sm rounded-xl font-bold shadow-md transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                className="w-full py-3 liquid-glass-btn-accent text-white text-xs font-semibold rounded-xl shadow-md transition-all active:scale-[0.98] flex items-center justify-center gap-2"
               >
                 {submitting ? (
                   "Processing Inquiry..."

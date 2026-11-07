@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { PublicPropertyDTO } from "@/types";
 import PropertyCard from "@/components/property/PropertyCard";
 import ComparisonDrawer from "@/components/property/ComparisonDrawer";
@@ -21,8 +20,8 @@ import {
   Factory,
   Layers,
   CheckCircle2,
-  HelpCircle,
-  ChevronDown
+  ChevronDown,
+  Sparkles
 } from "lucide-react";
 
 export default function HomePage() {
@@ -83,7 +82,7 @@ export default function HomePage() {
   const faqs = [
     {
       q: "Why are property prices not displayed publicly on PropDesk?",
-      a: "Open portals display obsolete and unverified prices that lead to commercial dispute and market distortion. PropDesk operates an inquiry led pricing model where certified schedules and payment milestones are provided directly by our advisory desk upon complete inquiry."
+      a: "Open portals display obsolete and speculative rates that degrade asset prestige and lead to commercial misalignments. PropDesk operates an inquiry-led pricing model where certified valuations and payment milestones are provided directly by our advisory desk upon complete inquiry."
     },
     {
       q: "Who is allowed to access Joint Venture opportunities?",
@@ -108,53 +107,56 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="space-y-24 pb-24">
-      {/* Hero Section per A2 and B5 */}
-      <section className="pt-20 pb-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-[680px] mx-auto text-center space-y-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#181818] border border-[#272727] text-[#9B9B9B] caption-3">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            Curated Indian Real Estate Discovery
+    <div className="space-y-24 pb-28">
+      {/* Hero Section with Claude Editorial Typography & Liquid Glass */}
+      <section className="pt-20 sm:pt-28 pb-16 px-4 sm:px-6 lg:px-8 relative">
+        <div className="max-w-4xl mx-auto text-center space-y-7">
+          {/* Eyebrow Pill */}
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full liquid-glass-pill text-[#EDE8E1] text-xs">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#CC785C] animate-pulse" />
+            <span className="font-medium text-[#EDE8E1]">Curated Indian Real Estate</span>
+            <span className="text-[#706D67]">•</span>
+            <span className="text-[#A39E96]">Strict Discretion Assured</span>
           </div>
 
-          {/* Heading 1 with left to right text gradient (#FFFFFF to #9B9B9B) and meaningful breaks */}
-          <h1 className="heading-2 sm:heading-1 hero-text-gradient tracking-tight">
-            Curated Indian inventory <br />
-            without portal spam
+          {/* Claude Signature Headline */}
+          <h1 className="font-claude-serif text-4xl sm:text-6xl md:text-7xl font-medium tracking-tight text-[#EDE8E1] leading-[1.08] text-balance">
+            Curated Indian real estate, <br />
+            <span className="italic font-normal text-[#CC785C]">refined with discretion.</span>
           </h1>
 
-          <p className="body-4 sm:body-2 text-[#9B9B9B] text-pretty">
-            Browse verified luxury residential, Grade A commercial, and land parcels across India as a guest. Receive private certified pricing upon inquiry.
+          <p className="font-claude-sans text-base sm:text-lg text-[#A39E96] max-w-2xl mx-auto leading-relaxed text-pretty">
+            Browse verified luxury residential, Grade A commercial, and prime development assets across India as a guest. Receive private certified pricing upon inquiry.
           </p>
 
-          {/* Search Box */}
-          <div className="pt-4">
-            <div className="bg-[#181818] p-2.5 rounded-2xl border border-[#272727] flex flex-col sm:flex-row gap-2 shadow-2xl">
-              <div className="flex-1 flex items-center gap-2.5 px-3 py-2 bg-[#1F1F1F] rounded-xl border border-[#272727]">
-                <MapPin className="w-4 h-4 text-blue-400 shrink-0" />
+          {/* Liquid Glass Search Container */}
+          <div className="pt-2 max-w-2xl mx-auto">
+            <div className="liquid-glass-elevated p-2.5 sm:p-3 rounded-2xl flex flex-col sm:flex-row gap-2 transition-all duration-300">
+              <div className="flex-1 flex items-center gap-2.5 px-3.5 py-2.5 liquid-glass rounded-xl border-white/[0.08]">
+                <MapPin className="w-4 h-4 text-[#CC785C] shrink-0" />
                 <input
                   type="text"
                   placeholder="City (e.g. Mumbai, Bengaluru, Pune)"
                   value={searchCity}
                   onChange={(e) => setSearchCity(e.target.value)}
-                  className="w-full bg-transparent body-5 text-white placeholder:text-[#666666] focus:outline-none"
+                  className="w-full bg-transparent text-xs sm:text-sm text-[#EDE8E1] placeholder:text-[#706D67] focus:outline-none"
                 />
               </div>
 
-              <div className="flex-1 flex items-center gap-2.5 px-3 py-2 bg-[#1F1F1F] rounded-xl border border-[#272727]">
-                <Search className="w-4 h-4 text-[#666666] shrink-0" />
+              <div className="flex-1 flex items-center gap-2.5 px-3.5 py-2.5 liquid-glass rounded-xl border-white/[0.08]">
+                <Search className="w-4 h-4 text-[#706D67] shrink-0" />
                 <input
                   type="text"
                   placeholder="Locality, project, or keyword"
                   value={searchKeyword}
                   onChange={(e) => setSearchKeyword(e.target.value)}
-                  className="w-full bg-transparent body-5 text-white placeholder:text-[#666666] focus:outline-none"
+                  className="w-full bg-transparent text-xs sm:text-sm text-[#EDE8E1] placeholder:text-[#706D67] focus:outline-none"
                 />
               </div>
 
               <Link
                 href={`/properties?city=${encodeURIComponent(searchCity)}&q=${encodeURIComponent(searchKeyword)}`}
-                className="py-2.5 px-5 bg-white hover:bg-[#e0e0e0] text-black button-sm rounded-xl transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] active:scale-[0.98] flex items-center justify-center gap-1.5 shrink-0"
+                className="py-2.5 px-6 liquid-glass-btn-accent text-white text-xs sm:text-sm font-semibold rounded-xl flex items-center justify-center gap-1.5 shrink-0 active:scale-[0.98]"
               >
                 <span>Search</span>
                 <ArrowRight className="w-4 h-4" />
@@ -163,20 +165,20 @@ export default function HomePage() {
           </div>
 
           {/* Proof signals row */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-4 text-left">
-            <div className="bg-[#181818] border border-[#272727] p-3 rounded-xl caption-4 text-[#9B9B9B] flex items-center gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-3 text-left max-w-3xl mx-auto">
+            <div className="liquid-glass p-3 rounded-xl text-xs text-[#A39E96] flex items-center gap-2">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
               <span>Guest browsing</span>
             </div>
-            <div className="bg-[#181818] border border-[#272727] p-3 rounded-xl caption-4 text-[#9B9B9B] flex items-center gap-2">
-              <Lock className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+            <div className="liquid-glass p-3 rounded-xl text-xs text-[#A39E96] flex items-center gap-2">
+              <Lock className="w-3.5 h-3.5 text-[#CC785C] shrink-0" />
               <span>Private pricing</span>
             </div>
-            <div className="bg-[#181818] border border-[#272727] p-3 rounded-xl caption-4 text-[#9B9B9B] flex items-center gap-2">
+            <div className="liquid-glass p-3 rounded-xl text-xs text-[#A39E96] flex items-center gap-2">
               <Briefcase className="w-3.5 h-3.5 text-amber-400 shrink-0" />
               <span>Builder JV area</span>
             </div>
-            <div className="bg-[#181818] border border-[#272727] p-3 rounded-xl caption-4 text-[#9B9B9B] flex items-center gap-2">
+            <div className="liquid-glass p-3 rounded-xl text-xs text-[#A39E96] flex items-center gap-2">
               <Clock className="w-3.5 h-3.5 text-purple-400 shrink-0" />
               <span>Target response</span>
             </div>
@@ -184,15 +186,15 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Mandatory B11 Tagline Reveal Section */}
+      {/* Tagline Reveal Section */}
       <TaglineReveal
-        phrase="Curated Indian real estate discovery with zero public prices, certified mandate verification, and direct advisory response."
-        subtext="Eliminating speculative listings, unverified broker cascades, and outdated rates through an admin managed catalogue."
+        phrase="Curated Indian real estate discovery with zero public prices, certified mandate verification, and confidential advisory response."
+        subtext="Eliminating speculative portal listings, unverified broker cascades, and distorted rates through an admin-managed catalog."
       />
 
       {/* Category Pills Navigation */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-[#181818] rounded-2xl border border-[#272727] p-3 sm:p-4">
+        <div className="liquid-glass rounded-2xl p-2.5 sm:p-3">
           <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
             {categories.map((cat) => {
               const Icon = cat.icon;
@@ -201,13 +203,13 @@ export default function HomePage() {
                 <button
                   key={cat.id}
                   onClick={() => setSelectedCategory(cat.id)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl button-sm shrink-0 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] active:scale-[0.98] ${
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-medium shrink-0 transition-all duration-300 active:scale-[0.98] ${
                     isSelected
-                      ? "bg-white text-black font-semibold shadow-sm"
-                      : "bg-[#1F1F1F] hover:bg-[#272727] text-[#9B9B9B] hover:text-white border border-[#272727]"
+                      ? "liquid-glass-btn-accent text-white font-semibold shadow-md"
+                      : "liquid-glass text-[#A39E96] hover:text-[#EDE8E1] hover:border-white/30"
                   }`}
                 >
-                  <Icon className={`w-4 h-4 ${isSelected ? "text-black" : "text-[#666666]"}`} />
+                  <Icon className={`w-4 h-4 ${isSelected ? "text-white" : "text-[#706D67]"}`} />
                   <span>{cat.label}</span>
                 </button>
               );
@@ -215,11 +217,11 @@ export default function HomePage() {
 
             <Link
               href="/joint-ventures"
-              className="flex items-center gap-2 px-4 py-2 rounded-xl button-sm bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 border border-emerald-800 shrink-0 ml-auto transition-all"
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm bg-emerald-950/70 hover:bg-emerald-900/80 text-emerald-300 border border-emerald-500/40 shrink-0 ml-auto transition-all"
             >
               <Briefcase className="w-4 h-4 text-emerald-400" />
               <span>Joint Ventures</span>
-              <span className="caption-5 bg-emerald-900 text-emerald-200 px-1.5 py-0.2 rounded font-bold">
+              <span className="text-[10px] bg-emerald-900 text-emerald-200 px-1.5 py-0.5 rounded font-bold border border-emerald-500/30">
                 BUILDERS
               </span>
             </Link>
@@ -231,21 +233,21 @@ export default function HomePage() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h2 className="heading-4 sm:heading-3 text-white">
+            <h2 className="font-claude-serif text-2xl sm:text-3xl font-semibold text-[#EDE8E1] tracking-tight">
               Curated Property Portfolio
             </h2>
-            <p className="body-5 text-[#9B9B9B] mt-1">
-              Admin verified listings. Inquire to receive verified private pricing schedules and inspection slots.
+            <p className="text-xs sm:text-sm text-[#A39E96] mt-1 font-claude-sans">
+              Admin-verified listings. Inquire to receive verified private pricing schedules and inspection slots.
             </p>
           </div>
 
           <div className="flex items-center gap-4">
-            <span className="caption-2 text-[#666666]">
+            <span className="text-xs text-[#706D67] liquid-glass px-2.5 py-1 rounded-full">
               {filteredProperties.length} active listings
             </span>
             <Link
               href="/properties"
-              className="button-sm text-blue-400 hover:text-blue-300 inline-flex items-center gap-1.5"
+              className="text-xs sm:text-sm text-[#CC785C] hover:text-[#D9886D] inline-flex items-center gap-1.5 font-medium"
             >
               <span>Explore all</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -256,16 +258,16 @@ export default function HomePage() {
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="h-96 rounded-3xl bg-[#181818] border border-[#272727] animate-pulse" />
+              <div key={i} className="h-96 rounded-3xl liquid-glass animate-pulse" />
             ))}
           </div>
         ) : filteredProperties.length === 0 ? (
-          <div className="text-center py-20 bg-[#181818] rounded-3xl border border-[#272727] p-8 space-y-4">
-            <div className="w-12 h-12 bg-[#1F1F1F] text-[#666666] rounded-full flex items-center justify-center mx-auto">
+          <div className="text-center py-20 liquid-glass rounded-3xl p-8 space-y-4">
+            <div className="w-12 h-12 liquid-glass text-[#706D67] rounded-full flex items-center justify-center mx-auto border border-white/10">
               <Search className="w-6 h-6" />
             </div>
-            <h3 className="title-2 text-white">No properties found</h3>
-            <p className="body-5 text-[#9B9B9B] max-w-sm mx-auto">
+            <h3 className="font-claude-serif text-xl text-[#EDE8E1]">No properties found</h3>
+            <p className="text-xs text-[#A39E96] max-w-sm mx-auto">
               Try adjusting your city filter or selecting another property category.
             </p>
             <button
@@ -274,7 +276,7 @@ export default function HomePage() {
                 setSearchCity("");
                 setSearchKeyword("");
               }}
-              className="py-2 px-4 bg-white text-black button-sm rounded-xl"
+              className="py-2 px-4 liquid-glass-btn text-[#EDE8E1] text-xs font-semibold rounded-xl"
             >
               Reset Filters
             </button>
@@ -293,89 +295,89 @@ export default function HomePage() {
         )}
       </section>
 
-      {/* Benefits Section per A2 Mid-page */}
+      {/* Benefits Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-[680px] mx-auto space-y-3 mb-12">
-          <span className="caption-3 uppercase tracking-wider text-[#9B9B9B] font-bold">
+        <div className="text-center max-w-2xl mx-auto space-y-3 mb-12">
+          <span className="text-[11px] uppercase tracking-widest text-[#CC785C] font-semibold liquid-glass-pill px-3 py-1 rounded-full">
             Platform Benefits
           </span>
-          <h2 className="heading-4 sm:heading-3 text-white">
-            Engineered for high value transaction integrity
+          <h2 className="font-claude-serif text-2xl sm:text-4xl text-[#EDE8E1] font-medium tracking-tight">
+            Engineered for high-value transaction integrity
           </h2>
-          <p className="body-5 text-[#9B9B9B]">
+          <p className="text-xs sm:text-sm text-[#A39E96] font-claude-sans">
             Three structural differentiators that separate PropDesk from open portal marketplaces.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-[#181818] border border-[#272727] rounded-3xl p-8 space-y-4">
-            <div className="w-10 h-10 rounded-xl bg-[#272727] text-white flex items-center justify-center">
+          <div className="liquid-glass liquid-glass-interactive rounded-3xl p-8 space-y-4">
+            <div className="w-10 h-10 rounded-xl liquid-glass text-white flex items-center justify-center border border-white/20">
               <ShieldCheck className="w-5 h-5 text-emerald-400" />
             </div>
-            <h3 className="title-2 text-white">Admin Only Publishing</h3>
-            <p className="body-5 text-[#9B9B9B] leading-relaxed">
+            <h3 className="font-claude-serif text-lg font-semibold text-[#EDE8E1]">Admin-Only Publishing</h3>
+            <p className="text-xs sm:text-sm text-[#A39E96] leading-relaxed">
               Every property intake is manually reviewed before public catalog listing. Fake broker inventory and duplicate listings are structurally prevented.
             </p>
           </div>
 
-          <div className="bg-[#181818] border border-[#272727] rounded-3xl p-8 space-y-4">
-            <div className="w-10 h-10 rounded-xl bg-[#272727] text-white flex items-center justify-center">
-              <Lock className="w-5 h-5 text-blue-400" />
+          <div className="liquid-glass liquid-glass-interactive rounded-3xl p-8 space-y-4">
+            <div className="w-10 h-10 rounded-xl liquid-glass text-white flex items-center justify-center border border-white/20">
+              <Lock className="w-5 h-5 text-[#CC785C]" />
             </div>
-            <h3 className="title-2 text-white">Inquiry Led Pricing</h3>
-            <p className="body-5 text-[#9B9B9B] leading-relaxed">
+            <h3 className="font-claude-serif text-lg font-semibold text-[#EDE8E1]">Inquiry-Led Pricing</h3>
+            <p className="text-xs sm:text-sm text-[#A39E96] leading-relaxed">
               Prices never leak in public UI, APIs, metadata, or search engines. Serious buyers and investors receive verified owner pricing upon direct inquiry.
             </p>
           </div>
 
-          <div className="bg-[#181818] border border-[#272727] rounded-3xl p-8 space-y-4">
-            <div className="w-10 h-10 rounded-xl bg-[#272727] text-white flex items-center justify-center">
+          <div className="liquid-glass liquid-glass-interactive rounded-3xl p-8 space-y-4">
+            <div className="w-10 h-10 rounded-xl liquid-glass text-white flex items-center justify-center border border-white/20">
               <Briefcase className="w-5 h-5 text-amber-400" />
             </div>
-            <h3 className="title-2 text-white">Protected Builder JV Area</h3>
-            <p className="body-5 text-[#9B9B9B] leading-relaxed">
-              Large land parcels and revenue share collaborations are visible only to verified developer entities. Landowner terms remain fully confidential.
+            <h3 className="font-claude-serif text-lg font-semibold text-[#EDE8E1]">Protected Builder JV Area</h3>
+            <p className="text-xs sm:text-sm text-[#A39E96] leading-relaxed">
+              Large land parcels and revenue-share collaborations are visible only to verified developer entities. Landowner terms remain fully confidential.
             </p>
           </div>
         </div>
       </section>
 
       {/* How It Works Section */}
-      <section className="bg-[#131209] border-y border-[#1F1F1F] py-20 px-4 sm:px-6 lg:px-8">
+      <section className="py-20 px-4 sm:px-6 lg:px-8 relative">
         <div className="max-w-7xl mx-auto space-y-12">
-          <div className="text-center max-w-[680px] mx-auto space-y-3">
-            <span className="caption-3 uppercase tracking-wider text-amber-400 font-bold">
+          <div className="text-center max-w-2xl mx-auto space-y-3">
+            <span className="text-[11px] uppercase tracking-widest text-[#CC785C] font-semibold liquid-glass-pill px-3 py-1 rounded-full">
               Discovery Journey
             </span>
-            <h2 className="heading-4 sm:heading-3 text-white">
+            <h2 className="font-claude-serif text-2xl sm:text-4xl text-[#EDE8E1] font-medium tracking-tight">
               How the discovery and inquiry process works
             </h2>
-            <p className="body-5 text-[#9B9B9B]">
+            <p className="text-xs sm:text-sm text-[#A39E96] font-claude-sans">
               Three frictionless steps from guest browsing to verified pricing schedule delivery.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="space-y-3">
-              <div className="text-3xl font-bold font-mono text-[#313131]">01</div>
-              <h3 className="title-2 text-white">Browse Without Barriers</h3>
-              <p className="body-5 text-[#9B9B9B] leading-relaxed">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="liquid-glass rounded-3xl p-7 space-y-3.5">
+              <div className="text-3xl font-mono text-[#CC785C]/60 font-semibold">01</div>
+              <h3 className="font-claude-serif text-lg font-semibold text-[#EDE8E1]">Browse Without Barriers</h3>
+              <p className="text-xs sm:text-sm text-[#A39E96] leading-relaxed">
                 Explore verified residential, commercial, and land assets across India as a guest with zero mandatory signup walls.
               </p>
             </div>
 
-            <div className="space-y-3">
-              <div className="text-3xl font-bold font-mono text-[#313131]">02</div>
-              <h3 className="title-2 text-white">Submit Contextual Inquiry</h3>
-              <p className="body-5 text-[#9B9B9B] leading-relaxed">
+            <div className="liquid-glass rounded-3xl p-7 space-y-3.5">
+              <div className="text-3xl font-mono text-[#CC785C]/60 font-semibold">02</div>
+              <h3 className="font-claude-serif text-lg font-semibold text-[#EDE8E1]">Submit Contextual Inquiry</h3>
+              <p className="text-xs sm:text-sm text-[#A39E96] leading-relaxed">
                 Specify your intent, timeline, and objective. Authenticate effortlessly with a passwordless email verification code.
               </p>
             </div>
 
-            <div className="space-y-3">
-              <div className="text-3xl font-bold font-mono text-[#313131]">03</div>
-              <h3 className="title-2 text-white">Receive Private Pricing</h3>
-              <p className="body-5 text-[#9B9B9B] leading-relaxed">
+            <div className="liquid-glass rounded-3xl p-7 space-y-3.5">
+              <div className="text-3xl font-mono text-[#CC785C]/60 font-semibold">03</div>
+              <h3 className="font-claude-serif text-lg font-semibold text-[#EDE8E1]">Receive Private Pricing</h3>
+              <p className="text-xs sm:text-sm text-[#A39E96] leading-relaxed">
                 An assigned advisory desk manager connects with certified owner pricing schedules, payment plans, and inspection slots.
               </p>
             </div>
@@ -383,13 +385,13 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* FAQ Section per A2 Bottom */}
-      <section className="max-w-[680px] mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+      {/* FAQ Section with Liquid Glass Accordion */}
+      <section className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         <div className="text-center space-y-3">
-          <span className="caption-3 uppercase tracking-wider text-[#9B9B9B] font-bold">
+          <span className="text-[11px] uppercase tracking-widest text-[#CC785C] font-semibold liquid-glass-pill px-3 py-1 rounded-full">
             Frequently Asked Questions
           </span>
-          <h2 className="heading-4 sm:heading-3 text-white">
+          <h2 className="font-claude-serif text-2xl sm:text-3xl text-[#EDE8E1] font-medium tracking-tight">
             Answers to common platform questions
           </h2>
         </div>
@@ -400,21 +402,21 @@ export default function HomePage() {
             return (
               <div
                 key={idx}
-                className="bg-[#181818] border border-[#272727] rounded-2xl overflow-hidden transition-colors"
+                className="liquid-glass rounded-2xl overflow-hidden transition-colors"
               >
                 <button
                   onClick={() => setOpenFaq(isOpen ? null : idx)}
-                  className="w-full text-left p-5 flex items-center justify-between gap-4 title-4 text-white"
+                  className="w-full text-left p-5 flex items-center justify-between gap-4 text-sm font-medium text-[#EDE8E1]"
                 >
-                  <span>{faq.q}</span>
+                  <span className="font-claude-sans">{faq.q}</span>
                   <ChevronDown
-                    className={`w-4 h-4 text-[#9B9B9B] transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] shrink-0 ${
-                      isOpen ? "rotate-180" : ""
+                    className={`w-4 h-4 text-[#A39E96] transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] shrink-0 ${
+                      isOpen ? "rotate-180 text-[#CC785C]" : ""
                     }`}
                   />
                 </button>
                 {isOpen && (
-                  <div className="px-5 pb-5 body-5 text-[#9B9B9B] leading-relaxed animate-in fade-in duration-200">
+                  <div className="px-5 pb-5 text-xs sm:text-sm text-[#A39E96] leading-relaxed animate-in fade-in duration-200 border-t border-white/[0.05] pt-3 font-claude-sans">
                     {faq.a}
                   </div>
                 )}
@@ -424,25 +426,27 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Final CTA Section per A2 */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-[#181818] border border-[#272727] rounded-3xl p-8 sm:p-16 text-center space-y-6 max-w-[680px] mx-auto shadow-2xl">
-          <h2 className="heading-3 sm:heading-2 hero-text-gradient">
+      {/* Final CTA Section with Liquid Glass Elevated Banner */}
+      <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="liquid-glass-elevated rounded-3xl p-8 sm:p-14 text-center space-y-6 relative overflow-hidden">
+          <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#CC785C]/60 to-transparent" />
+          
+          <h2 className="font-claude-serif text-2xl sm:text-4xl text-[#EDE8E1] font-medium tracking-tight leading-tight">
             Explore curated inventory across India
           </h2>
-          <p className="body-4 sm:body-2 text-[#9B9B9B] text-pretty">
+          <p className="text-xs sm:text-sm text-[#A39E96] max-w-lg mx-auto font-claude-sans leading-relaxed text-pretty">
             Start browsing immediately without account registration, or submit your property mandate for platform review.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
             <Link
               href="/properties"
-              className="w-full sm:w-auto py-3 px-6 bg-white hover:bg-[#e0e0e0] text-black button-md rounded-xl transition-all duration-300 active:scale-[0.98]"
+              className="w-full sm:w-auto py-3 px-6 liquid-glass-btn-accent text-white text-xs sm:text-sm font-semibold rounded-xl transition-all duration-300 active:scale-[0.98]"
             >
               Browse Public Inventory
             </Link>
             <Link
               href="/submit-property"
-              className="w-full sm:w-auto py-3 px-6 bg-[#272727] hover:bg-[#313131] text-white button-md rounded-xl border border-[#313131] transition-all duration-300 active:scale-[0.98]"
+              className="w-full sm:w-auto py-3 px-6 liquid-glass hover:border-white/30 text-[#EDE8E1] text-xs sm:text-sm font-semibold rounded-xl transition-all duration-300 active:scale-[0.98]"
             >
               Submit Property for Review
             </Link>
