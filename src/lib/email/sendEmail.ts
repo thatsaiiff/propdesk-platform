@@ -55,7 +55,42 @@ export async function sendOtpEmail({
 
   const textBody = `Your PropDesk Verification Code: ${code}\n\nThis code will expire in 10 minutes.\n\nIf you did not request this code, please ignore this email.`;
 
-  // 1. Try Resend if RESEND_API_KEY is available
+  // 1. Try Gmail / Custom SMTP first (Primary: delivers to any email address globally)
+  const smtpUser = process.env.SMTP_USER?.trim();
+  const smtpPass = (process.env.SMTP_PASS || "").replace(/\s+/g, "");
+  const smtpHost = process.env.SMTP_HOST?.trim() || "smtp.gmail.com";
+  const smtpPort = parseInt(process.env.SMTP_PORT || "465", 10);
+  const smtpSecure = process.env.SMTP_SECURE === "true" || smtpPort === 465;
+
+  if (smtpUser && smtpPass && smtpUser !== "[SENSITIVE]" && smtpPass !== "[SENSITIVE]") {
+    try {
+      const transporter = nodemailer.createTransport({
+        host: smtpHost,
+        port: smtpPort,
+        secure: smtpSecure,
+        auth: {
+          user: smtpUser,
+          pass: smtpPass,
+        },
+      });
+
+      const info = await transporter.sendMail({
+        from: `PropDesk Discovery <${smtpUser}>`,
+        to: toEmail,
+        subject,
+        html: htmlBody,
+        text: textBody,
+      });
+
+      console.log(`[EMAIL DISPATCH] Sent OTP to ${toEmail} via Gmail SMTP. MessageId: ${info.messageId}`);
+      return { success: true, liveDispatched: true };
+    } catch (err: any) {
+      console.error("[SMTP ERROR] Failed to send email via SMTP:", err?.message || err);
+      // Fall through to Resend if SMTP fails
+    }
+  }
+
+  // 2. Try Resend as secondary provider
   const resendApiKey = process.env.RESEND_API_KEY?.trim();
   if (resendApiKey && resendApiKey !== "[SENSITIVE]") {
     try {
@@ -76,35 +111,6 @@ export async function sendOtpEmail({
     } catch (err: any) {
       console.error("[RESEND ERROR] Failed to send email via Resend:", err?.message || err);
       return { success: false, liveDispatched: false, error: err?.message || "Resend connection error" };
-    }
-  }
-
-  // 2. Try SMTP if SMTP_HOST is available
-  if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
-    try {
-      const transporter = nodemailer.createTransport({
-        host: process.env.SMTP_HOST,
-        port: parseInt(process.env.SMTP_PORT || "587", 10),
-        secure: process.env.SMTP_SECURE === "true" || process.env.SMTP_PORT === "465",
-        auth: {
-          user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASS,
-        },
-      });
-
-      await transporter.sendMail({
-        from: process.env.EMAIL_FROM || process.env.SMTP_USER,
-        to: toEmail,
-        subject,
-        html: htmlBody,
-        text: textBody,
-      });
-
-      console.log(`[EMAIL DISPATCH] Sent OTP to ${toEmail} via SMTP.`);
-      return { success: true, liveDispatched: true };
-    } catch (err: any) {
-      console.error("[SMTP ERROR] Failed to send email via SMTP:", err?.message || err);
-      return { success: false, liveDispatched: false, error: err?.message };
     }
   }
 
