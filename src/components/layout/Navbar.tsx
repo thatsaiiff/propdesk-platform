@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { useTheme } from "@/context/ThemeContext";
 import { UserRoleType } from "@/types";
 import { 
   Building2, 
@@ -18,18 +17,13 @@ import {
   Sparkles,
   Lock,
   Menu,
-  X,
-  Sun,
-  Moon,
-  Sunset,
-  Landmark
+  X
 } from "lucide-react";
 import AuthModal from "../auth/AuthModal";
 
 export default function Navbar() {
   const pathname = usePathname();
   const { user, favourites, switchActiveRole, signOut, quickLoginAs } = useAuth();
-  const { theme, resolvedTheme, setTheme, toggleTheme, isAutoSunset } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
@@ -38,9 +32,12 @@ export default function Navbar() {
   const isAdmin = user?.staffRoles && user.staffRoles.length > 0;
 
   const navLinks = [
-    { label: "All Inventory", href: "/properties" },
-    { label: "Bank Auctions & NPA", href: "/properties?subtype=Bank+Auction" },
-    { label: "Commercial & Land", href: "/properties?category=COMMERCIAL" },
+    { label: "All Properties", href: "/properties" },
+    { label: "Residential", href: "/properties?category=RESIDENTIAL" },
+    { label: "Commercial", href: "/properties?category=COMMERCIAL" },
+    { label: "Mixed Use", href: "/properties?category=MIXED_USE" },
+    { label: "Industrial", href: "/properties?category=INDUSTRIAL" },
+    { label: "Land & Plots", href: "/properties?category=LAND" },
   ];
 
   const handleRoleSelect = async (role: UserRoleType) => {
@@ -51,14 +48,14 @@ export default function Navbar() {
   return (
     <>
       {/* Top Demo Simulation Bar - Frosted Glass Strip */}
-      <div className="bg-slate-900/90 dark:bg-[#060911]/90 backdrop-blur-md text-slate-300 dark:text-slate-400 text-xs py-2 px-4 border-b border-slate-200/20 dark:border-white/[0.08] relative z-50">
+      <div className="bg-[#08080A]/80 backdrop-blur-md text-[#A39E96] text-xs py-2 px-4 border-b border-white/[0.08] relative z-50">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2.5">
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 liquid-glass-pill px-2.5 py-0.5 rounded-full text-[11px] font-semibold border border-royal-500/30 text-royal-600 dark:text-royal-300">
-              <Sparkles className="w-3 h-3 text-gold-500 dark:text-gold-400" /> Demo Persona Selector
+            <span className="inline-flex items-center gap-1.5 liquid-glass-pill text-[#EDE8E1] px-2.5 py-0.5 rounded-full text-[11px] font-medium border border-white/[0.12]">
+              <Sparkles className="w-3 h-3 text-[#CC785C]" /> Demo Persona Selector
             </span>
-            <span className="hidden sm:inline text-xs text-slate-300 dark:text-slate-400">
-              Test institutional roles & permission boundaries:
+            <span className="hidden sm:inline text-xs text-[#A39E96]">
+              Test real-estate role authorizations & discretion boundaries:
             </span>
           </div>
 
@@ -67,8 +64,8 @@ export default function Navbar() {
               onClick={() => signOut()}
               className={`px-2.5 py-1 rounded-lg text-xs transition-all duration-300 font-medium ${
                 !user 
-                  ? "bg-royal-600 text-white shadow-sm font-semibold" 
-                  : "liquid-glass hover:border-royal-400/40 text-slate-200"
+                  ? "bg-[#EDE8E1] text-[#08080A] shadow-sm font-semibold" 
+                  : "liquid-glass hover:border-white/30 text-[#EDE8E1]"
               }`}
             >
               Guest (Anonymous)
@@ -77,8 +74,8 @@ export default function Navbar() {
               onClick={() => quickLoginAs("arjun@example.demo")}
               className={`px-2.5 py-1 rounded-lg text-xs transition-all duration-300 font-medium ${
                 user?.email === "arjun@example.demo" 
-                  ? "bg-royal-600 text-white font-semibold shadow-sm" 
-                  : "liquid-glass hover:border-royal-400/40 text-slate-200"
+                  ? "liquid-glass-btn-accent text-white font-semibold" 
+                  : "liquid-glass hover:border-white/30 text-[#EDE8E1]"
               }`}
             >
               Buyer / Investor
@@ -87,8 +84,8 @@ export default function Navbar() {
               onClick={() => quickLoginAs("builder@apexinfra.demo")}
               className={`px-2.5 py-1 rounded-lg text-xs transition-all duration-300 font-medium ${
                 user?.email === "builder@apexinfra.demo" 
-                  ? "bg-emerald-600 text-white border border-emerald-400/50 shadow-sm font-semibold" 
-                  : "liquid-glass hover:border-emerald-400/40 text-slate-200"
+                  ? "bg-emerald-600/90 text-white border border-emerald-400/50 shadow-sm font-semibold" 
+                  : "liquid-glass hover:border-white/30 text-[#EDE8E1]"
               }`}
             >
               Builder (JV View)
@@ -97,8 +94,8 @@ export default function Navbar() {
               onClick={() => quickLoginAs("rajesh@primeholdings.demo")}
               className={`px-2.5 py-1 rounded-lg text-xs transition-all duration-300 font-medium ${
                 user?.email === "rajesh@primeholdings.demo" 
-                  ? "bg-gold-600 text-slate-950 border border-gold-400/60 shadow-sm font-bold" 
-                  : "liquid-glass hover:border-gold-400/40 text-slate-200"
+                  ? "bg-amber-600/90 text-white border border-amber-400/50 shadow-sm font-semibold" 
+                  : "liquid-glass hover:border-white/30 text-[#EDE8E1]"
               }`}
             >
               Owner Mandate
@@ -107,8 +104,8 @@ export default function Navbar() {
               onClick={() => quickLoginAs("admin@propdesk.demo")}
               className={`px-2.5 py-1 rounded-lg text-xs transition-all duration-300 font-medium ${
                 isAdmin 
-                  ? "bg-purple-600 text-white border border-purple-400/50 shadow-sm font-semibold" 
-                  : "liquid-glass hover:border-purple-400/40 text-slate-200"
+                  ? "bg-purple-600/90 text-white border border-purple-400/50 shadow-sm font-semibold" 
+                  : "liquid-glass hover:border-white/30 text-[#EDE8E1]"
               }`}
             >
               Super Admin
@@ -123,15 +120,15 @@ export default function Navbar() {
           {/* Logo */}
           <div className="flex items-center gap-6">
             <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="w-9 h-9 rounded-xl liquid-glass bg-royal-950/40 dark:bg-royal-950/80 text-white flex items-center justify-center font-bold border border-royal-500/30 group-hover:scale-105 group-hover:border-gold-400/60 transition-all duration-300 shadow-sm">
-                <Landmark className="w-5 h-5 text-gold-400" />
+              <div className="w-9 h-9 rounded-xl liquid-glass text-[#EDE8E1] flex items-center justify-center font-bold border border-white/20 group-hover:scale-105 group-hover:border-[#CC785C]/60 transition-all duration-300">
+                <Building2 className="w-5 h-5 text-[#CC785C]" />
               </div>
               <div>
-                <span className="font-claude-serif font-bold tracking-tight text-xl text-slate-900 dark:text-slate-100 flex items-center gap-0.5">
-                  PropDesk<span className="text-gold-500 dark:text-gold-400 font-serif">.</span>
+                <span className="font-claude-serif font-semibold tracking-tight text-xl text-[#EDE8E1] flex items-center gap-1">
+                  PropDesk<span className="text-[#CC785C] text-lg font-serif">.</span>
                 </span>
-                <span className="block text-[10px] tracking-widest uppercase text-royal-600 dark:text-royal-400 -mt-1 font-bold">
-                  Auctions & Commercial
+                <span className="block text-[10px] tracking-widest uppercase text-[#A39E96] -mt-1 font-semibold">
+                  Curated India
                 </span>
               </div>
             </Link>
@@ -139,15 +136,15 @@ export default function Navbar() {
             {/* Desktop Navigation Links */}
             <nav className="hidden lg:flex items-center gap-1 pl-2">
               {navLinks.map((link) => {
-                const isActive = pathname === link.href || (link.href !== "/properties" && pathname.startsWith(link.href));
+                const isActive = pathname === link.href;
                 return (
                   <Link
                     key={link.href}
                     href={link.href}
                     className={`px-3 py-1.5 rounded-lg text-sm transition-all duration-300 ${
                       isActive
-                        ? "liquid-glass text-royal-600 dark:text-royal-300 font-semibold border-royal-500/30 shadow-sm"
-                        : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/[0.04]"
+                        ? "liquid-glass text-white font-medium border-white/25 shadow-sm"
+                        : "text-[#A39E96] hover:text-[#EDE8E1] hover:bg-white/[0.04]"
                     }`}
                   >
                     {link.label}
@@ -162,19 +159,19 @@ export default function Navbar() {
                   className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-all duration-300 ${
                     pathname.startsWith("/joint-ventures")
                       ? "bg-emerald-950/70 text-emerald-300 border border-emerald-500/40 shadow-sm font-medium"
-                      : "text-emerald-500 hover:bg-emerald-500/10"
+                      : "text-emerald-400 hover:bg-emerald-950/40"
                   }`}
                 >
                   <Briefcase className="w-3.5 h-3.5" />
                   <span>Joint Ventures</span>
-                  <span className="bg-emerald-500/20 text-emerald-300 text-[10px] px-1.5 py-0.5 rounded font-bold border border-emerald-500/30">
+                  <span className="bg-emerald-500/20 text-emerald-300 text-[10px] px-1.5 py-0.5 rounded font-semibold border border-emerald-500/30">
                     BUILDER
                   </span>
                 </Link>
               ) : (
                 <Link
                   href="/joint-ventures"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors duration-300"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-[#706D67] hover:text-[#A39E96] transition-colors duration-300"
                   title="Restricted to Builder Accounts"
                 >
                   <Lock className="w-3.5 h-3.5" />
@@ -186,49 +183,22 @@ export default function Navbar() {
 
           {/* Right Action Icons & Auth */}
           <div className="flex items-center gap-2 sm:gap-3">
-            {/* Theme Toggle Button (Light / Dark / Auto Sunset) */}
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-xl liquid-glass text-slate-700 dark:text-slate-200 hover:border-gold-400/40 transition-all duration-300 flex items-center gap-1.5 text-xs"
-              title={`Active Theme: ${theme.toUpperCase()} (${resolvedTheme === "light" ? "Daylight Light" : "Sunset Dark"}). Click to switch.`}
-              aria-label="Toggle theme mode"
-            >
-              {theme === "light" ? (
-                <>
-                  <Sun className="w-4 h-4 text-amber-500" />
-                  <span className="hidden xl:inline text-[11px] font-medium">Light</span>
-                </>
-              ) : theme === "dark" ? (
-                <>
-                  <Moon className="w-4 h-4 text-royal-400" />
-                  <span className="hidden xl:inline text-[11px] font-medium">Dark</span>
-                </>
-              ) : (
-                <>
-                  <Sunset className="w-4 h-4 text-gold-400 animate-pulse" />
-                  <span className="hidden xl:inline text-[11px] font-medium">Auto (Sunset)</span>
-                </>
-              )}
-            </button>
-
-            {/* Enlist Property with Desk CTA */}
             <Link
               href="/submit-property"
-              className="hidden sm:inline-flex items-center gap-1.5 py-1.5 px-3.5 rounded-xl text-xs font-semibold liquid-glass text-slate-800 dark:text-slate-100 border-gold-500/40 hover:border-gold-400 transition-all duration-300 active:scale-[0.98] shadow-sm"
+              className="hidden sm:inline-flex items-center gap-1.5 py-1.5 px-3.5 rounded-xl text-xs font-semibold liquid-glass hover:border-white/30 text-[#EDE8E1] transition-all duration-300 active:scale-[0.98]"
             >
-              <PlusCircle className="w-3.5 h-3.5 text-gold-500 dark:text-gold-400" />
-              <span>Enlist Property</span>
+              <PlusCircle className="w-3.5 h-3.5 text-[#CC785C]" />
+              <span>Submit Property</span>
             </Link>
 
-            {/* Favourites */}
             <Link
               href="/saved"
-              className="p-2 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white relative rounded-xl hover:bg-slate-100 dark:hover:bg-white/[0.05] transition-colors duration-300"
+              className="p-2 text-[#A39E96] hover:text-[#EDE8E1] relative rounded-xl hover:bg-white/[0.05] transition-colors duration-300"
               title="Saved Properties"
             >
               <Heart className="w-5 h-5" />
               {favourites.length > 0 && (
-                <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-royal-600 text-white text-[10px] font-bold flex items-center justify-center shadow-sm">
+                <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-[#CC785C] text-white text-[10px] font-bold flex items-center justify-center shadow-sm">
                   {favourites.length}
                 </span>
               )}
@@ -237,7 +207,7 @@ export default function Navbar() {
             {isAdmin && (
               <Link
                 href="/admin"
-                className="hidden md:inline-flex items-center gap-1.5 py-1.5 px-3 rounded-xl text-xs font-semibold bg-purple-900/60 dark:bg-purple-950/60 text-purple-200 border border-purple-500/40 hover:bg-purple-900/80 transition-colors"
+                className="hidden md:inline-flex items-center gap-1.5 py-1.5 px-3 rounded-xl text-xs font-semibold bg-purple-950/60 text-purple-200 border border-purple-500/40 hover:bg-purple-900/60 transition-colors"
               >
                 <ShieldAlert className="w-3.5 h-3.5 text-purple-400" />
                 <span>Admin</span>
@@ -248,29 +218,29 @@ export default function Navbar() {
               <div className="relative">
                 <button
                   onClick={() => setRoleDropdownOpen(!roleDropdownOpen)}
-                  className="inline-flex items-center gap-2 py-1.5 px-3 rounded-xl liquid-glass text-slate-800 dark:text-slate-100 text-xs font-medium transition-all duration-300 hover:border-royal-400/40"
+                  className="inline-flex items-center gap-2 py-1.5 px-3 rounded-xl liquid-glass text-[#EDE8E1] text-xs font-medium transition-all duration-300 hover:border-white/30"
                 >
-                  <div className="w-6 h-6 rounded-lg bg-royal-600 text-white flex items-center justify-center text-xs font-bold shadow-sm">
+                  <div className="w-6 h-6 rounded-lg bg-[#CC785C] text-white flex items-center justify-center text-xs font-bold shadow-sm">
                     {user.name.charAt(0)}
                   </div>
                   <div className="text-left hidden md:block">
-                    <div className="leading-tight text-xs font-semibold text-slate-800 dark:text-slate-100">{user.name.split(" ")[0]}</div>
-                    <div className="text-[10px] text-royal-600 dark:text-gold-400 uppercase font-bold tracking-wider">
+                    <div className="leading-tight text-xs text-[#EDE8E1] font-medium">{user.name.split(" ")[0]}</div>
+                    <div className="text-[10px] text-[#CC785C] uppercase font-bold tracking-wider">
                       {user.activeRole || "BUYER"}
                     </div>
                   </div>
-                  <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                  <ChevronDown className="w-3.5 h-3.5 text-[#A39E96]" />
                 </button>
 
                 {roleDropdownOpen && (
                   <div className="absolute right-0 mt-2 w-64 liquid-glass-elevated rounded-2xl p-2 z-50 animate-in fade-in zoom-in-95 duration-200">
-                    <div className="p-3 border-b border-slate-200/20 dark:border-white/[0.08]">
-                      <div className="text-sm font-semibold text-slate-900 dark:text-white">{user.name}</div>
-                      <div className="text-xs text-slate-500 dark:text-slate-400 truncate">{user.email}</div>
+                    <div className="p-3 border-b border-white/[0.08]">
+                      <div className="text-sm font-semibold text-[#EDE8E1]">{user.name}</div>
+                      <div className="text-xs text-[#A39E96] truncate">{user.email}</div>
                     </div>
 
-                    <div className="py-2 px-2 border-b border-slate-200/20 dark:border-white/[0.08]">
-                      <div className="text-[10px] uppercase text-slate-400 tracking-wider mb-2 font-bold">
+                    <div className="py-2 px-2 border-b border-white/[0.08]">
+                      <div className="text-[10px] uppercase text-[#706D67] tracking-wider mb-2 font-bold">
                         Switch Active Role
                       </div>
                       <div className="space-y-1">
@@ -280,13 +250,13 @@ export default function Navbar() {
                             onClick={() => handleRoleSelect(r)}
                             className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs flex items-center justify-between transition-colors ${
                               user.activeRole === r
-                                ? "liquid-glass text-royal-600 dark:text-gold-400 font-semibold border-royal-500/40"
-                                : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/[0.05]"
+                                ? "liquid-glass text-[#CC785C] font-semibold border-[#CC785C]/40"
+                                : "text-[#A39E96] hover:text-[#EDE8E1] hover:bg-white/[0.05]"
                             }`}
                           >
                             <span>{r}</span>
                             {user.activeRole === r && (
-                              <span className="text-[10px] bg-royal-500/20 text-royal-600 dark:text-gold-400 px-1.5 py-0.5 rounded font-bold border border-royal-500/40">
+                              <span className="text-[10px] bg-[#CC785C]/20 text-[#CC785C] px-1.5 py-0.2 rounded font-bold border border-[#CC785C]/40">
                                 ACTIVE
                               </span>
                             )}
@@ -299,16 +269,16 @@ export default function Navbar() {
                       <Link
                         href="/account"
                         onClick={() => setRoleDropdownOpen(false)}
-                        className="flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/[0.05]"
+                        className="flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs text-[#A39E96] hover:text-[#EDE8E1] hover:bg-white/[0.05]"
                       >
-                        <User className="w-4 h-4 text-slate-400" />
+                        <User className="w-4 h-4 text-[#706D67]" />
                         <span>Account & Roles</span>
                       </Link>
                       {isAdmin && (
                         <Link
                           href="/admin"
                           onClick={() => setRoleDropdownOpen(false)}
-                          className="flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs text-purple-400 hover:bg-purple-950/40"
+                          className="flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs text-purple-300 hover:bg-purple-950/40"
                         >
                           <ShieldAlert className="w-4 h-4 text-purple-400" />
                           <span>Admin Console</span>
@@ -319,9 +289,9 @@ export default function Navbar() {
                           setRoleDropdownOpen(false);
                           signOut();
                         }}
-                        className="w-full flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs text-red-500 hover:bg-red-500/10 text-left"
+                        className="w-full flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs text-red-400 hover:bg-red-950/30 text-left"
                       >
-                        <LogOut className="w-4 h-4 text-red-500" />
+                        <LogOut className="w-4 h-4 text-red-400" />
                         <span>Sign Out</span>
                       </button>
                     </div>
@@ -331,7 +301,7 @@ export default function Navbar() {
             ) : (
               <button
                 onClick={() => setAuthModalOpen(true)}
-                className="py-1.5 px-4 rounded-xl text-xs font-semibold liquid-glass-btn-royal transition-all duration-300 active:scale-[0.98]"
+                className="py-1.5 px-4 rounded-xl text-xs font-semibold liquid-glass-btn-accent text-white transition-all duration-300 active:scale-[0.98]"
               >
                 Sign In
               </button>
@@ -340,7 +310,7 @@ export default function Navbar() {
             {/* Mobile Menu Toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-white/[0.05] transition-all duration-300"
+              className="lg:hidden p-2 text-[#A39E96] hover:text-[#EDE8E1] rounded-xl hover:bg-white/[0.05] transition-all duration-300"
               aria-label="Toggle Navigation"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -348,63 +318,51 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Mobile Dropdown Menu */}
+        {/* Mobile Navigation Panel */}
         {mobileMenuOpen && (
-          <div className="lg:hidden mt-2 liquid-glass-elevated rounded-2xl p-4 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
-            <div className="flex flex-col space-y-1">
-              {navLinks.map((link) => (
+          <div className="lg:hidden fixed inset-x-0 top-20 bottom-0 bg-[#08080A]/95 backdrop-blur-3xl border-t border-white/[0.1] p-6 space-y-6 z-50 overflow-y-auto animate-in fade-in duration-300">
+            <div className="grid grid-cols-1 gap-2 pb-6 border-b border-white/[0.08]">
+              {navLinks.map((link, idx) => (
                 <Link
                   key={link.href}
                   href={link.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="px-3 py-2 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/[0.05]"
+                  style={{ animationDelay: `${idx * 60}ms` }}
+                  className="px-4 py-3 rounded-xl text-base text-[#A39E96] hover:text-[#EDE8E1] hover:bg-white/[0.05] animate-in slide-in-from-bottom-3 duration-300"
                 >
                   {link.label}
                 </Link>
               ))}
+            </div>
 
+            <div className="space-y-3">
               <Link
                 href="/joint-ventures"
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/[0.05] flex items-center justify-between"
+                className="flex items-center justify-between px-4 py-3.5 rounded-xl text-sm bg-emerald-950/60 text-emerald-300 border border-emerald-600/40 font-semibold"
               >
-                <span>Joint Ventures</span>
-                {isBuilder ? (
-                  <span className="text-[10px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-bold">
-                    BUILDER
-                  </span>
-                ) : (
-                  <Lock className="w-3.5 h-3.5 text-slate-400" />
-                )}
+                <span className="flex items-center gap-2">
+                  <Briefcase className="w-4 h-4" />
+                  Joint Ventures
+                </span>
+                <span className="text-[10px] bg-emerald-900 text-emerald-200 px-2 py-0.5 rounded font-bold border border-emerald-500/30">
+                  BUILDER ONLY
+                </span>
               </Link>
-            </div>
 
-            <div className="pt-2 border-t border-slate-200/20 dark:border-white/[0.08] flex items-center justify-between">
-              <span className="text-xs text-slate-500">Theme</span>
-              <button
-                onClick={toggleTheme}
-                className="py-1 px-3 rounded-lg liquid-glass text-xs font-medium flex items-center gap-1.5"
-              >
-                {theme === "light" ? <Sun className="w-3.5 h-3.5 text-amber-500" /> : theme === "dark" ? <Moon className="w-3.5 h-3.5 text-royal-400" /> : <Sunset className="w-3.5 h-3.5 text-gold-400" />}
-                <span>{theme === "auto" ? "Auto Sunset" : theme.toUpperCase()}</span>
-              </button>
-            </div>
-
-            <div className="pt-2 border-t border-slate-200/20 dark:border-white/[0.08]">
               <Link
                 href="/submit-property"
                 onClick={() => setMobileMenuOpen(false)}
-                className="w-full py-2.5 px-4 rounded-xl text-xs font-semibold liquid-glass-btn-gold flex items-center justify-center gap-2"
+                className="flex items-center gap-2 px-4 py-3.5 rounded-xl text-sm liquid-glass text-[#EDE8E1] font-semibold border-white/20"
               >
-                <PlusCircle className="w-4 h-4" />
-                <span>Enlist Property with Desk</span>
+                <PlusCircle className="w-4 h-4 text-[#CC785C]" />
+                Submit Property for Admin Review
               </Link>
             </div>
           </div>
         )}
       </header>
 
-      {/* Auth Modal */}
       <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
     </>
   );

@@ -18,12 +18,6 @@
       "sourceType": "github",
       "skillPath": "skills/liquid-glass-design/SKILL.md",
       "computedHash": "bbfb0a30ce18048f07072183d844b005ca729f27784096455ea7f8add25b92d3"
-    },
-    "threejs-webgl": {
-      "source": "freshtechbro/claudedesignskills",
-      "sourceType": "github",
-      "skillPath": ".claude/skills/threejs-webgl/SKILL.md",
-      "computedHash": "9b2cfc1e6512ad6c41e4e9ba56c301d619c2cfd63722793258f4424013ec4b22"
     }
   }
 }
