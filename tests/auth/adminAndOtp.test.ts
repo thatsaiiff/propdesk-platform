@@ -12,25 +12,25 @@ describe("Admin Authentication & OTP Cooldown Logic", () => {
     expect(isAdminUser(admin)).toBe(true);
   });
 
-  it("should generate a 6-digit OTP code and return cooldownSeconds on first request", () => {
-    const res = store.requestOtp(testEmail);
+  it("should generate a 6-digit OTP code and return cooldownSeconds on first request", async () => {
+    const res = await store.requestOtp(testEmail);
     expect(res.success).toBe(true);
     expect(res.code).toBeDefined();
     expect(res.code).toMatch(/^\d{6}$/);
     expect(res.cooldownSeconds).toBe(30);
   });
 
-  it("should enforce a cooldown throttling when requesting OTP again immediately", () => {
-    const res = store.requestOtp(testEmail);
+  it("should enforce a cooldown throttling when requesting OTP again immediately", async () => {
+    const res = await store.requestOtp(testEmail);
     expect(res.success).toBe(false);
     expect(res.cooldownSeconds).toBeGreaterThan(0);
     expect(res.cooldownSeconds).toBeLessThanOrEqual(30);
     expect(res.message).toContain("Please wait");
   });
 
-  it("should successfully verify the generated OTP code", () => {
+  it("should successfully verify the generated OTP code", async () => {
     const newEmail = `verify-${Date.now()}@example.com`;
-    const res = store.requestOtp(newEmail);
+    const res = await store.requestOtp(newEmail);
     expect(res.success).toBe(true);
     const code = res.code!;
 
@@ -40,9 +40,9 @@ describe("Admin Authentication & OTP Cooldown Logic", () => {
     expect(verifyRes.user?.email).toBe(newEmail);
   });
 
-  it("should reject an incorrect OTP code", () => {
+  it("should reject an incorrect OTP code", async () => {
     const newEmail = `fail-${Date.now()}@example.com`;
-    store.requestOtp(newEmail);
+    await store.requestOtp(newEmail);
     const verifyRes = store.verifyOtp(newEmail, "000000");
     expect(verifyRes.success).toBe(false);
     expect(verifyRes.message).toBe("Incorrect verification code.");

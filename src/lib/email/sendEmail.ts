@@ -12,7 +12,10 @@ export async function sendOtpEmail({
   code,
   isNewUser,
 }: SendOtpEmailParams): Promise<{ success: boolean; liveDispatched: boolean; error?: string }> {
-  const fromEmail = process.env.EMAIL_FROM || "PropDesk <onboarding@resend.dev>";
+  let fromEmail = (process.env.EMAIL_FROM || "PropDesk <onboarding@resend.dev>").trim();
+  if (fromEmail === "[SENSITIVE]" || !fromEmail) {
+    fromEmail = "PropDesk <onboarding@resend.dev>";
+  }
   const subject = `Your PropDesk Verification Code: ${code}`;
 
   const htmlBody = `
@@ -53,9 +56,10 @@ export async function sendOtpEmail({
   const textBody = `Your PropDesk Verification Code: ${code}\n\nThis code will expire in 10 minutes.\n\nIf you did not request this code, please ignore this email.`;
 
   // 1. Try Resend if RESEND_API_KEY is available
-  if (process.env.RESEND_API_KEY) {
+  const resendApiKey = process.env.RESEND_API_KEY?.trim();
+  if (resendApiKey && resendApiKey !== "[SENSITIVE]") {
     try {
-      const resend = new Resend(process.env.RESEND_API_KEY);
+      const resend = new Resend(resendApiKey);
       const resendResult = await resend.emails.send({
         from: fromEmail,
         to: toEmail,
@@ -71,7 +75,7 @@ export async function sendOtpEmail({
       return { success: true, liveDispatched: true };
     } catch (err: any) {
       console.error("[RESEND ERROR] Failed to send email via Resend:", err?.message || err);
-      return { success: false, liveDispatched: false, error: err?.message };
+      return { success: false, liveDispatched: false, error: err?.message || "Resend connection error" };
     }
   }
 

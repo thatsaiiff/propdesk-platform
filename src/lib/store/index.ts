@@ -116,14 +116,15 @@ class Store {
   }
 
   // --- OTP Verification ---
-  requestOtp(email: string): { 
+  async requestOtp(email: string): Promise<{ 
     success: boolean; 
     message: string; 
     cooldownSeconds?: number; 
     isNewUser: boolean; 
     code?: string;
-    liveDispatched?: boolean;
-  } {
+    liveDispatched: boolean;
+    dispatchError?: string;
+  }> {
     const normalizedEmail = email.toLowerCase().trim();
     const now = Date.now();
     const existing = this.otps.get(normalizedEmail);
@@ -152,24 +153,33 @@ class Store {
 
     const isNewUser = !this.users.some((u) => u.email.toLowerCase() === normalizedEmail);
 
-    const hasLiveProvider = Boolean(
-      process.env.RESEND_API_KEY ||
-      (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS)
-    );
+    // CRITICAL: AWAIT email dispatch so Vercel does not terminate Lambda before network request resolves
+    let liveDispatched = false;
+    let dispatchError: string | undefined = undefined;
 
-    // Dispatch real email via Resend / SMTP
-    sendOtpEmail({ toEmail: normalizedEmail, code, isNewUser }).catch((e) => {
-      console.error("Email dispatch failed:", e);
-    });
+    try {
+      const emailRes = await sendOtpEmail({ toEmail: normalizedEmail, code, isNewUser });
+      liveDispatched = Boolean(emailRes.liveDispatched);
+      if (!emailRes.success && emailRes.error) {
+        dispatchError = emailRes.error;
+      }
+    } catch (err: any) {
+      console.error("[EMAIL DISPATCH EXCEPTION]:", err);
+      dispatchError = err?.message || "Email dispatch connection failed.";
+    }
 
     return {
       success: true,
-      message: hasLiveProvider
-        ? `Verification code sent to ${normalizedEmail}. Check your inbox and spam folder.`
-        : `Verification code generated for ${normalizedEmail}.`,
+      message: liveDispatched
+        ? `Verification code dispatched to ${normalizedEmail}. Check your inbox and spam folder.`
+        : (dispatchError 
+            ? `Notice: ${dispatchError}` 
+            : `Verification code generated for ${normalizedEmail}.`),
       isNewUser,
-      code: hasLiveProvider ? undefined : code,
-      liveDispatched: hasLiveProvider,
+      // If live delivery did not complete (e.g. Resend rejected recipient on testing domain), ALWAYS provide code so user is never blocked!
+      code: liveDispatched ? undefined : code,
+      liveDispatched,
+      dispatchError,
       cooldownSeconds: 30,
     };
   }

@@ -63,6 +63,7 @@ export default function OnboardingModal({ isOpen, onClose }: OnboardingModalProp
   const [cooldown, setCooldown] = useState(0);
   const [devCode, setDevCode] = useState<string | null>(null);
   const [liveDispatched, setLiveDispatched] = useState(false);
+  const [dispatchNotice, setDispatchNotice] = useState<string | null>(null);
 
   // Countdown timer for resend OTP cooldown
   useEffect(() => {
@@ -99,6 +100,7 @@ export default function OnboardingModal({ isOpen, onClose }: OnboardingModalProp
       setIsNewUser(!!res.isNewUser);
       setDevCode(res.devCode || null);
       setLiveDispatched(!!res.liveDispatched);
+      setDispatchNotice((res as any).dispatchError || null);
       setCooldown(res.cooldownSeconds || 30);
       setStep("OTP");
     } else {
@@ -357,7 +359,11 @@ export default function OnboardingModal({ isOpen, onClose }: OnboardingModalProp
                     </button>
                   </div>
                   <p className="text-[11px] text-slate-300 leading-relaxed">
-                    Notice: Real email delivery requires <code className="text-amber-300 font-mono">RESEND_API_KEY</code> or <code className="text-amber-300 font-mono">SMTP_*</code> in Vercel env variables. In the meantime, use the code above to verify instantly.
+                    {dispatchNotice ? (
+                      <span>Email Delivery Notice: <strong className="text-amber-300">{dispatchNotice}</strong>. (Note: Free tier Resend accounts only deliver to the account owner’s email until a custom domain is added). Use the code above to sign in immediately.</span>
+                    ) : (
+                      <span>Notice: Outbound email service is in standalone mode. Use the code above to verify instantly.</span>
+                    )}
                   </p>
                 </div>
               )}

@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
     }
 
     const { email } = parsed.data;
-    const result = store.requestOtp(email);
+    const result = await store.requestOtp(email);
 
     if (!result.success) {
       return NextResponse.json(
@@ -34,6 +34,7 @@ export async function POST(req: NextRequest) {
       isNewUser: result.isNewUser,
       devCode: result.code,
       liveDispatched: result.liveDispatched,
+      dispatchError: result.dispatchError,
       cooldownSeconds: result.cooldownSeconds || 30,
     });
   } catch (err) {
