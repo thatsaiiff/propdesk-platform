@@ -1,16 +1,20 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Geist } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 
-const inter = Inter({ subsets: ["latin"] });
+const geist = Geist({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-geist",
+});
 
 export const metadata: Metadata = {
   title: "PropDesk — Curated Indian Real Estate Discovery Platform",
   description:
-    "Mobile-first, premium Indian real-estate discovery with curated inventory, inquiry-led pricing, and builder joint venture opportunities. Browse verified listings across India.",
+    "Mobile-first, modern real-estate discovery with curated inventory, inquiry-led pricing, and builder joint venture opportunities. Browse verified listings across India.",
   keywords: [
     "Indian Real Estate",
     "Curated Properties Mumbai",
@@ -28,8 +32,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="h-full">
-      <body className={`${inter.className} min-h-full flex flex-col antialiased bg-slate-50 text-slate-900`}>
+    <html lang="en" className={`h-full ${geist.variable} ${geist.className}`}>
+      <body className="min-h-full flex flex-col bg-[#000000] text-white selection:bg-[#313131] selection:text-white">
         <AuthProvider>
           <Navbar />
           <main className="flex-1">{children}</main>

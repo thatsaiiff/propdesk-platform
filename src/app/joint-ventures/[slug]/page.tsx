@@ -50,19 +50,19 @@ export default function JVOpportunityDetailPage({ params }: { params: Promise<{ 
 
   if (forbidden) {
     return (
-      <div className="max-w-xl mx-auto px-4 py-20 text-center space-y-6">
-        <div className="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto border border-emerald-100">
+      <div className="max-w-xl mx-auto px-4 py-24 text-center space-y-6">
+        <div className="w-16 h-16 bg-emerald-950/80 text-emerald-400 rounded-2xl flex items-center justify-center mx-auto border border-emerald-800">
           <Lock className="w-8 h-8" />
         </div>
         <div className="space-y-2">
-          <h2 className="text-2xl font-bold text-slate-900">Builder Access Required</h2>
-          <p className="text-xs text-slate-600 leading-relaxed max-w-sm mx-auto">
+          <h2 className="heading-4 text-white">Builder Access Required</h2>
+          <p className="body-5 text-[#9B9B9B] leading-relaxed max-w-sm mx-auto">
             This joint venture land development opportunity is strictly restricted to verified builder and developer accounts.
           </p>
         </div>
         <button
           onClick={() => quickLoginAs("builder@apexinfra.demo")}
-          className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-xl shadow-md"
+          className="py-2.5 px-5 bg-emerald-600 hover:bg-emerald-500 text-white button-sm rounded-xl shadow-md transition-all active:scale-[0.98]"
         >
           Sign In as Verified Builder (Vikram Sharma)
         </button>
@@ -72,18 +72,18 @@ export default function JVOpportunityDetailPage({ params }: { params: Promise<{ 
 
   if (loading) {
     return (
-      <div className="max-w-5xl mx-auto px-4 py-12 space-y-6">
-        <div className="h-8 w-48 bg-slate-200 rounded-lg animate-pulse" />
-        <div className="h-96 w-full bg-slate-200 rounded-3xl animate-pulse" />
+      <div className="max-w-5xl mx-auto px-4 py-16 space-y-6">
+        <div className="h-8 w-48 bg-[#181818] rounded-xl animate-pulse" />
+        <div className="h-96 w-full bg-[#181818] rounded-3xl animate-pulse" />
       </div>
     );
   }
 
   if (!jv) {
     return (
-      <div className="max-w-xl mx-auto px-4 py-20 text-center space-y-4">
-        <h2 className="text-xl font-bold text-slate-900">JV Opportunity Not Found</h2>
-        <Link href="/joint-ventures" className="text-xs text-brand-600 font-bold">
+      <div className="max-w-xl mx-auto px-4 py-24 text-center space-y-4">
+        <h2 className="heading-4 text-white">JV Opportunity Not Found</h2>
+        <Link href="/joint-ventures" className="button-sm text-blue-400">
           &larr; Back to Joint Ventures
         </Link>
       </div>
@@ -91,25 +91,25 @@ export default function JVOpportunityDetailPage({ params }: { params: Promise<{ 
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
-      <Link href="/joint-ventures" className="text-xs font-semibold text-slate-500 hover:text-slate-800 flex items-center gap-1">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
+      <Link href="/joint-ventures" className="caption-3 text-[#9B9B9B] hover:text-white flex items-center gap-1.5 transition-colors">
         <ArrowLeft className="w-3.5 h-3.5" /> Back to JV Opportunities
       </Link>
 
-      <div className="relative aspect-[21/9] rounded-3xl overflow-hidden bg-slate-900">
+      <div className="relative aspect-[21/9] rounded-3xl overflow-hidden bg-[#181818] border border-[#272727] shadow-2xl">
         <Image
           src={jv.media?.[0]?.url || "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab"}
           alt={jv.title}
           fill
           className="object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
         <div className="absolute bottom-6 left-6 right-6 text-white space-y-1">
-          <span className="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-emerald-600 text-white">
+          <span className="px-3 py-1 rounded-xl caption-3 font-semibold uppercase tracking-wider bg-emerald-600 text-white">
             {jv.collaborationType.replace("_", " ")}
           </span>
-          <h1 className="text-2xl sm:text-4xl font-extrabold">{jv.title}</h1>
-          <div className="flex items-center gap-1.5 text-xs text-slate-300">
+          <h1 className="heading-3 sm:heading-2 font-bold">{jv.title}</h1>
+          <div className="flex items-center gap-1.5 caption-4 text-[#9B9B9B]">
             <MapPin className="w-3.5 h-3.5 text-emerald-400" />
             <span>{jv.location}, {jv.city}, {jv.state}</span>
           </div>
@@ -118,19 +118,19 @@ export default function JVOpportunityDetailPage({ params }: { params: Promise<{ 
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="md:col-span-2 space-y-6">
-          <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-4">
-            <h3 className="font-bold text-base text-slate-900">Project Overview</h3>
-            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed whitespace-pre-line">
+          <div className="bg-[#181818] rounded-3xl border border-[#272727] p-8 shadow-xl space-y-4">
+            <h3 className="title-2 text-white">Project Overview</h3>
+            <p className="body-5 text-[#9B9B9B] leading-relaxed whitespace-pre-line text-pretty">
               {jv.description}
             </p>
           </div>
 
-          <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-4">
-            <h3 className="font-bold text-base text-slate-900">Developer Eligibility & Terms</h3>
-            <ul className="space-y-2 text-xs text-slate-700">
+          <div className="bg-[#181818] rounded-3xl border border-[#272727] p-8 shadow-xl space-y-4">
+            <h3 className="title-2 text-white">Developer Eligibility and Structure</h3>
+            <ul className="space-y-2.5 body-5 text-[#9B9B9B]">
               {jv.requirements?.map((req, idx) => (
                 <li key={idx} className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
                   <span>{req}</span>
                 </li>
               ))}
@@ -139,21 +139,21 @@ export default function JVOpportunityDetailPage({ params }: { params: Promise<{ 
         </div>
 
         <div className="space-y-6">
-          <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm space-y-4 sticky top-24">
+          <div className="bg-[#181818] rounded-3xl border border-[#272727] p-6 shadow-xl space-y-4 sticky top-24">
             <div className="space-y-1">
-              <span className="text-[11px] font-bold text-slate-400 uppercase">Landholding Area</span>
-              <div className="text-2xl font-extrabold text-slate-900">
+              <span className="caption-4 font-bold text-[#666666] uppercase">Landholding Area</span>
+              <div className="heading-4 font-bold text-white">
                 {jv.landArea} {jv.areaUnit}
               </div>
             </div>
 
-            <div className="p-3 bg-emerald-50 border border-emerald-100 rounded-xl text-xs text-emerald-900">
+            <div className="p-3 bg-emerald-950/60 border border-emerald-900/60 rounded-xl caption-3 text-emerald-300">
               Direct Landowner Mandate curated by PropDesk Advisory.
             </div>
 
             <button
               onClick={() => setInquiryModalOpen(true)}
-              className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md transition-colors flex items-center justify-center gap-2"
+              className="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-500 text-white button-sm rounded-xl shadow-md transition-all active:scale-[0.98] flex items-center justify-center gap-2"
             >
               <Send className="w-4 h-4" />
               <span>Submit JV Proposal</span>

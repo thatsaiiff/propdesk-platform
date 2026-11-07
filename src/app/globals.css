@@ -4,19 +4,218 @@
 
 @layer base {
   :root {
-    --background: #f8fafc;
-    --foreground: #0f172a;
+    --background: #000000;
+    --surface-1: #181818;
+    --surface-2: #1F1F1F;
+    --surface-3: #272727;
+    --surface-4: #313131;
+    --border-base: #272727;
+    --border-hover: #3a3a3a;
+    --text-primary: #FFFFFF;
+    --text-secondary: #9B9B9B;
+    --text-muted: #666666;
+    --accent: #3b82f6;
+    --accent-hover: #2563eb;
   }
 
   body {
     background-color: var(--background);
-    color: var(--foreground);
-    font-feature-settings: "rlig" 1, "calt" 1;
-    -webkit-tap-highlight-color: transparent;
+    color: var(--text-primary);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Strict typography rules: no orphaned words */
+  h1, h2, h3, h4, h5, h6 {
+    text-wrap: balance;
+  }
+
+  p, span, label {
+    text-wrap: pretty;
   }
 }
 
-/* Custom smooth transitions */
-.transition-smooth {
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+@layer utilities {
+  /* Named Text Styles according to AI Landing Page Design System */
+  .heading-1 {
+    font-size: 3.75rem; /* 60px */
+    line-height: 1;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+  }
+
+  .heading-2 {
+    font-size: 3rem; /* 48px */
+    line-height: 1;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+  }
+
+  .heading-3 {
+    font-size: 2.25rem; /* 36px */
+    line-height: 2.5rem; /* 40px */
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  .heading-4 {
+    font-size: 1.875rem; /* 30px */
+    line-height: 2.25rem; /* 36px */
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  .heading-5 {
+    font-size: 1.5rem; /* 24px */
+    line-height: 2rem; /* 32px */
+    font-weight: 600;
+    letter-spacing: -0.015em;
+  }
+
+  .heading-6 {
+    font-size: 1.25rem; /* 20px */
+    line-height: 1.75rem; /* 28px */
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .title-1 {
+    font-size: 1.25rem; /* 20px */
+    line-height: 1.75rem; /* 28px */
+    font-weight: 500;
+  }
+
+  .title-2 {
+    font-size: 1.125rem; /* 18px */
+    line-height: 1.75rem; /* 28px */
+    font-weight: 500;
+  }
+
+  .title-3 {
+    font-size: 1rem; /* 16px */
+    line-height: 1.5rem; /* 24px */
+    font-weight: 500;
+  }
+
+  .title-4 {
+    font-size: 0.875rem; /* 14px */
+    line-height: 1.25rem; /* 20px */
+    font-weight: 500;
+  }
+
+  .title-5 {
+    font-size: 0.75rem; /* 12px */
+    line-height: 1rem; /* 16px */
+    font-weight: 500;
+  }
+
+  .body-1 {
+    font-size: 1rem; /* 16px */
+    line-height: 1.5rem; /* 24px */
+    font-weight: 600;
+  }
+
+  .body-2 {
+    font-size: 1rem; /* 16px */
+    line-height: 1.5rem; /* 24px */
+    font-weight: 500;
+  }
+
+  .body-3 {
+    font-size: 1rem; /* 16px */
+    line-height: 1.5rem; /* 24px */
+    font-weight: 400;
+  }
+
+  .body-4 {
+    font-size: 0.875rem; /* 14px */
+    line-height: 1.25rem; /* 20px */
+    font-weight: 600;
+  }
+
+  .body-5 {
+    font-size: 0.875rem; /* 14px */
+    line-height: 1.25rem; /* 20px */
+    font-weight: 500;
+  }
+
+  .body-6 {
+    font-size: 0.875rem; /* 14px */
+    line-height: 1.25rem; /* 20px */
+    font-weight: 400;
+  }
+
+  .button-lg {
+    font-size: 1.125rem; /* 18px */
+    line-height: 1.75rem; /* 28px */
+    font-weight: 600;
+  }
+
+  .button-md {
+    font-size: 1rem; /* 16px */
+    line-height: 1.5rem; /* 24px */
+    font-weight: 600;
+  }
+
+  .button-sm {
+    font-size: 0.875rem; /* 14px */
+    line-height: 1.25rem; /* 20px */
+    font-weight: 600;
+  }
+
+  .button-xsm {
+    font-size: 0.75rem; /* 12px */
+    line-height: 1rem; /* 16px */
+    font-weight: 600;
+  }
+
+  .caption-1 {
+    font-size: 0.875rem; /* 14px */
+    line-height: 1.25rem; /* 20px */
+    font-weight: 500;
+  }
+
+  .caption-2 {
+    font-size: 0.875rem; /* 14px */
+    line-height: 1.25rem; /* 20px */
+    font-weight: 400;
+  }
+
+  .caption-3 {
+    font-size: 0.75rem; /* 12px */
+    line-height: 1rem; /* 16px */
+    font-weight: 600;
+  }
+
+  .caption-4 {
+    font-size: 0.75rem; /* 12px */
+    line-height: 1rem; /* 16px */
+    font-weight: 500;
+  }
+
+  .caption-5 {
+    font-size: 0.75rem; /* 12px */
+    line-height: 1rem; /* 16px */
+    font-weight: 400;
+  }
+
+  /* Non-negotiable motion curve: cubic-bezier(0.22,1,0.36,1) */
+  .motion-base {
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    transition-duration: 500ms;
+  }
+
+  .motion-fast {
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    transition-duration: 300ms;
+  }
+
+  /* Hero Gradient text rule: #FFFFFF to #9B9B9B */
+  .hero-text-gradient {
+    background: linear-gradient(to right, #FFFFFF, #9B9B9B);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
 }

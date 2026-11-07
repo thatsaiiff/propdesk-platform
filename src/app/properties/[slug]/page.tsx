@@ -39,7 +39,6 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ slug:
         if (data.success && data.data) {
           setProperty(data.data);
 
-          // Fetch similar
           const simRes = await fetch(`/api/properties?category=${data.data.category}`);
           const simData = await simRes.json();
           if (simData.success && simData.data) {
@@ -57,25 +56,25 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ slug:
 
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-12 space-y-6">
-        <div className="h-8 w-48 bg-slate-200 rounded-lg animate-pulse" />
-        <div className="h-[450px] w-full bg-slate-200 rounded-3xl animate-pulse" />
+      <div className="max-w-7xl mx-auto px-4 py-16 space-y-6">
+        <div className="h-8 w-48 bg-[#181818] rounded-xl animate-pulse" />
+        <div className="h-[450px] w-full bg-[#181818] rounded-3xl animate-pulse" />
       </div>
     );
   }
 
   if (!property) {
     return (
-      <div className="max-w-3xl mx-auto px-4 py-20 text-center space-y-4">
-        <h2 className="text-2xl font-bold text-slate-900">Property Not Found</h2>
-        <p className="text-sm text-slate-500">
-          This listing may have been leased, sold, or paused by our platform administrators.
+      <div className="max-w-xl mx-auto px-4 py-24 text-center space-y-4">
+        <h2 className="heading-4 text-white">Property Not Found</h2>
+        <p className="body-5 text-[#9B9B9B]">
+          This listing may have been leased, sold, or paused by platform administrators.
         </p>
         <Link
           href="/properties"
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-900 text-white rounded-xl text-xs font-semibold"
+          className="inline-flex items-center gap-2 py-2 px-4 bg-white text-black button-sm rounded-xl"
         >
-          <ArrowLeft className="w-4 h-4" /> Back to Properties
+          <ArrowLeft className="w-4 h-4" /> Back to Catalogue
         </Link>
       </div>
     );
@@ -86,21 +85,21 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ slug:
     : [{ id: "def-1", url: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c", altText: property.title, isCover: true, sortOrder: 1 }];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
-      {/* Back button & Breadcrumb */}
-      <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
-        <Link href="/properties" className="hover:text-slate-900 flex items-center gap-1">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12">
+      {/* Breadcrumb */}
+      <div className="flex items-center gap-2 caption-3 text-[#666666]">
+        <Link href="/properties" className="hover:text-white flex items-center gap-1 transition-colors">
           <ArrowLeft className="w-3.5 h-3.5" /> Catalogue
         </Link>
         <span>/</span>
-        <span className="text-slate-700">{property.category.replace("_", " ")}</span>
+        <span className="text-[#9B9B9B]">{property.category.replace("_", " ")}</span>
         <span>/</span>
-        <span className="text-slate-400 truncate max-w-xs">{property.title}</span>
+        <span className="text-white truncate max-w-xs">{property.title}</span>
       </div>
 
-      {/* Hero Gallery */}
+      {/* Hero Media Gallery */}
       <div className="space-y-3">
-        <div className="relative aspect-[16/9] md:aspect-[21/9] rounded-3xl overflow-hidden bg-slate-900 shadow-md">
+        <div className="relative aspect-[16/9] md:aspect-[21/9] rounded-3xl overflow-hidden bg-[#181818] border border-[#272727] shadow-2xl">
           <Image
             src={images[activeImageIndex].url}
             alt={images[activeImageIndex].altText || property.title}
@@ -108,39 +107,39 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ slug:
             priority
             className="object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
 
           {/* Badges Overlay */}
           <div className="absolute top-4 left-4 flex gap-2">
-            <span className="px-3 py-1 rounded-full text-xs font-extrabold uppercase bg-white text-slate-900 shadow-md">
+            <span className="px-3 py-1 rounded-xl caption-3 font-semibold uppercase tracking-wider bg-[#181818]/90 text-white backdrop-blur-md border border-[#272727]">
               {property.category.replace("_", " ")}
             </span>
-            <span className="px-3 py-1 rounded-full text-xs font-extrabold uppercase bg-brand-600 text-white shadow-md">
+            <span className="px-3 py-1 rounded-xl caption-3 font-semibold uppercase tracking-wider bg-blue-600 text-white shadow-md">
               For {property.transactionType}
             </span>
           </div>
 
-          {/* Bottom Title on Image */}
+          {/* Title on Image */}
           <div className="absolute bottom-6 left-6 right-6 text-white space-y-1">
-            <div className="flex items-center gap-1.5 text-xs text-slate-300">
-              <MapPin className="w-4 h-4 text-brand-400" />
+            <div className="flex items-center gap-1.5 caption-3 text-[#9B9B9B]">
+              <MapPin className="w-4 h-4 text-blue-400" />
               <span>{property.locality}, {property.city}, {property.state}</span>
             </div>
-            <h1 className="text-xl sm:text-3xl font-extrabold tracking-tight">
+            <h1 className="heading-4 sm:heading-3 font-bold text-white text-balance">
               {property.title}
             </h1>
           </div>
         </div>
 
-        {/* Thumbnails */}
+        {/* Gallery Thumbnails */}
         {images.length > 1 && (
           <div className="flex gap-2.5 overflow-x-auto pb-1">
             {images.map((img, idx) => (
               <button
                 key={img.id}
                 onClick={() => setActiveImageIndex(idx)}
-                className={`relative w-20 h-14 rounded-xl overflow-hidden shrink-0 border-2 transition-all ${
-                  activeImageIndex === idx ? "border-brand-600 scale-105" : "border-transparent opacity-75 hover:opacity-100"
+                className={`relative w-20 h-14 rounded-xl overflow-hidden shrink-0 border-2 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                  activeImageIndex === idx ? "border-blue-500 scale-105" : "border-transparent opacity-60 hover:opacity-100"
                 }`}
               >
                 <Image src={img.url} alt={img.altText || ""} fill className="object-cover" />
@@ -152,106 +151,106 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ slug:
 
       {/* Main Content Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-        {/* Left Column: Facts & Specs & Description */}
+        {/* Left Column: Specs & Description */}
         <div className="lg:col-span-2 space-y-8">
-          {/* Key Specification Matrix */}
-          <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6">
-            <h3 className="text-base font-bold text-slate-900 tracking-tight">
-              Property Overview & Specifications
+          {/* Specifications Matrix */}
+          <div className="bg-[#181818] rounded-3xl border border-[#272727] p-8 space-y-6 shadow-xl">
+            <h3 className="title-2 text-white">
+              Property Overview and Specifications
             </h3>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {(property.builtUpArea || property.plotArea) && (
-                <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 space-y-1">
-                  <div className="text-slate-400 font-semibold flex items-center gap-1">
-                    <Maximize2 className="w-3.5 h-3.5 text-brand-600" />
+                <div className="p-4 bg-[#1F1F1F] rounded-2xl border border-[#272727] space-y-1">
+                  <div className="caption-4 text-[#9B9B9B] flex items-center gap-1.5">
+                    <Maximize2 className="w-3.5 h-3.5 text-blue-400" />
                     Built-up Area
                   </div>
-                  <div className="text-sm font-bold text-slate-900">
+                  <div className="title-3 text-white">
                     {(property.builtUpArea || property.plotArea)?.toLocaleString()} {property.areaUnit}
                   </div>
                 </div>
               )}
 
               {property.carpetArea && (
-                <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 space-y-1">
-                  <div className="text-slate-400 font-semibold flex items-center gap-1">
-                    <Maximize2 className="w-3.5 h-3.5 text-brand-600" />
+                <div className="p-4 bg-[#1F1F1F] rounded-2xl border border-[#272727] space-y-1">
+                  <div className="caption-4 text-[#9B9B9B] flex items-center gap-1.5">
+                    <Maximize2 className="w-3.5 h-3.5 text-blue-400" />
                     Carpet Area
                   </div>
-                  <div className="text-sm font-bold text-slate-900">
+                  <div className="title-3 text-white">
                     {property.carpetArea?.toLocaleString()} {property.areaUnit}
                   </div>
                 </div>
               )}
 
               {property.bedrooms && (
-                <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 space-y-1">
-                  <div className="text-slate-400 font-semibold flex items-center gap-1">
-                    <Bed className="w-3.5 h-3.5 text-brand-600" />
+                <div className="p-4 bg-[#1F1F1F] rounded-2xl border border-[#272727] space-y-1">
+                  <div className="caption-4 text-[#9B9B9B] flex items-center gap-1.5">
+                    <Bed className="w-3.5 h-3.5 text-blue-400" />
                     Bedrooms
                   </div>
-                  <div className="text-sm font-bold text-slate-900">
+                  <div className="title-3 text-white">
                     {property.bedrooms} BHK
                   </div>
                 </div>
               )}
 
               {property.bathrooms && (
-                <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 space-y-1">
-                  <div className="text-slate-400 font-semibold flex items-center gap-1">
-                    <Bath className="w-3.5 h-3.5 text-brand-600" />
+                <div className="p-4 bg-[#1F1F1F] rounded-2xl border border-[#272727] space-y-1">
+                  <div className="caption-4 text-[#9B9B9B] flex items-center gap-1.5">
+                    <Bath className="w-3.5 h-3.5 text-blue-400" />
                     Bathrooms
                   </div>
-                  <div className="text-sm font-bold text-slate-900">
+                  <div className="title-3 text-white">
                     {property.bathrooms} Baths
                   </div>
                 </div>
               )}
 
               {property.facing && (
-                <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 space-y-1">
-                  <div className="text-slate-400 font-semibold flex items-center gap-1">
-                    <Compass className="w-3.5 h-3.5 text-brand-600" />
+                <div className="p-4 bg-[#1F1F1F] rounded-2xl border border-[#272727] space-y-1">
+                  <div className="caption-4 text-[#9B9B9B] flex items-center gap-1.5">
+                    <Compass className="w-3.5 h-3.5 text-blue-400" />
                     Facing
                   </div>
-                  <div className="text-sm font-bold text-slate-900">
+                  <div className="title-3 text-white">
                     {property.facing.replace("_", " ")}
                   </div>
                 </div>
               )}
 
               {property.parkingCount !== undefined && (
-                <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 space-y-1">
-                  <div className="text-slate-400 font-semibold flex items-center gap-1">
-                    <Car className="w-3.5 h-3.5 text-brand-600" />
+                <div className="p-4 bg-[#1F1F1F] rounded-2xl border border-[#272727] space-y-1">
+                  <div className="caption-4 text-[#9B9B9B] flex items-center gap-1.5">
+                    <Car className="w-3.5 h-3.5 text-blue-400" />
                     Parking
                   </div>
-                  <div className="text-sm font-bold text-slate-900">
+                  <div className="title-3 text-white">
                     {property.parkingCount} Covered
                   </div>
                 </div>
               )}
 
               {property.floorNumber !== undefined && property.totalFloors !== undefined && (
-                <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 space-y-1">
-                  <div className="text-slate-400 font-semibold flex items-center gap-1">
-                    <Layers className="w-3.5 h-3.5 text-brand-600" />
+                <div className="p-4 bg-[#1F1F1F] rounded-2xl border border-[#272727] space-y-1">
+                  <div className="caption-4 text-[#9B9B9B] flex items-center gap-1.5">
+                    <Layers className="w-3.5 h-3.5 text-blue-400" />
                     Floor Level
                   </div>
-                  <div className="text-sm font-bold text-slate-900">
+                  <div className="title-3 text-white">
                     {property.floorNumber} of {property.totalFloors}
                   </div>
                 </div>
               )}
 
               {property.furnishing && (
-                <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 space-y-1">
-                  <div className="text-slate-400 font-semibold flex items-center gap-1">
-                    <Sparkles className="w-3.5 h-3.5 text-brand-600" />
+                <div className="p-4 bg-[#1F1F1F] rounded-2xl border border-[#272727] space-y-1">
+                  <div className="caption-4 text-[#9B9B9B] flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-blue-400" />
                     Furnishing
                   </div>
-                  <div className="text-sm font-bold text-slate-900">
+                  <div className="title-3 text-white">
                     {property.furnishing.replace("_", " ")}
                   </div>
                 </div>
@@ -260,28 +259,24 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ slug:
           </div>
 
           {/* Description */}
-          <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-4">
-            <h3 className="text-base font-bold text-slate-900 tracking-tight">
-              Property Description
-            </h3>
-            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed whitespace-pre-line">
+          <div className="bg-[#181818] rounded-3xl border border-[#272727] p-8 space-y-4 shadow-xl">
+            <h3 className="title-2 text-white">Property Description</h3>
+            <p className="body-5 text-[#9B9B9B] leading-relaxed whitespace-pre-line text-pretty">
               {property.description}
             </p>
           </div>
 
-          {/* Amenities & Infrastructure */}
+          {/* Amenities list */}
           {property.amenities && property.amenities.length > 0 && (
-            <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-4">
-              <h3 className="text-base font-bold text-slate-900 tracking-tight">
-                Amenities & Features
-              </h3>
+            <div className="bg-[#181818] rounded-3xl border border-[#272727] p-8 space-y-4 shadow-xl">
+              <h3 className="title-2 text-white">Amenities and Infrastructure</h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {property.amenities.map((amenity) => (
                   <div
                     key={amenity}
-                    className="flex items-center gap-2 text-xs font-semibold text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-100"
+                    className="flex items-center gap-2 body-5 text-white bg-[#1F1F1F] p-3 rounded-xl border border-[#272727]"
                   >
-                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
                     <span>{amenity}</span>
                   </div>
                 ))}
@@ -290,62 +285,61 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ slug:
           )}
         </div>
 
-        {/* Right Column: Pricing Transparency Callout & Advisory CTA Box */}
+        {/* Right Sticky Advisory & Pricing Box */}
         <div className="space-y-6">
-          <div className="bg-white rounded-3xl border-2 border-brand-500/20 shadow-xl p-6 sm:p-8 space-y-6 sticky top-24">
-            {/* Header Badge */}
+          <div className="bg-[#181818] rounded-3xl border border-[#272727] p-6 sm:p-8 space-y-6 sticky top-24 shadow-2xl">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-extrabold uppercase tracking-wider text-brand-700 bg-brand-50 px-2.5 py-1 rounded-lg">
+              <span className="caption-3 font-semibold uppercase tracking-wider text-blue-400 bg-blue-950/40 border border-blue-900/50 px-2.5 py-1 rounded-lg">
                 Verified Mandate
               </span>
-              <span className="text-[11px] font-bold text-emerald-600 flex items-center gap-1">
-                <ShieldCheck className="w-3.5 h-3.5" /> Admin Curated
+              <span className="caption-4 text-emerald-400 flex items-center gap-1 font-semibold">
+                <ShieldCheck className="w-4 h-4" /> Admin Curated
               </span>
             </div>
 
-            {/* Pricing Advisory Notice (NO PRICE KEY EVER DISPLAYED) */}
-            <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-2">
-              <div className="text-xs font-bold text-slate-900 uppercase tracking-wide">
+            {/* Pricing Standard Notice */}
+            <div className="bg-[#1F1F1F] rounded-2xl p-4 border border-[#272727] space-y-2">
+              <div className="caption-3 uppercase tracking-wider text-white font-bold">
                 Private Price Schedule
               </div>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                In compliance with platform policy, certified pricing, payment schedules, and verified title documents are disclosed directly by our advisory desk upon qualified inquiry.
+              <p className="caption-2 text-[#9B9B9B] leading-relaxed">
+                In compliance with platform policy, certified pricing, payment plans, and verified title records are disclosed directly by our advisory desk upon qualified inquiry.
               </p>
-              <div className="pt-2 text-[11px] font-semibold text-slate-500 flex items-center gap-1.5">
-                <Calendar className="w-3.5 h-3.5 text-brand-600" />
-                <span>Response Target: Within staffed hours</span>
+              <div className="pt-2 caption-4 text-[#666666] flex items-center gap-1.5">
+                <Calendar className="w-3.5 h-3.5 text-blue-400" />
+                <span>Response Target: Within business hours</span>
               </div>
             </div>
 
             {/* Primary Action Button */}
             <button
               onClick={() => setInquiryModalOpen(true)}
-              className="w-full py-4 bg-brand-600 hover:bg-brand-700 text-white font-extrabold text-sm rounded-2xl shadow-lg shadow-brand-500/20 transition-all hover:scale-[1.02] flex items-center justify-center gap-2"
+              className="w-full py-3.5 px-4 bg-white hover:bg-[#e0e0e0] text-black button-md rounded-2xl shadow-xl transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] active:scale-[0.98] flex items-center justify-center gap-2"
             >
               <Send className="w-4 h-4" />
               <span>Send Inquiry to Get Price</span>
             </button>
 
-            {/* Phone CTA */}
+            {/* Direct Phone Call */}
             <a
               href="tel:+918000000000"
-              className="w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-2xl transition-colors flex items-center justify-center gap-2"
+              className="w-full py-3 px-4 bg-[#1F1F1F] hover:bg-[#272727] text-white button-sm rounded-2xl border border-[#272727] transition-all duration-300 flex items-center justify-center gap-2"
             >
               <PhoneCall className="w-4 h-4 text-emerald-400" />
               <span>Call Advisory Desk (+91 80000 00000)</span>
             </a>
 
-            <div className="text-center text-[11px] text-slate-400">
-              Zero registration required to browse • Complete inquiries are routed directly to assigned managers.
+            <div className="text-center caption-5 text-[#666666]">
+              Zero signup required to browse. Direct routing to assigned desk managers.
             </div>
           </div>
         </div>
       </div>
 
-      {/* Similar Properties Section */}
+      {/* Similar Properties */}
       {similarProperties.length > 0 && (
-        <div className="pt-12 border-t border-slate-200 space-y-6">
-          <h3 className="text-xl font-bold text-slate-900">
+        <div className="pt-12 border-t border-[#272727] space-y-6">
+          <h3 className="title-1 text-white">
             Similar Properties in {property.category.replace("_", " ")}
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -356,7 +350,6 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ slug:
         </div>
       )}
 
-      {/* Inquiry Modal */}
       <InquiryModal
         isOpen={inquiryModalOpen}
         onClose={() => setInquiryModalOpen(false)}

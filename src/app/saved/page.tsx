@@ -5,10 +5,10 @@ import Link from "next/link";
 import { PublicPropertyDTO } from "@/types";
 import { useAuth } from "@/context/AuthContext";
 import PropertyCard from "@/components/property/PropertyCard";
-import { Heart, ArrowLeft, Search } from "lucide-react";
+import { Heart, ArrowLeft } from "lucide-react";
 
 export default function SavedPropertiesPage() {
-  const { user, favourites } = useAuth();
+  const { favourites } = useAuth();
   const [properties, setProperties] = useState<PublicPropertyDTO[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -33,45 +33,45 @@ export default function SavedPropertiesPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
-      <div className="flex items-center justify-between pb-6 border-b border-slate-200">
+      <div className="flex items-center justify-between pb-6 border-b border-[#272727]">
         <div>
           <div className="flex items-center gap-2">
             <Heart className="w-5 h-5 text-red-500 fill-red-500" />
-            <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+            <h1 className="heading-4 sm:heading-3 hero-text-gradient tracking-tight">
               Saved Properties
             </h1>
           </div>
-          <p className="text-xs text-slate-500 mt-1">
-            Properties you have bookmarked for inquiry and price evaluation.
+          <p className="body-5 text-[#9B9B9B] mt-1">
+            Properties bookmarked for valuation review and inquiry scheduling.
           </p>
         </div>
 
         <Link
           href="/properties"
-          className="text-xs font-semibold text-brand-600 hover:text-brand-800 flex items-center gap-1"
+          className="button-sm text-[#9B9B9B] hover:text-white flex items-center gap-1.5 transition-colors"
         >
-          <ArrowLeft className="w-3.5 h-3.5" /> Continue Browsing
+          <ArrowLeft className="w-4 h-4" /> Continue Browsing
         </Link>
       </div>
 
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-96 rounded-3xl bg-slate-200 animate-pulse" />
+            <div key={i} className="h-96 rounded-3xl bg-[#181818] border border-[#272727] animate-pulse" />
           ))}
         </div>
       ) : properties.length === 0 ? (
-        <div className="text-center py-20 bg-white rounded-3xl border border-slate-200 p-8 space-y-4">
-          <div className="w-12 h-12 bg-red-50 text-red-400 rounded-full flex items-center justify-center mx-auto">
+        <div className="text-center py-20 bg-[#181818] rounded-3xl border border-[#272727] p-8 space-y-4 shadow-xl">
+          <div className="w-12 h-12 bg-[#1F1F1F] text-red-400 rounded-full flex items-center justify-center mx-auto border border-[#272727]">
             <Heart className="w-6 h-6" />
           </div>
-          <h3 className="font-bold text-slate-900 text-base">No saved properties yet</h3>
-          <p className="text-xs text-slate-500 max-w-sm mx-auto">
+          <h3 className="title-2 text-white">No saved properties yet</h3>
+          <p className="body-5 text-[#9B9B9B] max-w-sm mx-auto">
             Tap the heart icon on any property card to save it here for fast inquiry access.
           </p>
           <Link
             href="/properties"
-            className="inline-block px-5 py-2.5 bg-slate-900 text-white font-semibold text-xs rounded-xl"
+            className="inline-block py-2.5 px-5 bg-white text-black button-sm rounded-xl shadow-md"
           >
             Explore Public Catalogue
           </Link>
