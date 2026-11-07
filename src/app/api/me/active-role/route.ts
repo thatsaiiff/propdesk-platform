@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
     const targetRole = parsed.data.role;
 
     // SECURITY CHECK: active role MUST be one of the user's assigned roles
-    if (!user.roles.includes(targetRole)) {
+    if (!user.roles.includes(targetRole as any)) {
       return NextResponse.json(
         {
           error: {

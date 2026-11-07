@@ -16,7 +16,10 @@ export const UserRoleEnum = z.enum([
   "INVESTOR",
   "OWNER",
   "BROKER",
-  "BUILDER"
+  "BUILDER",
+  "INDIVIDUAL_BUYER",
+  "PROPERTY_OWNER",
+  "RENTAL_SEEKER"
 ]);
 
 export const ActiveRoleSwitchSchema = z.object({

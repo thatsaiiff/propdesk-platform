@@ -22,8 +22,8 @@ export async function POST(req: NextRequest) {
 
     const newRole = parsed.data;
 
-    if (!user.roles.includes(newRole)) {
-      user.roles.push(newRole);
+    if (!user.roles.includes(newRole as any)) {
+      user.roles.push(newRole as any);
       store.saveUser(user);
 
       store.addAuditLog({

@@ -1,14 +1,14 @@
-import { User, UserRoleType, StaffRoleType } from "@/types";
+import { User, UserRole } from "@/types";
 import { store } from "@/lib/store";
+import { NextRequest } from "next/server";
 
 const SESSION_SECRET = process.env.SESSION_SECRET || "propdesk-super-secret-production-key-2026-secure-invariable";
 
 export interface SessionPayload {
   userId: string;
   email: string;
-  activeRole?: UserRoleType;
-  roles: UserRoleType[];
-  staffRoles: StaffRoleType[];
+  roles: UserRole[];
+  staffRoles?: string[];
   exp: number;
 }
 
@@ -51,7 +51,6 @@ export async function createSessionToken(user: User): Promise<string> {
   const payload: SessionPayload = {
     userId: user.id,
     email: user.email,
-    activeRole: user.activeRole,
     roles: user.roles,
     staffRoles: user.staffRoles,
     exp: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60, // 7 days
@@ -84,26 +83,36 @@ export async function verifySessionToken(token: string): Promise<SessionPayload 
   }
 }
 
-/**
- * Server-side security checks:
- * Invariant: Active role is ONLY a display preference; authorization must check actual assigned roles.
- */
+export async function getCurrentUserFromRequest(req: NextRequest): Promise<User | null> {
+  const cookie = req.cookies.get("propdesk_session")?.value;
+  if (!cookie) return null;
+
+  const payload = await verifySessionToken(cookie);
+  if (!payload) return null;
+
+  return store.getUserById(payload.userId);
+}
+
 export function isBuilderUser(user: User | null): boolean {
   if (!user) return false;
-  return user.roles.includes("BUILDER") || user.staffRoles.includes("SUPER_ADMIN");
+  return user.roles.includes("BUILDER") || (Array.isArray(user.staffRoles) && user.staffRoles.includes("SUPER_ADMIN"));
 }
 
 export function isStaffUser(user: User | null): boolean {
   if (!user) return false;
-  return user.staffRoles.length > 0;
+  return Array.isArray(user.staffRoles) && user.staffRoles.length > 0;
+}
+
+export function isAdminUser(user: User | null): boolean {
+  return isStaffUser(user);
 }
 
 export function canPublishListings(user: User | null): boolean {
   if (!user) return false;
-  return user.staffRoles.includes("SUPER_ADMIN") || user.staffRoles.includes("LISTING_MANAGER");
+  return Array.isArray(user.staffRoles) && (user.staffRoles.includes("SUPER_ADMIN") || user.staffRoles.includes("LISTING_MANAGER"));
 }
 
 export function canManageLeads(user: User | null): boolean {
   if (!user) return false;
-  return user.staffRoles.includes("SUPER_ADMIN") || user.staffRoles.includes("LEAD_MANAGER");
+  return Array.isArray(user.staffRoles) && (user.staffRoles.includes("SUPER_ADMIN") || user.staffRoles.includes("LEAD_MANAGER"));
 }

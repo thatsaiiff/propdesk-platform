@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import { Newsreader, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
 
 const newsreader = Newsreader({
   subsets: ["latin"],
@@ -20,18 +18,18 @@ const plusJakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "PropDesk — Curated Indian Real Estate Discovery Platform",
+  title: "PropDesk — Real Estate. Reimagined.",
   description:
-    "Mobile-first, modern real-estate discovery with curated inventory, inquiry-led pricing, and builder joint venture opportunities. Browse verified listings across India.",
+    "A Tinder-like property discovery platform combined with a trusted real estate service provider. Verified properties, bank auctions, commercial mandates and joint ventures across India.",
   keywords: [
     "Indian Real Estate",
+    "Tinder for Real Estate",
     "Curated Properties Mumbai",
     "Commercial Real Estate Bengaluru",
-    "Luxury Apartments Delhi NCR",
     "Joint Ventures Builder India",
-    "Inquiry-Led Real Estate",
+    "Disputed Properties Discount",
   ],
-  authors: [{ name: "PropDesk Team" }],
+  authors: [{ name: "PropDesk Discovery Desk" }],
 };
 
 export default function RootLayout({
@@ -44,17 +42,14 @@ export default function RootLayout({
       lang="en"
       className={`h-full ${newsreader.variable} ${plusJakarta.variable} font-sans`}
     >
-      <body className="min-h-full flex flex-col bg-[#08080A] text-[#EDE8E1] antialiased selection:bg-[#CC785C]/30 selection:text-white relative overflow-x-hidden">
-        {/* Ambient liquid lighting orbs behind the glass layer */}
+      <body className="min-h-full flex flex-col bg-[#060911] text-white antialiased selection:bg-amber-400/30 selection:text-white relative overflow-x-hidden">
+        {/* Ambient background glow */}
         <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
-          <div className="absolute top-[-10%] left-[20%] w-[600px] h-[600px] rounded-full bg-gradient-to-br from-[#CC785C]/10 via-[#D97706]/5 to-transparent blur-[140px] opacity-70 transform-gpu" />
-          <div className="absolute top-[40%] right-[-5%] w-[700px] h-[700px] rounded-full bg-gradient-to-bl from-blue-600/8 via-indigo-500/5 to-transparent blur-[160px] opacity-60 transform-gpu" />
-          <div className="absolute bottom-[5%] left-[-10%] w-[650px] h-[650px] rounded-full bg-gradient-to-tr from-[#CC785C]/8 via-purple-600/5 to-transparent blur-[150px] opacity-50 transform-gpu" />
+          <div className="absolute top-[-10%] left-[20%] w-[600px] h-[600px] rounded-full bg-gradient-to-br from-royal-600/10 via-amber-500/5 to-transparent blur-[140px] opacity-70 transform-gpu" />
+          <div className="absolute top-[40%] right-[-5%] w-[700px] h-[700px] rounded-full bg-gradient-to-bl from-blue-600/10 via-purple-500/5 to-transparent blur-[160px] opacity-60 transform-gpu" />
         </div>
         <AuthProvider>
-          <Navbar />
-          <main className="flex-1">{children}</main>
-          <Footer />
+          <main className="flex-1 flex flex-col">{children}</main>
         </AuthProvider>
       </body>
     </html>

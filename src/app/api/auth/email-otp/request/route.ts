@@ -1,36 +1,43 @@
 import { NextRequest, NextResponse } from "next/server";
-import { EmailOtpRequestSchema } from "@/lib/validation/schemas";
+import { z } from "zod";
 import { store } from "@/lib/store";
+
+const RequestSchema = z.object({
+  email: z.string().email("Please enter a valid email address."),
+});
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const parsed = EmailOtpRequestSchema.safeParse(body);
+    const parsed = RequestSchema.safeParse(body);
 
     if (!parsed.success) {
       return NextResponse.json(
-        {
-          error: {
-            code: "VALIDATION_ERROR",
-            message: "Invalid email address.",
-            fieldErrors: parsed.error.flatten().fieldErrors,
-          },
-        },
+        { success: false, error: parsed.error.flatten().fieldErrors.email?.[0] || "Invalid email format." },
         { status: 400 }
       );
     }
 
-    const code = store.createOtp(parsed.data.email);
+    const { email } = parsed.data;
+    const result = store.requestOtp(email);
 
-    // In local / demo mode, return message informing user of code for quick testing
+    if (!result.success) {
+      return NextResponse.json(
+        { success: false, error: result.message, cooldownSeconds: result.cooldownSeconds },
+        { status: 429 }
+      );
+    }
+
     return NextResponse.json({
       success: true,
-      message: `Verification code sent to ${parsed.data.email}.`,
-      demoCodeHint: code === "123456" ? "For testing, use code: 123456" : "Use code: " + code,
+      message: result.message,
+      isNewUser: result.isNewUser,
+      demoCodeHint: "123456",
     });
-  } catch (err: any) {
+  } catch (err) {
+    console.error("OTP request error:", err);
     return NextResponse.json(
-      { error: { code: "SERVER_ERROR", message: err.message || "Failed to send OTP." } },
+      { success: false, error: "An unexpected error occurred while requesting OTP." },
       { status: 500 }
     );
   }

@@ -8,6 +8,7 @@ import { InternalPropertyListing, PublicPropertyDTO } from "@/types";
  * - Omits draft/in-review/private records unless explicitly handled by admin
  */
 export function toPublicPropertyDTO(listing: InternalPropertyListing): PublicPropertyDTO {
+  const images = listing.media || listing.images || [];
   return {
     id: listing.id,
     slug: listing.slug,
@@ -16,13 +17,13 @@ export function toPublicPropertyDTO(listing: InternalPropertyListing): PublicPro
     category: listing.category,
     subtype: listing.subtype,
     transactionType: listing.transactionType,
-    status: listing.status as "PUBLISHED" | "SOLD" | "RENTED",
     state: listing.state,
     city: listing.city,
     locality: listing.locality,
     builtUpArea: listing.builtUpArea,
     carpetArea: listing.carpetArea,
     plotArea: listing.plotArea,
+    area: listing.area,
     areaUnit: listing.areaUnit,
     bedrooms: listing.bedrooms,
     bathrooms: listing.bathrooms,
@@ -33,11 +34,20 @@ export function toPublicPropertyDTO(listing: InternalPropertyListing): PublicPro
     facing: listing.facing,
     parkingCount: listing.parkingCount,
     ageOfProperty: listing.ageOfProperty,
-    amenities: [...listing.amenities],
-    media: listing.media.map(m => ({
+    amenities: listing.amenities ? [...listing.amenities] : [],
+    images: images.map(m => ({
       id: m.id,
       url: m.url,
       altText: m.altText,
+      label: m.label || m.altText,
+      isCover: m.isCover,
+      sortOrder: m.sortOrder,
+    })),
+    media: images.map(m => ({
+      id: m.id,
+      url: m.url,
+      altText: m.altText,
+      label: m.label || m.altText,
       isCover: m.isCover,
       sortOrder: m.sortOrder,
     })),
