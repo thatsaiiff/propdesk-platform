@@ -1,21 +1,6 @@
 import type { Metadata } from "next";
-import { Newsreader, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
-
-const newsreader = Newsreader({
-  subsets: ["latin"],
-  display: "swap",
-  style: ["normal", "italic"],
-  variable: "--font-claude-serif",
-});
-
-const plusJakarta = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  display: "swap",
-  weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-claude-sans",
-});
 
 export const metadata: Metadata = {
   title: "PropDesk — Real Estate. Reimagined.",
@@ -40,7 +25,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`h-full ${newsreader.variable} ${plusJakarta.variable} font-sans`}
+      className="h-full font-sans"
     >
       <body className="min-h-full flex flex-col bg-[#060911] text-white antialiased selection:bg-amber-400/30 selection:text-white relative overflow-x-hidden">
         {/* Ambient background glow */}

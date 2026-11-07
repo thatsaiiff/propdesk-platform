@@ -1,9 +1,13 @@
+@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
+    --font-claude-serif: 'Newsreader', "Lora", Georgia, serif;
+    --font-claude-sans: 'Plus Jakarta Sans', "Inter", -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --background: #08080A;
     --surface-1: #121215;
     --surface-2: #1A1A1F;
