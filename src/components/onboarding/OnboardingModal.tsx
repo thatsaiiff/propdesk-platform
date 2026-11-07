@@ -50,7 +50,6 @@ export default function OnboardingModal({ isOpen, onClose }: OnboardingModalProp
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [isNewUser, setIsNewUser] = useState(false);
-  const [demoHint, setDemoHint] = useState<string | null>(null);
 
   // Selections
   const [selectedRoles, setSelectedRoles] = useState<UserRole[]>([]);
@@ -80,7 +79,6 @@ export default function OnboardingModal({ isOpen, onClose }: OnboardingModalProp
 
     if (res.success) {
       setIsNewUser(!!res.isNewUser);
-      setDemoHint(res.demoCodeHint || "123456");
       setStep("OTP");
     } else {
       setError(res.error || "Failed to send code.");
@@ -308,14 +306,8 @@ export default function OnboardingModal({ isOpen, onClose }: OnboardingModalProp
                   Enter verification code.
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-300 mt-1.5 leading-relaxed">
-                  We sent a 6-digit access code to <strong className="text-white">{email}</strong>.
+                  We sent a 6-digit access code to <strong className="text-white">{email}</strong>. Check your inbox or spam folder.
                 </p>
-                {demoHint && (
-                  <div className="mt-2 text-xs text-amber-300/90 liquid-glass-pill px-3 py-1 rounded-lg inline-flex items-center gap-1.5 border border-amber-400/20">
-                    <KeyRound className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Demo mode code: <strong>{demoHint}</strong></span>
-                  </div>
-                )}
               </div>
 
               <form onSubmit={handleVerifyOtp} className="space-y-4">
@@ -324,10 +316,10 @@ export default function OnboardingModal({ isOpen, onClose }: OnboardingModalProp
                   maxLength={6}
                   value={otp}
                   onChange={(e) => setOtp(e.target.value)}
-                  placeholder="123456"
+                  placeholder="• • • • • •"
                   autoFocus
                   required
-                  className="w-full tracking-widest text-center py-3.5 rounded-xl liquid-glass-input text-xl font-mono font-bold text-white placeholder:text-slate-500 focus:outline-none"
+                  className="w-full tracking-[0.4em] text-center py-3.5 rounded-xl liquid-glass-input text-2xl font-mono font-bold text-white placeholder:text-slate-600 focus:outline-none"
                 />
 
                 <button

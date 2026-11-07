@@ -20,7 +20,7 @@ import {
 
 export default function HomePage() {
   const router = useRouter();
-  const { user, signOut, quickLoginAs } = useAuth();
+  const { user, signOut } = useAuth();
   const [onboardingOpen, setOnboardingOpen] = useState(false);
   const [pricePromise, setPricePromise] = useState(
     "If you find the same property available at a lower verified price elsewhere, show us the proof. We promise to pay you 10% extra and buy the property."
@@ -73,77 +73,41 @@ export default function HomePage() {
           </div>
         </Link>
 
-        {/* User state / Quick Persona Switcher for Testing */}
+        {/* User state and actions */}
         <div className="flex items-center gap-2 sm:gap-3">
-          {/* Demo Persona Pills */}
-          <div className="hidden lg:flex items-center gap-1.5 p-1 rounded-2xl liquid-glass border border-white/10 text-xs">
-            <span className="text-[10px] uppercase font-bold text-slate-400 px-2 py-0.5">Test Persona:</span>
-            <button
-              onClick={() => signOut()}
-              className={`px-2.5 py-1 rounded-xl text-xs transition-all ${
-                !user ? "bg-white text-slate-950 font-bold shadow-sm" : "text-slate-300 hover:text-white"
-              }`}
-            >
-              Guest
-            </button>
-            <button
-              onClick={() => quickLoginAs("arjun@example.demo")}
-              className={`px-2.5 py-1 rounded-xl text-xs transition-all ${
-                user?.email === "arjun@example.demo" ? "bg-royal-600 text-white font-bold" : "text-slate-300 hover:text-white"
-              }`}
-            >
-              Buyer
-            </button>
-            <button
-              onClick={() => quickLoginAs("builder@apexinfra.demo")}
-              className={`px-2.5 py-1 rounded-xl text-xs transition-all ${
-                user?.email === "builder@apexinfra.demo" ? "bg-emerald-600 text-white font-bold" : "text-slate-300 hover:text-white"
-              }`}
-            >
-              Builder
-            </button>
-            <button
-              onClick={() => quickLoginAs("rajesh@primeholdings.demo")}
-              className={`px-2.5 py-1 rounded-xl text-xs transition-all ${
-                user?.email === "rajesh@primeholdings.demo" ? "bg-amber-600 text-white font-bold" : "text-slate-300 hover:text-white"
-              }`}
-            >
-              Owner
-            </button>
-            <button
-              onClick={() => quickLoginAs("admin@propdesk.demo")}
-              className={`px-2.5 py-1 rounded-xl text-xs transition-all ${
-                isAdmin ? "bg-purple-600 text-white font-bold" : "text-slate-300 hover:text-white"
-              }`}
-            >
-              Admin
-            </button>
-          </div>
+          <Link
+            href="/submit-property"
+            className="hidden md:flex items-center gap-1.5 py-2 px-3.5 rounded-xl text-xs font-semibold liquid-glass text-slate-300 hover:text-white hover:border-white/30 transition-all active:scale-95"
+          >
+            <Building2 className="w-3.5 h-3.5 text-amber-400" />
+            <span>List Property</span>
+          </Link>
 
           {user && (
             <Link
               href="/history"
-              className="p-2.5 rounded-xl liquid-glass text-slate-300 hover:text-white hover:border-white/30 transition-all active:scale-95"
+              className="py-2 px-3 rounded-xl liquid-glass text-slate-300 hover:text-white hover:border-white/30 transition-all flex items-center gap-1.5 text-xs font-semibold active:scale-95"
               title="My Property Activity & History"
             >
-              <History className="w-5 h-5 text-amber-400" />
+              <History className="w-4 h-4 text-amber-400" />
+              <span className="hidden sm:inline">My Activity</span>
             </Link>
           )}
 
           {isAdmin && (
             <Link
               href="/admin"
-              className="py-2 px-3.5 rounded-xl text-xs font-bold liquid-glass bg-purple-950/60 border border-purple-500/40 text-purple-200 hover:bg-purple-900/60 transition-all flex items-center gap-1.5 shadow-lg"
+              className="py-2 px-3.5 rounded-xl text-xs font-bold liquid-glass bg-purple-950/60 border border-purple-500/40 text-purple-200 hover:bg-purple-900/60 transition-all flex items-center gap-1.5 shadow-lg active:scale-95"
             >
               <Lock className="w-3.5 h-3.5 text-purple-400" />
-              <span>Admin Panel</span>
+              <span>Admin</span>
             </Link>
           )}
 
           {user ? (
             <button
               onClick={() => signOut()}
-              className="py-2 px-3 rounded-xl text-xs font-semibold liquid-glass text-slate-300 hover:text-white transition-all flex items-center gap-1.5"
+              className="py-2 px-3 rounded-xl text-xs font-semibold liquid-glass text-slate-300 hover:text-white transition-all flex items-center gap-1.5 active:scale-95"
             >
               <LogOut className="w-3.5 h-3.5 text-slate-400" />
               <span className="hidden sm:inline">Sign Out</span>
@@ -160,7 +124,7 @@ export default function HomePage() {
       </header>
 
       {/* Main Content Area — Extremely Minimal & Cinematic */}
-      <main className="relative z-20 max-w-4xl mx-auto px-6 sm:px-10 py-12 text-center space-y-8 flex-1 flex flex-col justify-center items-center">
+      <main className="relative z-20 max-w-4xl mx-auto px-4 sm:px-10 py-6 sm:py-12 text-center space-y-6 sm:space-y-8 flex-1 flex flex-col justify-center items-center">
         {/* Subtle Trust Proposition Pill */}
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full liquid-glass-pill text-xs shadow-xl border border-white/15">
           <ShieldCheck className="w-4 h-4 text-emerald-400" />

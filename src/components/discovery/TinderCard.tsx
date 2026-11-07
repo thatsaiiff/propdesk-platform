@@ -144,7 +144,7 @@ export default function TinderCard({
         <div
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
-          className="relative aspect-[16/11] sm:aspect-[16/10] w-full overflow-hidden bg-slate-900 group/photo"
+          className="relative h-[210px] sm:h-[250px] w-full overflow-hidden bg-slate-900 group/photo shrink-0"
         >
           <Image
             src={currentPhoto.url}
@@ -227,7 +227,7 @@ export default function TinderCard({
         </div>
 
         {/* Bottom Half: Property Specifications & Verified Facts */}
-        <div className="p-5 sm:p-6 space-y-4 flex-1 flex flex-col justify-between">
+        <div className="p-4 sm:p-5 space-y-2 sm:space-y-3 flex-1 flex flex-col justify-between overflow-hidden">
           <div className="space-y-3">
             {/* Location & Category */}
             <div className="flex items-center justify-between text-xs text-slate-400">

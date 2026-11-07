@@ -32,7 +32,6 @@ export async function POST(req: NextRequest) {
       success: true,
       message: result.message,
       isNewUser: result.isNewUser,
-      demoCodeHint: "123456",
     });
   } catch (err) {
     console.error("OTP request error:", err);

@@ -23,6 +23,7 @@ import {
   INITIAL_SUBMISSIONS,
 } from "./seedData";
 import { PrismaAdapter } from "../db/prismaAdapter";
+import { sendOtpEmail } from "../email/sendEmail";
 
 interface OtpRecord {
   code: string;
@@ -125,8 +126,8 @@ class Store {
       return { success: false, message: `Please wait ${wait} seconds before requesting a new code.`, cooldownSeconds: wait, isNewUser: false };
     }
 
-    // Default simulated OTP for development/demo ease is 123456
-    const code = "123456";
+    // Generate a secure, dynamic 6-digit numeric verification code
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = now + 10 * 60 * 1000; // 10 minutes
 
     this.otps.set(normalizedEmail, {
@@ -138,7 +139,10 @@ class Store {
 
     const isNewUser = !this.users.some((u) => u.email.toLowerCase() === normalizedEmail);
 
-    console.log(`[OTP DISPATCH] Email: ${normalizedEmail} | Code: ${code} | Mode: Demo/Simulated (expires in 10 mins)`);
+    // Dispatch real email via Resend / SMTP
+    sendOtpEmail({ toEmail: normalizedEmail, code, isNewUser }).catch((e) => {
+      console.error("Email dispatch failed:", e);
+    });
 
     return {
       success: true,

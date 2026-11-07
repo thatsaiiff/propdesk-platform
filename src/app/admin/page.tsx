@@ -35,12 +35,15 @@ import {
   Zap, 
   ArrowLeft,
   Sparkles,
-  Layers
+  Layers,
+  Trash2,
+  KeyRound,
+  Pencil
 } from "lucide-react";
 
 export default function AdminPage() {
   const router = useRouter();
-  const { user, quickLoginAs } = useAuth();
+  const { user, requestOtp, verifyOtp, refreshUser, signOut } = useAuth();
 
   const [activeTab, setActiveTab] = useState<"overview" | "properties" | "leads" | "users" | "submissions" | "settings">("overview");
 
@@ -85,6 +88,16 @@ export default function AdminPage() {
   // Settings State
   const [pricePromiseInput, setPricePromiseInput] = useState("");
   const [adminEmailInput, setAdminEmailInput] = useState("");
+
+  // Edit Property Modal
+  const [editingProperty, setEditingProperty] = useState<Property | null>(null);
+
+  // Admin Auth States
+  const [adminEmail, setAdminEmail] = useState("admin@propdesk.demo");
+  const [adminOtp, setAdminOtp] = useState("");
+  const [adminOtpSent, setAdminOtpSent] = useState(false);
+  const [adminAuthLoading, setAdminAuthLoading] = useState(false);
+  const [adminAuthError, setAdminAuthError] = useState<string | null>(null);
 
   const [loading, setLoading] = useState(true);
   const [notice, setNotice] = useState<string | null>(null);
@@ -177,6 +190,80 @@ export default function AdminPage() {
     }
   };
 
+  const handleUpdateProperty = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingProperty) return;
+    try {
+      const res = await fetch("/api/admin/properties", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editingProperty),
+      });
+      const data = await res.json();
+      if (data.success) {
+        showNotice("Property updated successfully!");
+        setEditingProperty(null);
+        loadAllAdminData();
+      } else {
+        alert(data.error || "Failed to update property");
+      }
+    } catch {
+      alert("Error saving property changes");
+    }
+  };
+
+  const handleDeleteProperty = async (propertyId: string) => {
+    if (!confirm("Are you sure you want to permanently delete this property listing?")) return;
+    try {
+      const res = await fetch(`/api/admin/properties?id=${propertyId}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (data.success) {
+        showNotice("Property deleted successfully.");
+        loadAllAdminData();
+      } else {
+        alert(data.error || "Failed to delete property");
+      }
+    } catch {
+      alert("Error deleting property");
+    }
+  };
+
+  const handleAdminRequestOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!adminEmail || !adminEmail.includes("@")) {
+      setAdminAuthError("Please enter a valid administrator email.");
+      return;
+    }
+    setAdminAuthLoading(true);
+    setAdminAuthError(null);
+    const res = await requestOtp(adminEmail);
+    setAdminAuthLoading(false);
+    if (res.success) {
+      setAdminOtpSent(true);
+    } else {
+      setAdminAuthError(res.error || "Failed to send verification code.");
+    }
+  };
+
+  const handleAdminVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!adminOtp || adminOtp.length < 4) {
+      setAdminAuthError("Please enter the verification code sent to your email.");
+      return;
+    }
+    setAdminAuthLoading(true);
+    setAdminAuthError(null);
+    const res = await verifyOtp(adminEmail, adminOtp);
+    setAdminAuthLoading(false);
+    if (res.success) {
+      await refreshUser();
+    } else {
+      setAdminAuthError(res.error || "Invalid verification code.");
+    }
+  };
+
   const handleUpdateLeadStatus = async (leadId: string, nextStatus: LeadStatus) => {
     try {
       const res = await fetch("/api/admin/leads", {
@@ -243,29 +330,107 @@ export default function AdminPage() {
     }
   };
 
-  // If not logged in as Admin, show quick access button
+  // If not logged in as Admin, show authentic Admin Login portal
   if (!isAdmin) {
     return (
-      <div className="min-h-screen bg-[#060911] text-white flex items-center justify-center p-6">
-        <div className="max-w-md w-full liquid-glass-elevated rounded-3xl p-8 text-center space-y-6 border border-white/20 shadow-2xl">
+      <div className="min-h-screen bg-[#060911] text-white flex items-center justify-center p-4 sm:p-6 relative overflow-hidden">
+        <div className="max-w-md w-full liquid-glass-elevated rounded-3xl p-6 sm:p-8 space-y-6 border border-white/20 shadow-2xl relative z-10">
           <div className="w-14 h-14 rounded-2xl liquid-glass bg-purple-900/30 text-purple-400 flex items-center justify-center mx-auto border border-purple-500/40">
             <Lock className="w-7 h-7" />
           </div>
-          <div>
-            <h2 className="font-claude-serif text-2xl font-bold text-white">Administrator Access Required</h2>
-            <p className="text-xs text-slate-300 mt-2 leading-relaxed">
-              This area is restricted to authorized platform administrators. Test as Super Admin using the button below.
+          
+          <div className="text-center space-y-1">
+            <h2 className="font-claude-serif text-2xl font-bold text-white">Administrator Portal</h2>
+            <p className="text-xs text-slate-300 leading-relaxed">
+              Sign in with your authorized administrator email address to access inventory governance and lead pipelines.
             </p>
           </div>
-          <button
-            onClick={() => quickLoginAs("admin@propdesk.demo")}
-            className="w-full py-3.5 px-6 rounded-xl bg-purple-600 hover:bg-purple-500 font-bold text-sm text-white shadow-xl transition-all active:scale-[0.98]"
-          >
-            Authenticate as Super Admin &rarr;
-          </button>
-          <Link href="/" className="block text-xs text-slate-400 hover:text-white pt-2">
-            Return to Homepage
-          </Link>
+
+          {user && (
+            <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-200 text-center space-y-2">
+              <p>You are signed in as <strong>{user.email}</strong>, which does not have staff administrator privileges.</p>
+              <button
+                type="button"
+                onClick={() => signOut()}
+                className="text-amber-400 hover:underline font-bold"
+              >
+                Sign out to switch account &rarr;
+              </button>
+            </div>
+          )}
+
+          {adminAuthError && (
+            <div className="p-3 rounded-xl bg-red-500/15 border border-red-500/30 text-xs text-red-300">
+              {adminAuthError}
+            </div>
+          )}
+
+          {!adminOtpSent ? (
+            <form onSubmit={handleAdminRequestOtp} className="space-y-4">
+              <div>
+                <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1.5">Admin Email</label>
+                <input
+                  type="email"
+                  value={adminEmail}
+                  onChange={(e) => setAdminEmail(e.target.value)}
+                  placeholder="admin@propdesk.demo"
+                  required
+                  className="w-full py-3 px-4 rounded-xl liquid-glass-input text-sm text-white placeholder:text-slate-500 focus:outline-none"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={adminAuthLoading}
+                className="w-full py-3.5 px-6 rounded-xl bg-purple-600 hover:bg-purple-500 font-bold text-sm text-white shadow-xl transition-all active:scale-[0.98] disabled:opacity-50"
+              >
+                {adminAuthLoading ? "Sending Verification Code..." : "Send Verification Code →"}
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={handleAdminVerifyOtp} className="space-y-4">
+              <div>
+                <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1.5">
+                  6-Digit Verification Code
+                </label>
+                <input
+                  type="text"
+                  maxLength={6}
+                  value={adminOtp}
+                  onChange={(e) => setAdminOtp(e.target.value)}
+                  placeholder="• • • • • •"
+                  autoFocus
+                  required
+                  className="w-full tracking-[0.4em] text-center py-3.5 rounded-xl liquid-glass-input text-2xl font-mono font-bold text-white placeholder:text-slate-600 focus:outline-none"
+                />
+                <p className="text-[11px] text-slate-400 mt-1.5 text-center">
+                  Verification code dispatched to <strong>{adminEmail}</strong>
+                </p>
+              </div>
+
+              <button
+                type="submit"
+                disabled={adminAuthLoading}
+                className="w-full py-3.5 px-6 rounded-xl bg-purple-600 hover:bg-purple-500 font-bold text-sm text-white shadow-xl transition-all active:scale-[0.98] disabled:opacity-50"
+              >
+                {adminAuthLoading ? "Verifying..." : "Verify & Unlock Admin Panel →"}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setAdminOtpSent(false)}
+                className="block text-center text-xs text-slate-400 hover:text-white w-full pt-1"
+              >
+                Change admin email
+              </button>
+            </form>
+          )}
+
+          <div className="pt-2 border-t border-white/10 text-center">
+            <Link href="/" className="text-xs text-slate-400 hover:text-white transition-colors">
+              &larr; Return to Homepage
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -476,16 +641,35 @@ export default function AdminPage() {
                       <p className="text-xs text-slate-400 mt-0.5">{prop.locality}, {prop.city}</p>
                     </div>
 
-                    <button
-                      onClick={() => handleTogglePropertyStatus(prop)}
-                      className={`py-1.5 px-3 rounded-xl text-xs font-bold transition-all ${
-                        prop.status === "PUBLISHED"
-                          ? "bg-red-500/20 text-red-300 border border-red-500/30 hover:bg-red-500/30"
-                          : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/30"
-                      }`}
-                    >
-                      {prop.status === "PUBLISHED" ? "Unpublish" : "Publish"}
-                    </button>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <button
+                        onClick={() => setEditingProperty({ ...prop })}
+                        className="py-1.5 px-3 rounded-xl text-xs font-bold bg-white/10 hover:bg-white/20 text-white border border-white/20 transition-all flex items-center gap-1"
+                        title="Edit Property"
+                      >
+                        <Pencil className="w-3.5 h-3.5 text-amber-400" />
+                        <span>Edit</span>
+                      </button>
+
+                      <button
+                        onClick={() => handleTogglePropertyStatus(prop)}
+                        className={`py-1.5 px-3 rounded-xl text-xs font-bold transition-all ${
+                          prop.status === "PUBLISHED"
+                            ? "bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:bg-amber-500/30"
+                            : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/30"
+                        }`}
+                      >
+                        {prop.status === "PUBLISHED" ? "Unpublish" : "Publish"}
+                      </button>
+
+                      <button
+                        onClick={() => handleDeleteProperty(prop.id)}
+                        className="p-1.5 rounded-xl text-xs font-bold bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 transition-all"
+                        title="Delete Property"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
 
                   <div className="p-3 rounded-2xl liquid-glass text-xs space-y-1.5 border border-white/10">
@@ -957,6 +1141,189 @@ export default function AdminPage() {
               >
                 Create & Publish Listing
               </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Existing Property Modal */}
+      {editingProperty && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl animate-in fade-in duration-200">
+          <div className="w-full max-w-xl liquid-glass-elevated rounded-3xl p-6 sm:p-8 space-y-6 border border-white/20 shadow-2xl max-h-[85vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-white/10">
+              <div>
+                <h3 className="font-claude-serif text-xl font-bold text-white">Edit Property Listing</h3>
+                <p className="text-[11px] text-slate-400 font-mono mt-0.5">{editingProperty.id}</p>
+              </div>
+              <button
+                onClick={() => setEditingProperty(null)}
+                className="p-1 rounded-lg text-slate-400 hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdateProperty} className="space-y-4 text-xs">
+              <div>
+                <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Title</label>
+                <input
+                  type="text"
+                  value={editingProperty.title}
+                  onChange={(e) => setEditingProperty({ ...editingProperty, title: e.target.value })}
+                  required
+                  className="w-full p-2.5 rounded-xl liquid-glass-input text-white focus:outline-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Category</label>
+                  <select
+                    value={editingProperty.category}
+                    onChange={(e) => setEditingProperty({ ...editingProperty, category: e.target.value as any })}
+                    className="w-full p-2.5 rounded-xl liquid-glass-input text-white focus:outline-none"
+                  >
+                    <option value="FLAT" className="bg-[#121B33]">Flat</option>
+                    <option value="HOUSE" className="bg-[#121B33]">House</option>
+                    <option value="PLOT" className="bg-[#121B33]">Vacant Plot</option>
+                    <option value="INDUSTRIAL_LAND" className="bg-[#121B33]">Industrial Land</option>
+                    <option value="WAREHOUSE" className="bg-[#121B33]">Warehouse</option>
+                    <option value="FACTORY" className="bg-[#121B33]">Factory</option>
+                    <option value="BUILDING_WITH_LAND" className="bg-[#121B33]">Building with Land</option>
+                    <option value="DISPUTED" className="bg-[#121B33]">Disputed</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Status</label>
+                  <select
+                    value={editingProperty.status}
+                    onChange={(e) => setEditingProperty({ ...editingProperty, status: e.target.value as any })}
+                    className="w-full p-2.5 rounded-xl liquid-glass-input text-white focus:outline-none"
+                  >
+                    <option value="PUBLISHED" className="bg-[#121B33]">Published</option>
+                    <option value="DRAFT" className="bg-[#121B33]">Draft</option>
+                    <option value="PAUSED" className="bg-[#121B33]">Paused</option>
+                    <option value="SOLD" className="bg-[#121B33]">Sold</option>
+                    <option value="RENTED" className="bg-[#121B33]">Rented</option>
+                    <option value="ARCHIVED" className="bg-[#121B33]">Archived</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">City</label>
+                  <input
+                    type="text"
+                    value={editingProperty.city}
+                    onChange={(e) => setEditingProperty({ ...editingProperty, city: e.target.value })}
+                    required
+                    className="w-full p-2.5 rounded-xl liquid-glass-input text-white focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">State</label>
+                  <input
+                    type="text"
+                    value={editingProperty.state}
+                    onChange={(e) => setEditingProperty({ ...editingProperty, state: e.target.value })}
+                    required
+                    className="w-full p-2.5 rounded-xl liquid-glass-input text-white focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Locality</label>
+                  <input
+                    type="text"
+                    value={editingProperty.locality}
+                    onChange={(e) => setEditingProperty({ ...editingProperty, locality: e.target.value })}
+                    required
+                    className="w-full p-2.5 rounded-xl liquid-glass-input text-white focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Area Dimension ({editingProperty.areaUnit})</label>
+                  <input
+                    type="number"
+                    value={editingProperty.area}
+                    onChange={(e) => setEditingProperty({ ...editingProperty, area: Number(e.target.value) })}
+                    required
+                    className="w-full p-2.5 rounded-xl liquid-glass-input text-white focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Internal Price (Confidential ₹)</label>
+                  <input
+                    type="number"
+                    value={editingProperty.internalAskingPrice || 0}
+                    onChange={(e) => setEditingProperty({ ...editingProperty, internalAskingPrice: Number(e.target.value) })}
+                    required
+                    className="w-full p-2.5 rounded-xl liquid-glass-input text-white focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center gap-6 pt-2">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={editingProperty.isJointVenture}
+                    onChange={(e) => setEditingProperty({ ...editingProperty, isJointVenture: e.target.checked })}
+                    className="rounded"
+                  />
+                  <span>Joint Venture Proposal (Builder-Only)</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={editingProperty.isDisputed}
+                    onChange={(e) => setEditingProperty({ ...editingProperty, isDisputed: e.target.checked })}
+                    className="rounded"
+                  />
+                  <span>Disputed Property</span>
+                </label>
+              </div>
+
+              <div>
+                <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Demarcation Details</label>
+                <input
+                  type="text"
+                  value={editingProperty.demarcation}
+                  onChange={(e) => setEditingProperty({ ...editingProperty, demarcation: e.target.value })}
+                  required
+                  className="w-full p-2.5 rounded-xl liquid-glass-input text-white focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Description</label>
+                <textarea
+                  rows={3}
+                  value={editingProperty.description}
+                  onChange={(e) => setEditingProperty({ ...editingProperty, description: e.target.value })}
+                  required
+                  className="w-full p-2.5 rounded-xl liquid-glass-input text-white focus:outline-none"
+                />
+              </div>
+
+              <div className="flex items-center gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setEditingProperty(null)}
+                  className="w-1/3 py-3 rounded-xl liquid-glass font-semibold text-slate-300 hover:text-white"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="w-2/3 py-3 rounded-xl liquid-glass-btn-royal font-bold text-sm text-white shadow-lg"
+                >
+                  Save Changes
+                </button>
+              </div>
             </form>
           </div>
         </div>

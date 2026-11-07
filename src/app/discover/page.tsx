@@ -247,7 +247,7 @@ export default function DiscoverPage() {
           </div>
         ) : (
           /* Render Active Tinder Card & Next Pre-loaded Card behind it */
-          <div className="relative w-full max-w-md aspect-[16/22] sm:aspect-[16/20]">
+          <div className="relative w-full max-w-md h-[calc(100dvh-160px)] min-h-[440px] max-h-[580px] sm:max-h-[620px]">
             {/* Background next card for depth preview */}
             {properties[currentIndex + 1] && (
               <div className="absolute inset-0 scale-95 translate-y-3 opacity-40 pointer-events-none transition-all">

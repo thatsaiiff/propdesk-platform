@@ -107,3 +107,24 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ success: false, error: "Internal server error" }, { status: 500 });
   }
 }
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const user = await getCurrentUserFromRequest(req);
+    if (!user || !isAdminUser(user)) {
+      return NextResponse.json({ success: false, error: "Access denied" }, { status: 403 });
+    }
+
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
+    if (!id) {
+      return NextResponse.json({ success: false, error: "Property ID required" }, { status: 400 });
+    }
+
+    const deleted = store.deleteProperty(id);
+    return NextResponse.json({ success: deleted });
+  } catch (err) {
+    console.error("Admin delete property error:", err);
+    return NextResponse.json({ success: false, error: "Internal server error" }, { status: 500 });
+  }
+}

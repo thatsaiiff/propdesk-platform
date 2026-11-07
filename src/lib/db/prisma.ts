@@ -5,7 +5,10 @@ declare global {
   var prisma: PrismaClient | undefined;
 }
 
-const isDatabaseConfigured = !!process.env.DATABASE_URL;
+const dbUrl = process.env.DATABASE_URL || "";
+const isDatabaseConfigured =
+  (dbUrl.startsWith("postgresql://") || dbUrl.startsWith("postgres://")) &&
+  !dbUrl.includes("[SENSITIVE]");
 
 export const prisma =
   global.prisma ||
