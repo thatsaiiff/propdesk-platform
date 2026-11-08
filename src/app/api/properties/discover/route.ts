@@ -12,11 +12,19 @@ export async function GET(req: NextRequest) {
 
     const { searchParams } = new URL(req.url);
     const categoryParam = searchParams.get("category") as PropertyCategory | null;
+    const categoriesParam = searchParams.get("categories");
     const purposeParam = searchParams.get("purpose") as PropertyPurpose | null;
     const builderOppParam = searchParams.get("builderOpportunityType") as BuilderOpportunityType | null;
+    const inventoryTypeParam = searchParams.get("inventoryType") as "BANK_NBFC" | "NON_BANK_NBFC" | "BOTH" | null;
+
+    const parsedCategories = categoriesParam
+      ? (categoriesParam.split(",") as PropertyCategory[])
+      : user.preferences?.categories;
 
     const filters = {
+      inventoryType: inventoryTypeParam || user.preferences?.inventoryTypePreference,
       category: categoryParam || user.preferences?.category,
+      categories: parsedCategories,
       purpose: purposeParam || user.preferences?.purpose,
       builderOpportunityType: builderOppParam || user.preferences?.builderOpportunityType,
     };

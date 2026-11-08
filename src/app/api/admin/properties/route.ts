@@ -29,7 +29,7 @@ const PropertySchema = z.object({
   demarcation: z.string().min(5),
   images: z.array(z.object({
     id: z.string(),
-    url: z.string().url(),
+    url: z.string().min(5),
     label: z.string().optional(),
     sortOrder: z.number(),
   })).min(1, "At least one photograph is required"),

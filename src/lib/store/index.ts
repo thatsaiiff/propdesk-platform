@@ -358,7 +358,9 @@ class Store {
   getDiscoveryProperties(
     userId: string,
     filters?: {
+      inventoryType?: "BANK_NBFC" | "NON_BANK_NBFC" | "BOTH";
       category?: PropertyCategory;
+      categories?: PropertyCategory[];
       purpose?: PropertyPurpose;
       builderOpportunityType?: BuilderOpportunityType;
     }
@@ -381,8 +383,18 @@ class Store {
       list = list.filter((p) => !p.isJointVenture);
     }
 
-    // Filter by Category if provided
-    if (filters?.category) {
+    // Filter by Inventory Type (BANK_NBFC vs NON_BANK_NBFC vs BOTH)
+    if (filters?.inventoryType && filters.inventoryType !== "BOTH") {
+      list = list.filter((p) => p.inventoryType === filters.inventoryType);
+    }
+
+    // Filter by Multiple Categories or Single Category
+    if (filters?.categories && filters.categories.length > 0) {
+      const cats = filters.categories;
+      list = list.filter((p) =>
+        cats.includes(p.category as any) || (cats.includes("DISPUTED") && p.isDisputed)
+      );
+    } else if (filters?.category) {
       if (filters.category === "DISPUTED") {
         list = list.filter((p) => p.isDisputed || p.category === "DISPUTED");
       } else {
@@ -411,7 +423,13 @@ class Store {
     }
 
     // Filter out cards already swiped in this cycle
-    const unswiped = list.filter((p) => !swipedInCurrentCycle.has(p.id));
+    let unswiped = list.filter((p) => !swipedInCurrentCycle.has(p.id));
+
+    // If all swiped in this cycle, loop back gracefully so feed never stays empty
+    if (unswiped.length === 0 && list.length > 0) {
+      this.resetUserCycle(userId);
+      unswiped = list;
+    }
 
     // Map to sanitized PublicPropertyDTO (internal asking price and private notes strictly stripped)
     return unswiped.map(toPublicDTO);

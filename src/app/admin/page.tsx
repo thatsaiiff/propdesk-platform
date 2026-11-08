@@ -39,8 +39,14 @@ import {
   Layers,
   Trash2,
   KeyRound,
-  Pencil
+  Pencil,
+  Camera,
+  ExternalLink,
+  Filter,
+  MapPin,
+  RefreshCw
 } from "lucide-react";
+import AdminPhotoManager from "@/components/admin/AdminPhotoManager";
 
 export default function AdminPage() {
   const router = useRouter();
@@ -104,6 +110,19 @@ export default function AdminPage() {
   const [adminAuthLoading, setAdminAuthLoading] = useState(false);
   const [adminAuthError, setAdminAuthError] = useState<string | null>(null);
 
+  // Property Filters & Search
+  const [propSearch, setPropSearch] = useState("");
+  const [propCategoryFilter, setPropCategoryFilter] = useState("ALL");
+  const [propStatusFilter, setPropStatusFilter] = useState("ALL");
+  const [propInventoryFilter, setPropInventoryFilter] = useState("ALL");
+
+  // Lead Filters & Search
+  const [leadSearch, setLeadSearch] = useState("");
+  const [leadStatusFilter, setLeadStatusFilter] = useState("ALL");
+
+  // User Search
+  const [userSearch, setUserSearch] = useState("");
+
   const [loading, setLoading] = useState(true);
   const [notice, setNotice] = useState<string | null>(null);
 
@@ -158,6 +177,10 @@ export default function AdminPage() {
 
   const handleCreateProperty = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!newProp.images || newProp.images.length === 0) {
+      alert("Please upload or add at least one photograph for this property listing.");
+      return;
+    }
     try {
       const res = await fetch("/api/admin/properties", {
         method: "POST",
@@ -198,6 +221,10 @@ export default function AdminPage() {
   const handleUpdateProperty = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingProperty) return;
+    if (!editingProperty.images || editingProperty.images.length === 0) {
+      alert("Please upload or add at least one photograph for this property listing.");
+      return;
+    }
     try {
       const res = await fetch("/api/admin/properties", {
         method: "PUT",
@@ -575,46 +602,108 @@ export default function AdminPage() {
     );
   }
 
+  // Computed Filtered Properties
+  const filteredProperties = properties.filter((p) => {
+    if (propCategoryFilter !== "ALL" && p.category !== propCategoryFilter) return false;
+    if (propStatusFilter !== "ALL" && p.status !== propStatusFilter) return false;
+    if (propInventoryFilter === "BANK_NBFC" && p.inventoryType !== "BANK_NBFC") return false;
+    if (propInventoryFilter === "NON_BANK_NBFC" && p.inventoryType !== "NON_BANK_NBFC") return false;
+    if (propInventoryFilter === "JV" && !p.isJointVenture) return false;
+    if (propInventoryFilter === "DISPUTED" && !p.isDisputed) return false;
+    if (propSearch.trim()) {
+      const q = propSearch.toLowerCase();
+      const matchTitle = (p.title || "").toLowerCase().includes(q);
+      const matchCity = (p.city || "").toLowerCase().includes(q);
+      const matchLoc = (p.locality || "").toLowerCase().includes(q);
+      const matchCat = (p.category || "").toLowerCase().includes(q);
+      const matchId = (p.id || "").toLowerCase().includes(q);
+      if (!matchTitle && !matchCity && !matchLoc && !matchCat && !matchId) return false;
+    }
+    return true;
+  });
+
+  // Computed Filtered Leads
+  const filteredLeads = leads.filter((l) => {
+    if (leadStatusFilter !== "ALL" && l.status !== leadStatusFilter) return false;
+    if (leadSearch.trim()) {
+      const q = leadSearch.toLowerCase();
+      const matchUser = (l.userName || "").toLowerCase().includes(q);
+      const matchEmail = (l.userEmail || "").toLowerCase().includes(q);
+      const matchPhone = (l.userPhone || "").toLowerCase().includes(q);
+      const matchProp = (l.propertyTitle || "").toLowerCase().includes(q);
+      const matchId = (l.id || "").toLowerCase().includes(q);
+      if (!matchUser && !matchEmail && !matchPhone && !matchProp && !matchId) return false;
+    }
+    return true;
+  });
+
+  // Computed Filtered Users
+  const filteredUsers = usersList.filter((u) => {
+    if (!userSearch.trim()) return true;
+    const q = userSearch.toLowerCase();
+    const matchName = (u.name || "").toLowerCase().includes(q);
+    const matchEmail = (u.email || "").toLowerCase().includes(q);
+    const matchPhone = (u.phone || "").toLowerCase().includes(q);
+    return matchName || matchEmail || matchPhone;
+  });
+
   return (
     <div className="min-h-screen bg-[#060911] text-white">
       {/* Admin Top Header */}
-      <header className="px-6 sm:px-10 py-5 border-b border-white/10 flex items-center justify-between sticky top-0 bg-[#060911]/95 backdrop-blur-xl z-30">
+      <header className="px-4 sm:px-8 py-4 border-b border-white/10 flex items-center justify-between sticky top-0 bg-[#060911]/95 backdrop-blur-xl z-30">
         <div className="flex items-center gap-3">
           <Link
             href="/"
-            className="p-2 rounded-xl liquid-glass text-slate-400 hover:text-white transition-all"
+            className="p-2 rounded-xl liquid-glass text-slate-400 hover:text-white transition-all flex items-center gap-1.5 text-xs font-semibold"
             title="Return to site"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-4 h-4" />
+            <span className="hidden sm:inline">Home</span>
           </Link>
-          <div className="w-9 h-9 rounded-xl liquid-glass bg-purple-950 text-purple-400 flex items-center justify-center font-bold border border-purple-500/40">
+          <div className="w-9 h-9 rounded-xl liquid-glass bg-royal-950 text-amber-400 flex items-center justify-center font-bold border border-amber-400/30">
             <Lock className="w-4 h-4" />
           </div>
           <div>
-            <h1 className="font-claude-serif text-lg sm:text-xl font-bold text-white tracking-tight flex items-center gap-2">
-              PropDesk Central Command
-              <span className="text-[10px] bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full border border-purple-500/30 font-bold">
-                ADMIN
-              </span>
-            </h1>
-            <p className="text-xs text-slate-400">Underwriting, Lead Tracking & Inventory Governance</p>
+            <div className="flex items-center gap-2">
+              <h1 className="font-claude-serif text-base sm:text-xl font-bold text-white tracking-tight flex items-center gap-2">
+                <span>PropDesk Command Studio</span>
+                <span className="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full border border-amber-500/30 font-bold uppercase tracking-wider">
+                  Admin
+                </span>
+              </h1>
+              <div className="hidden md:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-[10px] font-semibold text-emerald-400">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span>Active</span>
+              </div>
+            </div>
+            <p className="text-[11px] text-slate-400 hidden sm:block">
+              Underwriting, Direct Inquiries & Inventory Governance • Logged in as <span className="text-amber-300 font-mono">{user?.email}</span>
+            </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <button
             onClick={() => setNewPropertyModal(true)}
-            className="py-2 px-4 rounded-xl liquid-glass-btn-royal font-bold text-xs text-white shadow-md flex items-center gap-1.5"
+            className="py-2 px-3.5 rounded-xl liquid-glass-btn-royal font-bold text-xs text-white shadow-lg flex items-center gap-1.5 transition-all active:scale-95"
           >
             <Plus className="w-4 h-4" />
             <span>Add Property</span>
           </button>
           <Link
             href="/discover"
-            className="py-2 px-3 rounded-xl liquid-glass text-xs font-semibold text-slate-300 hover:text-white"
+            target="_blank"
+            className="py-2 px-3 rounded-xl liquid-glass text-xs font-semibold text-slate-300 hover:text-white flex items-center gap-1"
           >
-            Test Swipe Feed
+            <span>Live Feed</span>
+            <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
           </Link>
+          <button
+            onClick={signOut}
+            className="py-2 px-3 rounded-xl text-xs font-semibold text-slate-400 hover:text-red-300 hover:bg-red-500/10 border border-white/5 transition-all"
+          >
+            Sign Out
+          </button>
         </div>
       </header>
 
@@ -627,15 +716,27 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* Tab Navigation */}
+        {/* Tab Navigation (A. B. C. removed, with real-time badges) */}
         <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-white/10 scrollbar-none">
           {[
-            { id: "overview", label: "A. Overview", icon: TrendingUp },
-            { id: "properties", label: "B. Properties", icon: Building2 },
-            { id: "leads", label: "C. Leads Pipeline", icon: Zap },
-            { id: "users", label: "D. Users & Activity", icon: Users },
-            { id: "submissions", label: "E. Submissions", icon: FileText },
-            { id: "settings", label: "F. Settings", icon: Settings },
+            { id: "overview", label: "Overview", icon: TrendingUp },
+            { id: "properties", label: "Properties", icon: Building2, badge: properties.length },
+            { 
+              id: "leads", 
+              label: "Leads Pipeline", 
+              icon: Zap, 
+              badge: leads.filter((l) => l.status === "NEW").length,
+              badgeColor: "bg-amber-500 text-slate-950" 
+            },
+            { id: "users", label: "Users & Activity", icon: Users, badge: usersList.length },
+            { 
+              id: "submissions", 
+              label: "Submissions", 
+              icon: FileText, 
+              badge: submissions.filter((s) => s.status === "PENDING_REVIEW").length,
+              badgeColor: "bg-purple-500 text-white" 
+            },
+            { id: "settings", label: "Platform Settings", icon: Settings },
           ].map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -643,7 +744,7 @@ export default function AdminPage() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`py-2 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 shrink-0 transition-all ${
+                className={`py-2 px-3.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 shrink-0 transition-all ${
                   isActive
                     ? "liquid-glass-btn-royal text-white shadow-lg border-amber-400/40"
                     : "liquid-glass text-slate-400 hover:text-white"
@@ -651,6 +752,15 @@ export default function AdminPage() {
               >
                 <Icon className={`w-4 h-4 ${isActive ? "text-amber-400" : "text-slate-400"}`} />
                 <span>{tab.label}</span>
+                {tab.badge !== undefined && tab.badge > 0 && (
+                  <span
+                    className={`ml-1 px-1.5 py-0.5 rounded-md text-[10px] font-extrabold ${
+                      tab.badgeColor || "bg-white/20 text-white"
+                    }`}
+                  >
+                    {tab.badge}
+                  </span>
+                )}
               </button>
             );
           })}
@@ -695,7 +805,7 @@ export default function AdminPage() {
                   { label: "Investors", count: stats.roleCounts.investors, color: "text-emerald-400" },
                   { label: "Builders", count: stats.roleCounts.builders, color: "text-purple-400" },
                   { label: "Brokers", count: stats.roleCounts.brokers, color: "text-amber-400" },
-                  { label: "Owners", count: stats.roleCounts.owners, color: "text-rose-400" },
+                  { label: "Business Partners", count: stats.roleCounts.owners, color: "text-rose-400" },
                   { label: "Rental Seekers", count: stats.roleCounts.rentalSeekers, color: "text-cyan-400" },
                 ].map((item, idx) => (
                   <div key={idx} className="liquid-glass rounded-2xl p-4 border border-white/10 text-center">
@@ -733,184 +843,429 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* TAB 2: PROPERTY MANAGEMENT */}
+        {/* TAB 2: PROPERTY MANAGEMENT (ENHANCED WITH PHOTOS, SEARCH & FILTERS) */}
         {activeTab === "properties" && (
           <div className="space-y-6 animate-in fade-in duration-300">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h3 className="font-claude-serif text-2xl font-bold text-white">Curated Property Inventory</h3>
-                <p className="text-xs text-slate-400">Only admin-published properties appear in public discovery swipe decks.</p>
+                <p className="text-xs text-slate-400">
+                  Manage listings, photographs, and underwriting terms visible in discovery.
+                </p>
               </div>
               <button
                 onClick={() => setNewPropertyModal(true)}
-                className="py-2.5 px-4 rounded-xl liquid-glass-btn-royal text-xs font-bold shadow-md flex items-center gap-1.5"
+                className="py-2.5 px-4 rounded-xl liquid-glass-btn-royal text-xs font-bold shadow-md flex items-center justify-center gap-1.5"
               >
                 <Plus className="w-4 h-4" />
                 <span>Add New Property</span>
               </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {properties.map((prop) => (
-                <div
-                  key={prop.id}
-                  className="liquid-glass-elevated rounded-3xl p-6 space-y-4 border border-white/15 shadow-xl relative"
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <div className="flex items-center gap-2 flex-wrap mb-1.5">
-                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                          prop.status === "PUBLISHED" ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30" : "bg-slate-700 text-slate-300"
-                        }`}>
-                          {prop.status}
-                        </span>
-                        {prop.isJointVenture && (
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-purple-500/20 text-purple-300 border border-purple-500/30">
-                            BUILDER JV
-                          </span>
-                        )}
-                        {prop.isDisputed && (
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                            DISPUTED
-                          </span>
-                        )}
-                        <span className="text-xs text-slate-400">{prop.category}</span>
-                      </div>
-                      <h4 className="font-claude-serif text-lg font-bold text-white">{prop.title}</h4>
-                      <p className="text-xs text-slate-400 mt-0.5">{prop.locality}, {prop.city}</p>
-                    </div>
-
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      <button
-                        onClick={() => setEditingProperty({ ...prop })}
-                        className="py-1.5 px-3 rounded-xl text-xs font-bold bg-white/10 hover:bg-white/20 text-white border border-white/20 transition-all flex items-center gap-1"
-                        title="Edit Property"
-                      >
-                        <Pencil className="w-3.5 h-3.5 text-amber-400" />
-                        <span>Edit</span>
-                      </button>
-
-                      <button
-                        onClick={() => handleTogglePropertyStatus(prop)}
-                        className={`py-1.5 px-3 rounded-xl text-xs font-bold transition-all ${
-                          prop.status === "PUBLISHED"
-                            ? "bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:bg-amber-500/30"
-                            : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/30"
-                        }`}
-                      >
-                        {prop.status === "PUBLISHED" ? "Unpublish" : "Publish"}
-                      </button>
-
-                      <button
-                        onClick={() => handleDeleteProperty(prop.id)}
-                        className="p-1.5 rounded-xl text-xs font-bold bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 transition-all"
-                        title="Delete Property"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="p-3 rounded-2xl liquid-glass text-xs space-y-1.5 border border-white/10">
-                    <div className="flex justify-between text-slate-400">
-                      <span>Internal Asking Price:</span>
-                      <strong className="text-amber-400">₹{prop.internalAskingPrice?.toLocaleString() || "N/A"}</strong>
-                    </div>
-                    <div className="flex justify-between text-slate-400">
-                      <span>Area:</span>
-                      <span className="text-white">{prop.area.toLocaleString()} {prop.areaUnit}</span>
-                    </div>
-                    <div className="flex justify-between text-slate-400">
-                      <span>Availability:</span>
-                      <span className="text-white">{prop.purposeAvailability}</span>
-                    </div>
-                    {prop.internalOwnershipDetails && (
-                      <p className="text-[11px] text-slate-300 pt-1 border-t border-white/10 italic">
-                        Note: {prop.internalOwnershipDetails}
-                      </p>
-                    )}
-                  </div>
+            {/* Controls Bar: Search & Filters */}
+            <div className="liquid-glass-elevated rounded-2xl p-4 border border-white/15 space-y-3">
+              <div className="flex flex-col md:flex-row gap-3">
+                {/* Search Input */}
+                <div className="relative flex-1">
+                  <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={propSearch}
+                    onChange={(e) => setPropSearch(e.target.value)}
+                    placeholder="Search by title, locality, city, category..."
+                    className="w-full pl-9 pr-4 py-2.5 rounded-xl liquid-glass-input text-xs text-white focus:outline-none"
+                  />
+                  {propSearch && (
+                    <button
+                      onClick={() => setPropSearch("")}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
                 </div>
-              ))}
+
+                {/* Filter Controls */}
+                <div className="flex items-center gap-2 flex-wrap">
+                  {/* Category Filter */}
+                  <select
+                    value={propCategoryFilter}
+                    onChange={(e) => setPropCategoryFilter(e.target.value)}
+                    className="py-2 px-3 rounded-xl liquid-glass-input text-xs text-white focus:outline-none"
+                  >
+                    <option value="ALL" className="bg-[#121B33]">All Categories</option>
+                    <option value="FLAT" className="bg-[#121B33]">Flat</option>
+                    <option value="HOUSE" className="bg-[#121B33]">House</option>
+                    <option value="PLOT" className="bg-[#121B33]">Vacant Plot</option>
+                    <option value="INDUSTRIAL_LAND" className="bg-[#121B33]">Industrial Land</option>
+                    <option value="WAREHOUSE" className="bg-[#121B33]">Warehouse</option>
+                    <option value="FACTORY" className="bg-[#121B33]">Factory</option>
+                    <option value="BUILDING_WITH_LAND" className="bg-[#121B33]">Building with Land</option>
+                    <option value="DISPUTED" className="bg-[#121B33]">Disputed</option>
+                  </select>
+
+                  {/* Inventory Filter */}
+                  <select
+                    value={propInventoryFilter}
+                    onChange={(e) => setPropInventoryFilter(e.target.value)}
+                    className="py-2 px-3 rounded-xl liquid-glass-input text-xs text-white focus:outline-none"
+                  >
+                    <option value="ALL" className="bg-[#121B33]">All Portfolios</option>
+                    <option value="BANK_NBFC" className="bg-[#121B33]">Bank / NBFC Seized</option>
+                    <option value="NON_BANK_NBFC" className="bg-[#121B33]">Non-Bank / Direct</option>
+                    <option value="JV" className="bg-[#121B33]">Joint Venture Only</option>
+                    <option value="DISPUTED" className="bg-[#121B33]">Disputed Only</option>
+                  </select>
+
+                  {/* Status Filter */}
+                  <select
+                    value={propStatusFilter}
+                    onChange={(e) => setPropStatusFilter(e.target.value)}
+                    className="py-2 px-3 rounded-xl liquid-glass-input text-xs text-white focus:outline-none"
+                  >
+                    <option value="ALL" className="bg-[#121B33]">All Statuses</option>
+                    <option value="PUBLISHED" className="bg-[#121B33]">Published Only</option>
+                    <option value="DRAFT" className="bg-[#121B33]">Drafts Only</option>
+                  </select>
+
+                  {(propSearch || propCategoryFilter !== "ALL" || propInventoryFilter !== "ALL" || propStatusFilter !== "ALL") && (
+                    <button
+                      onClick={() => {
+                        setPropSearch("");
+                        setPropCategoryFilter("ALL");
+                        setPropInventoryFilter("ALL");
+                        setPropStatusFilter("ALL");
+                      }}
+                      className="text-xs text-amber-400 hover:underline px-2 py-1 font-semibold"
+                    >
+                      Reset Filters
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1">
+                <span>Showing {filteredProperties.length} of {properties.length} total properties</span>
+                <span className="hidden sm:inline">Admin asking prices are never exposed publicly</span>
+              </div>
             </div>
+
+            {/* Properties Cards Grid */}
+            {filteredProperties.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {filteredProperties.map((prop) => {
+                  const coverImage = prop.images && prop.images.length > 0 ? prop.images[0].url : null;
+                  return (
+                    <div
+                      key={prop.id}
+                      className="liquid-glass-elevated rounded-3xl overflow-hidden border border-white/15 shadow-xl flex flex-col justify-between hover:border-white/30 transition-all group"
+                    >
+                      {/* Photo Thumbnail Banner */}
+                      <div className="relative aspect-[16/10] w-full bg-slate-900 overflow-hidden">
+                        {coverImage ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={coverImage}
+                            alt={prop.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex flex-col items-center justify-center text-slate-500 space-y-1">
+                            <Building2 className="w-8 h-8 opacity-40" />
+                            <span className="text-[10px]">No photo added</span>
+                          </div>
+                        )}
+
+                        {/* Top Left Badges */}
+                        <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5 flex-wrap">
+                          <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider backdrop-blur-md shadow-md ${
+                            prop.status === "PUBLISHED" ? "bg-emerald-500 text-slate-950" : "bg-slate-800 text-slate-200"
+                          }`}>
+                            {prop.status}
+                          </span>
+                          {prop.isJointVenture && (
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-purple-600 text-white backdrop-blur-md shadow-md">
+                              Builder JV
+                            </span>
+                          )}
+                          {prop.isDisputed && (
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-500 text-slate-950 backdrop-blur-md shadow-md">
+                              Disputed
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Top Right Category Pill */}
+                        <div className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-md bg-black/70 backdrop-blur-sm text-slate-300 text-[10px] font-semibold border border-white/10">
+                          {prop.category}
+                        </div>
+
+                        {/* Bottom Right Photo Count Badge */}
+                        <div className="absolute bottom-2.5 right-2.5 px-2.5 py-1 rounded-lg bg-black/75 backdrop-blur-md text-white text-[11px] font-bold flex items-center gap-1.5 border border-white/15">
+                          <Camera className="w-3.5 h-3.5 text-amber-400" />
+                          <span>{prop.images?.length || 0} Photos</span>
+                        </div>
+                      </div>
+
+                      {/* Content Details */}
+                      <div className="p-5 space-y-3.5 flex-1 flex flex-col justify-between">
+                        <div className="space-y-1">
+                          <h4 className="font-claude-serif text-base sm:text-lg font-bold text-white line-clamp-1">{prop.title}</h4>
+                          <p className="text-xs text-slate-400 flex items-center gap-1">
+                            <MapPin className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                            <span>{prop.locality}, {prop.city}, {prop.state}</span>
+                          </p>
+                        </div>
+
+                        {/* Key Specs Box */}
+                        <div className="grid grid-cols-2 gap-2 p-3 rounded-2xl liquid-glass text-xs border border-white/10">
+                          <div>
+                            <span className="text-[10px] text-slate-400 uppercase block font-semibold">Internal Price</span>
+                            <strong className="text-amber-400 font-mono text-xs">
+                              ₹{prop.internalAskingPrice ? (prop.internalAskingPrice >= 10000000 ? `${(prop.internalAskingPrice / 10000000).toFixed(2)} Cr` : prop.internalAskingPrice.toLocaleString()) : "N/A"}
+                            </strong>
+                          </div>
+                          <div>
+                            <span className="text-[10px] text-slate-400 uppercase block font-semibold">Dimensions</span>
+                            <span className="text-white font-medium">{prop.area?.toLocaleString()} {prop.areaUnit}</span>
+                          </div>
+                        </div>
+
+                        {prop.demarcation && (
+                          <p className="text-[11px] text-slate-300 line-clamp-1 italic">
+                            Demarcation: {prop.demarcation}
+                          </p>
+                        )}
+
+                        {/* Action Buttons */}
+                        <div className="flex items-center gap-2 pt-2 border-t border-white/10">
+                          <button
+                            onClick={() => setEditingProperty({ ...prop })}
+                            className="flex-1 py-2 px-3 rounded-xl text-xs font-bold liquid-glass hover:bg-white/15 text-white border border-white/20 transition-all flex items-center justify-center gap-1.5"
+                          >
+                            <Pencil className="w-3.5 h-3.5 text-amber-400" />
+                            <span>Edit & Photos</span>
+                          </button>
+
+                          <button
+                            onClick={() => handleTogglePropertyStatus(prop)}
+                            className={`py-2 px-3 rounded-xl text-xs font-bold transition-all ${
+                              prop.status === "PUBLISHED"
+                                ? "bg-amber-500/15 text-amber-300 border border-amber-500/30 hover:bg-amber-500/25"
+                                : "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/25"
+                            }`}
+                          >
+                            {prop.status === "PUBLISHED" ? "Unpublish" : "Publish"}
+                          </button>
+
+                          <button
+                            onClick={() => handleDeleteProperty(prop.id)}
+                            className="p-2 rounded-xl text-xs font-bold bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 transition-all"
+                            title="Delete Listing"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="p-12 text-center liquid-glass rounded-3xl border border-white/10 space-y-3">
+                <Building2 className="w-10 h-10 text-slate-500 mx-auto" />
+                <h4 className="text-base font-bold text-white">No properties match your filter criteria</h4>
+                <p className="text-xs text-slate-400">Try loosening your search query or reset the filters.</p>
+                <button
+                  onClick={() => {
+                    setPropSearch("");
+                    setPropCategoryFilter("ALL");
+                    setPropInventoryFilter("ALL");
+                    setPropStatusFilter("ALL");
+                  }}
+                  className="px-4 py-2 rounded-xl liquid-glass-btn-royal text-xs font-bold text-white inline-block mt-2"
+                >
+                  Clear All Filters
+                </button>
+              </div>
+            )}
           </div>
         )}
 
         {/* TAB 3: LEADS PIPELINE */}
         {activeTab === "leads" && (
           <div className="space-y-6 animate-in fade-in duration-300">
-            <div>
-              <h3 className="font-claude-serif text-2xl font-bold text-white">Lead Generation & Pipeline</h3>
-              <p className="text-xs text-slate-400">Generated automatically whenever a user swipes right or clicks Contact Immediately.</p>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h3 className="font-claude-serif text-2xl font-bold text-white">Lead Generation & Pipeline</h3>
+                <p className="text-xs text-slate-400">
+                  Real-time intent signals generated by right-swipes and priority contact requests.
+                </p>
+              </div>
             </div>
 
-            <div className="space-y-4">
-              {leads.map((lead) => (
-                <div
-                  key={lead.id}
-                  className="liquid-glass-elevated rounded-2xl p-5 border border-white/15 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-lg"
-                >
-                  <div className="space-y-1.5">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-mono font-bold text-slate-400">{lead.id}</span>
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase ${
-                        lead.actionType === "CONTACT_IMMEDIATELY"
-                          ? "bg-amber-500 text-slate-950"
-                          : "bg-emerald-600 text-white"
-                      }`}>
-                        {lead.actionType}
-                      </span>
-                      <span className="text-xs text-slate-400">{new Date(lead.createdAt).toLocaleString()}</span>
-                    </div>
-
-                    <div className="text-base font-bold text-white flex items-center gap-2">
-                      <span>{lead.userName}</span>
-                      <span className="text-xs font-normal text-slate-400">({lead.userRoles.join(", ")})</span>
-                    </div>
-
-                    <div className="flex items-center gap-4 text-xs text-slate-300">
-                      <span className="flex items-center gap-1"><Mail className="w-3.5 h-3.5 text-slate-400" /> {lead.userEmail}</span>
-                      <span className="flex items-center gap-1"><Phone className="w-3.5 h-3.5 text-slate-400" /> {lead.userPhone}</span>
-                    </div>
-
-                    <div className="text-xs text-amber-400 pt-1">
-                      Target Mandate: <strong>{lead.propertyTitle}</strong> ({lead.propertyLocation})
-                    </div>
-                  </div>
-
-                  {/* Status Dropdown */}
-                  <div className="flex items-center gap-3">
-                    <select
-                      value={lead.status}
-                      onChange={(e) => handleUpdateLeadStatus(lead.id, e.target.value as LeadStatus)}
-                      className="p-2.5 rounded-xl liquid-glass-input text-xs font-semibold text-white focus:outline-none"
+            {/* Leads Search & Filter Controls */}
+            <div className="liquid-glass-elevated rounded-2xl p-4 border border-white/15 space-y-3">
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="relative flex-1">
+                  <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={leadSearch}
+                    onChange={(e) => setLeadSearch(e.target.value)}
+                    placeholder="Search leads by name, email, phone, or property..."
+                    className="w-full pl-9 pr-4 py-2.5 rounded-xl liquid-glass-input text-xs text-white focus:outline-none"
+                  />
+                  {leadSearch && (
+                    <button
+                      onClick={() => setLeadSearch("")}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
                     >
-                      <option value="NEW" className="bg-[#121B33]">NEW</option>
-                      <option value="CONTACTED" className="bg-[#121B33]">CONTACTED</option>
-                      <option value="FOLLOW_UP" className="bg-[#121B33]">FOLLOW UP</option>
-                      <option value="SITE_VISIT" className="bg-[#121B33]">SITE VISIT</option>
-                      <option value="NEGOTIATION" className="bg-[#121B33]">NEGOTIATION</option>
-                      <option value="CONVERTED" className="bg-[#121B33]">CONVERTED</option>
-                      <option value="CLOSED" className="bg-[#121B33]">CLOSED</option>
-                      <option value="LOST" className="bg-[#121B33]">LOST</option>
-                    </select>
-                  </div>
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
                 </div>
-              ))}
+
+                <select
+                  value={leadStatusFilter}
+                  onChange={(e) => setLeadStatusFilter(e.target.value)}
+                  className="py-2 px-3 rounded-xl liquid-glass-input text-xs text-white focus:outline-none shrink-0"
+                >
+                  <option value="ALL" className="bg-[#121B33]">All Lead Stages</option>
+                  <option value="NEW" className="bg-[#121B33]">NEW ({leads.filter(l => l.status === "NEW").length})</option>
+                  <option value="CONTACTED" className="bg-[#121B33]">CONTACTED</option>
+                  <option value="FOLLOW_UP" className="bg-[#121B33]">FOLLOW UP</option>
+                  <option value="SITE_VISIT" className="bg-[#121B33]">SITE VISIT</option>
+                  <option value="NEGOTIATION" className="bg-[#121B33]">NEGOTIATION</option>
+                  <option value="CONVERTED" className="bg-[#121B33]">CONVERTED</option>
+                  <option value="CLOSED" className="bg-[#121B33]">CLOSED</option>
+                  <option value="LOST" className="bg-[#121B33]">LOST</option>
+                </select>
+              </div>
+
+              <div className="text-[11px] text-slate-400">
+                Showing {filteredLeads.length} of {leads.length} leads
+              </div>
             </div>
+
+            {/* Leads List */}
+            {filteredLeads.length > 0 ? (
+              <div className="space-y-3.5">
+                {filteredLeads.map((lead) => (
+                  <div
+                    key={lead.id}
+                    className="liquid-glass-elevated rounded-2xl p-5 border border-white/15 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-lg hover:border-white/30 transition-all"
+                  >
+                    <div className="space-y-2 flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-xs font-mono font-bold text-slate-400">{lead.id}</span>
+                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wide ${
+                          lead.actionType === "CONTACT_IMMEDIATELY"
+                            ? "bg-amber-500 text-slate-950 font-black"
+                            : "bg-emerald-500 text-slate-950 font-black"
+                        }`}>
+                          {lead.actionType === "CONTACT_IMMEDIATELY" ? "Priority Contact" : "Interested Swipe"}
+                        </span>
+                        <span className="text-xs text-slate-400">{new Date(lead.createdAt).toLocaleString()}</span>
+                      </div>
+
+                      <div className="text-base font-bold text-white flex items-center gap-2 flex-wrap">
+                        <span>{lead.userName}</span>
+                        <div className="flex items-center gap-1">
+                          {lead.userRoles.map((r: string) => (
+                            <span key={r} className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-white/10 text-slate-300">
+                              {r === "PROPERTY_OWNER" ? "Business Partner" : r}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-4 text-xs text-slate-300 flex-wrap">
+                        <a
+                          href={`mailto:${lead.userEmail}`}
+                          className="flex items-center gap-1.5 text-royal-300 hover:underline"
+                        >
+                          <Mail className="w-3.5 h-3.5 text-royal-400" />
+                          <span>{lead.userEmail}</span>
+                        </a>
+                        <a
+                          href={`tel:${lead.userPhone}`}
+                          className="flex items-center gap-1.5 text-amber-300 hover:underline font-mono"
+                        >
+                          <Phone className="w-3.5 h-3.5 text-amber-400" />
+                          <span>{lead.userPhone}</span>
+                        </a>
+                      </div>
+
+                      <div className="text-xs text-slate-300 pt-1">
+                        Target Mandate: <strong className="text-white">{lead.propertyTitle}</strong>{" "}
+                        <span className="text-slate-400">({lead.propertyLocation})</span>
+                      </div>
+                    </div>
+
+                    {/* Status Dropdown */}
+                    <div className="flex items-center gap-3 shrink-0">
+                      <div className="text-right hidden sm:block">
+                        <span className="text-[10px] uppercase font-bold text-slate-400 block">Stage</span>
+                      </div>
+                      <select
+                        value={lead.status}
+                        onChange={(e) => handleUpdateLeadStatus(lead.id, e.target.value as LeadStatus)}
+                        className={`p-2.5 rounded-xl font-bold text-xs focus:outline-none border shadow-md ${
+                          lead.status === "NEW" 
+                            ? "bg-amber-500/20 text-amber-300 border-amber-500/40" 
+                            : lead.status === "CLOSED" || lead.status === "CONVERTED"
+                            ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
+                            : "liquid-glass-input text-white border-white/20"
+                        }`}
+                      >
+                        <option value="NEW" className="bg-[#121B33]">NEW</option>
+                        <option value="CONTACTED" className="bg-[#121B33]">CONTACTED</option>
+                        <option value="FOLLOW_UP" className="bg-[#121B33]">FOLLOW UP</option>
+                        <option value="SITE_VISIT" className="bg-[#121B33]">SITE VISIT</option>
+                        <option value="NEGOTIATION" className="bg-[#121B33]">NEGOTIATION</option>
+                        <option value="CONVERTED" className="bg-[#121B33]">CONVERTED</option>
+                        <option value="CLOSED" className="bg-[#121B33]">CLOSED</option>
+                        <option value="LOST" className="bg-[#121B33]">LOST</option>
+                      </select>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="p-12 text-center liquid-glass rounded-3xl border border-white/10 space-y-2">
+                <Zap className="w-8 h-8 text-slate-500 mx-auto" />
+                <h4 className="text-base font-bold text-white">No leads match your search</h4>
+                <p className="text-xs text-slate-400">When visitors swipe right or request contact, they appear here instantly.</p>
+              </div>
+            )}
           </div>
         )}
 
         {/* TAB 4: USERS & ACTIVITY HISTORY */}
         {activeTab === "users" && (
           <div className="space-y-6 animate-in fade-in duration-300">
-            <div>
-              <h3 className="font-claude-serif text-2xl font-bold text-white">Registered Users & Browsing History</h3>
-              <p className="text-xs text-slate-400">Click any user to inspect their full property swipe and interaction history.</p>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h3 className="font-claude-serif text-2xl font-bold text-white">Registered Users & Swipe History</h3>
+                <p className="text-xs text-slate-400">Click any user dossier to inspect their exact right-swipes, contact inquiries, and skips.</p>
+              </div>
+            </div>
+
+            {/* Search Input */}
+            <div className="relative max-w-md">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={userSearch}
+                onChange={(e) => setUserSearch(e.target.value)}
+                placeholder="Search registered users by name, email, phone..."
+                className="w-full pl-9 pr-4 py-2.5 rounded-xl liquid-glass-input text-xs text-white focus:outline-none"
+              />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {usersList.map((u) => (
+              {filteredUsers.map((u) => (
                 <div
                   key={u.id}
                   onClick={() => handleInspectUser(u.id)}
@@ -929,7 +1284,7 @@ export default function AdminPage() {
                   <div className="flex items-center gap-1.5 flex-wrap">
                     {u.roles.map((r: string) => (
                       <span key={r} className="text-[10px] font-bold px-2 py-0.5 rounded-full liquid-glass text-slate-300">
-                        {r}
+                        {r === "PROPERTY_OWNER" ? "Business Partner" : r}
                       </span>
                     ))}
                   </div>
@@ -964,8 +1319,10 @@ export default function AdminPage() {
         {activeTab === "submissions" && (
           <div className="space-y-6 animate-in fade-in duration-300">
             <div>
-              <h3 className="font-claude-serif text-2xl font-bold text-white">Owner & Broker Property Intake</h3>
-              <p className="text-xs text-slate-400">Submissions are never auto-published. Review title facts and approve to convert into public listings.</p>
+              <h3 className="font-claude-serif text-2xl font-bold text-white">Business Partner & Broker Intake Desk</h3>
+              <p className="text-xs text-slate-400">
+                Partner property submissions are intake records only. Review underwriting facts and approve to publish them into discovery listings.
+              </p>
             </div>
 
             <div className="space-y-4">
@@ -976,16 +1333,16 @@ export default function AdminPage() {
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <div className="flex items-center gap-2 mb-1">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
                         <span className="text-xs font-mono font-bold text-slate-400">{sub.id}</span>
                         <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase ${
                           sub.status === "APPROVED" ? "bg-emerald-600 text-white" :
                           sub.status === "REJECTED" ? "bg-red-600 text-white" :
-                          "bg-amber-500 text-slate-950"
+                          "bg-amber-500 text-slate-950 font-bold"
                         }`}>
                           {sub.status}
                         </span>
-                        <span className="text-xs text-slate-400">by {sub.submitterName} ({sub.submitterRole})</span>
+                        <span className="text-xs text-slate-400">by {sub.submitterName} ({sub.submitterRole === "PROPERTY_OWNER" ? "Business Partner" : sub.submitterRole})</span>
                       </div>
                       <h4 className="font-claude-serif text-lg font-bold text-white">{sub.title}</h4>
                       <p className="text-xs text-slate-400">{sub.locality}, {sub.city}, {sub.state}</p>
@@ -1013,7 +1370,7 @@ export default function AdminPage() {
 
                   <p className="text-xs text-slate-300 leading-relaxed">{sub.description}</p>
 
-                  <div className="p-3 rounded-xl liquid-glass text-xs flex items-center justify-between">
+                  <div className="p-3 rounded-xl liquid-glass text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <span>Asking Price Benchmark: <strong className="text-amber-400">₹{(sub.askingPrice ?? 0).toLocaleString()}</strong></span>
                     <span>Area: <strong className="text-white">{sub.area} {sub.areaUnit}</strong></span>
                     <span>Contact: <strong className="text-white">{sub.submitterEmail} • {sub.submitterPhone}</strong></span>
@@ -1117,23 +1474,26 @@ export default function AdminPage() {
         </div>
       )}
 
-      {/* Add New Property Modal */}
+      {/* Add New Property Modal (Integrated Photo Manager) */}
       {newPropertyModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl animate-in fade-in duration-200">
-          <div className="w-full max-w-xl liquid-glass-elevated rounded-3xl p-6 sm:p-8 space-y-6 border border-white/20 shadow-2xl max-h-[85vh] overflow-y-auto">
+          <div className="w-full max-w-2xl liquid-glass-elevated rounded-3xl p-6 sm:p-8 space-y-6 border border-white/20 shadow-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-3 border-b border-white/10">
-              <h3 className="font-claude-serif text-xl font-bold text-white">Add New Curated Listing</h3>
+              <div>
+                <h3 className="font-claude-serif text-xl font-bold text-white">Add New Curated Listing</h3>
+                <p className="text-xs text-slate-400">Create a verified listing with photos and confidential terms</p>
+              </div>
               <button
                 onClick={() => setNewPropertyModal(false)}
-                className="p-1 rounded-lg text-slate-400 hover:text-white"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-white"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleCreateProperty} className="space-y-4 text-xs">
+            <form onSubmit={handleCreateProperty} className="space-y-5 text-xs">
               <div>
-                <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Title</label>
+                <label className="text-[10px] uppercase font-bold text-slate-300 block mb-1">Title</label>
                 <input
                   type="text"
                   value={newProp.title}
@@ -1146,7 +1506,7 @@ export default function AdminPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Category</label>
+                  <label className="text-[10px] uppercase font-bold text-slate-300 block mb-1">Category</label>
                   <select
                     value={newProp.category}
                     onChange={(e) => setNewProp({ ...newProp, category: e.target.value })}
@@ -1163,7 +1523,7 @@ export default function AdminPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Inventory Type</label>
+                  <label className="text-[10px] uppercase font-bold text-slate-300 block mb-1">Inventory Type</label>
                   <select
                     value={newProp.inventoryType}
                     onChange={(e) => setNewProp({ ...newProp, inventoryType: e.target.value })}
@@ -1177,7 +1537,7 @@ export default function AdminPage() {
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">City</label>
+                  <label className="text-[10px] uppercase font-bold text-slate-300 block mb-1">City</label>
                   <input
                     type="text"
                     value={newProp.city}
@@ -1187,7 +1547,7 @@ export default function AdminPage() {
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">State</label>
+                  <label className="text-[10px] uppercase font-bold text-slate-300 block mb-1">State</label>
                   <input
                     type="text"
                     value={newProp.state}
@@ -1197,7 +1557,7 @@ export default function AdminPage() {
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Locality</label>
+                  <label className="text-[10px] uppercase font-bold text-slate-300 block mb-1">Locality</label>
                   <input
                     type="text"
                     value={newProp.locality}
@@ -1210,7 +1570,7 @@ export default function AdminPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Area Dimension</label>
+                  <label className="text-[10px] uppercase font-bold text-slate-300 block mb-1">Area Dimension ({newProp.areaUnit || "sq.ft."})</label>
                   <input
                     type="number"
                     value={newProp.area}
@@ -1220,51 +1580,52 @@ export default function AdminPage() {
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Internal Price (Confidential)</label>
+                  <label className="text-[10px] uppercase font-bold text-amber-300 block mb-1">Internal Price (Confidential ₹)</label>
                   <input
                     type="number"
                     value={newProp.internalAskingPrice}
                     onChange={(e) => setNewProp({ ...newProp, internalAskingPrice: Number(e.target.value) })}
                     required
-                    className="w-full p-2.5 rounded-xl liquid-glass-input text-white focus:outline-none"
+                    className="w-full p-2.5 rounded-xl liquid-glass-input text-white focus:outline-none font-mono"
                   />
                 </div>
               </div>
 
-              <div className="flex items-center gap-6 pt-2">
-                <label className="flex items-center gap-2 cursor-pointer">
+              <div className="flex items-center gap-6 pt-1">
+                <label className="flex items-center gap-2 cursor-pointer text-slate-300">
                   <input
                     type="checkbox"
                     checked={newProp.isJointVenture}
                     onChange={(e) => setNewProp({ ...newProp, isJointVenture: e.target.checked })}
-                    className="rounded"
+                    className="rounded text-royal-500 focus:ring-0"
                   />
                   <span>Joint Venture Proposal (Builder-Only)</span>
                 </label>
-                <label className="flex items-center gap-2 cursor-pointer">
+                <label className="flex items-center gap-2 cursor-pointer text-slate-300">
                   <input
                     type="checkbox"
                     checked={newProp.isDisputed}
                     onChange={(e) => setNewProp({ ...newProp, isDisputed: e.target.checked })}
-                    className="rounded"
+                    className="rounded text-amber-500 focus:ring-0"
                   />
                   <span>Disputed Property</span>
                 </label>
               </div>
 
               <div>
-                <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Demarcation Details</label>
+                <label className="text-[10px] uppercase font-bold text-slate-300 block mb-1">Demarcation Details</label>
                 <input
                   type="text"
                   value={newProp.demarcation}
                   onChange={(e) => setNewProp({ ...newProp, demarcation: e.target.value })}
                   required
+                  placeholder="North: Road, South: Plot 4..."
                   className="w-full p-2.5 rounded-xl liquid-glass-input text-white focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Description</label>
+                <label className="text-[10px] uppercase font-bold text-slate-300 block mb-1">Description</label>
                 <textarea
                   rows={3}
                   value={newProp.description}
@@ -1274,9 +1635,15 @@ export default function AdminPage() {
                 />
               </div>
 
+              {/* Photo Manager (Upload from Device or Add by URL) */}
+              <AdminPhotoManager
+                images={newProp.images || []}
+                onChange={(updatedImages) => setNewProp({ ...newProp, images: updatedImages })}
+              />
+
               <button
                 type="submit"
-                className="w-full py-3 rounded-xl liquid-glass-btn-royal font-bold text-sm text-white shadow-lg"
+                className="w-full py-3.5 rounded-xl liquid-glass-btn-royal font-bold text-sm text-white shadow-xl transition-all active:scale-[0.98]"
               >
                 Create & Publish Listing
               </button>
@@ -1285,10 +1652,10 @@ export default function AdminPage() {
         </div>
       )}
 
-      {/* Edit Existing Property Modal */}
+      {/* Edit Existing Property Modal (Integrated Photo Manager) */}
       {editingProperty && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl animate-in fade-in duration-200">
-          <div className="w-full max-w-xl liquid-glass-elevated rounded-3xl p-6 sm:p-8 space-y-6 border border-white/20 shadow-2xl max-h-[85vh] overflow-y-auto">
+          <div className="w-full max-w-2xl liquid-glass-elevated rounded-3xl p-6 sm:p-8 space-y-6 border border-white/20 shadow-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-3 border-b border-white/10">
               <div>
                 <h3 className="font-claude-serif text-xl font-bold text-white">Edit Property Listing</h3>
@@ -1296,15 +1663,15 @@ export default function AdminPage() {
               </div>
               <button
                 onClick={() => setEditingProperty(null)}
-                className="p-1 rounded-lg text-slate-400 hover:text-white"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-white"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleUpdateProperty} className="space-y-4 text-xs">
+            <form onSubmit={handleUpdateProperty} className="space-y-5 text-xs">
               <div>
-                <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Title</label>
+                <label className="text-[10px] uppercase font-bold text-slate-300 block mb-1">Title</label>
                 <input
                   type="text"
                   value={editingProperty.title}
@@ -1316,7 +1683,7 @@ export default function AdminPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Category</label>
+                  <label className="text-[10px] uppercase font-bold text-slate-300 block mb-1">Category</label>
                   <select
                     value={editingProperty.category}
                     onChange={(e) => setEditingProperty({ ...editingProperty, category: e.target.value as any })}
@@ -1333,7 +1700,7 @@ export default function AdminPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Status</label>
+                  <label className="text-[10px] uppercase font-bold text-slate-300 block mb-1">Status</label>
                   <select
                     value={editingProperty.status}
                     onChange={(e) => setEditingProperty({ ...editingProperty, status: e.target.value as any })}
@@ -1351,7 +1718,7 @@ export default function AdminPage() {
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">City</label>
+                  <label className="text-[10px] uppercase font-bold text-slate-300 block mb-1">City</label>
                   <input
                     type="text"
                     value={editingProperty.city}
@@ -1361,7 +1728,7 @@ export default function AdminPage() {
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">State</label>
+                  <label className="text-[10px] uppercase font-bold text-slate-300 block mb-1">State</label>
                   <input
                     type="text"
                     value={editingProperty.state}
@@ -1371,7 +1738,7 @@ export default function AdminPage() {
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Locality</label>
+                  <label className="text-[10px] uppercase font-bold text-slate-300 block mb-1">Locality</label>
                   <input
                     type="text"
                     value={editingProperty.locality}
@@ -1384,7 +1751,7 @@ export default function AdminPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Area Dimension ({editingProperty.areaUnit})</label>
+                  <label className="text-[10px] uppercase font-bold text-slate-300 block mb-1">Area Dimension ({editingProperty.areaUnit})</label>
                   <input
                     type="number"
                     value={editingProperty.area}
@@ -1394,40 +1761,40 @@ export default function AdminPage() {
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Internal Price (Confidential ₹)</label>
+                  <label className="text-[10px] uppercase font-bold text-amber-300 block mb-1">Internal Price (Confidential ₹)</label>
                   <input
                     type="number"
                     value={editingProperty.internalAskingPrice || 0}
                     onChange={(e) => setEditingProperty({ ...editingProperty, internalAskingPrice: Number(e.target.value) })}
                     required
-                    className="w-full p-2.5 rounded-xl liquid-glass-input text-white focus:outline-none"
+                    className="w-full p-2.5 rounded-xl liquid-glass-input text-white focus:outline-none font-mono"
                   />
                 </div>
               </div>
 
-              <div className="flex items-center gap-6 pt-2">
-                <label className="flex items-center gap-2 cursor-pointer">
+              <div className="flex items-center gap-6 pt-1">
+                <label className="flex items-center gap-2 cursor-pointer text-slate-300">
                   <input
                     type="checkbox"
                     checked={editingProperty.isJointVenture}
                     onChange={(e) => setEditingProperty({ ...editingProperty, isJointVenture: e.target.checked })}
-                    className="rounded"
+                    className="rounded text-royal-500 focus:ring-0"
                   />
                   <span>Joint Venture Proposal (Builder-Only)</span>
                 </label>
-                <label className="flex items-center gap-2 cursor-pointer">
+                <label className="flex items-center gap-2 cursor-pointer text-slate-300">
                   <input
                     type="checkbox"
                     checked={editingProperty.isDisputed}
                     onChange={(e) => setEditingProperty({ ...editingProperty, isDisputed: e.target.checked })}
-                    className="rounded"
+                    className="rounded text-amber-500 focus:ring-0"
                   />
                   <span>Disputed Property</span>
                 </label>
               </div>
 
               <div>
-                <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Demarcation Details</label>
+                <label className="text-[10px] uppercase font-bold text-slate-300 block mb-1">Demarcation Details</label>
                 <input
                   type="text"
                   value={editingProperty.demarcation}
@@ -1438,7 +1805,7 @@ export default function AdminPage() {
               </div>
 
               <div>
-                <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Description</label>
+                <label className="text-[10px] uppercase font-bold text-slate-300 block mb-1">Description</label>
                 <textarea
                   rows={3}
                   value={editingProperty.description}
@@ -1447,6 +1814,12 @@ export default function AdminPage() {
                   className="w-full p-2.5 rounded-xl liquid-glass-input text-white focus:outline-none"
                 />
               </div>
+
+              {/* Photo Manager for Editing (Add/Remove/Upload Photos) */}
+              <AdminPhotoManager
+                images={editingProperty.images || []}
+                onChange={(updatedImages) => setEditingProperty({ ...editingProperty, images: updatedImages })}
+              />
 
               <div className="flex items-center gap-3 pt-2">
                 <button
@@ -1458,7 +1831,7 @@ export default function AdminPage() {
                 </button>
                 <button
                   type="submit"
-                  className="w-2/3 py-3 rounded-xl liquid-glass-btn-royal font-bold text-sm text-white shadow-lg"
+                  className="w-2/3 py-3 rounded-xl liquid-glass-btn-royal font-bold text-sm text-white shadow-xl transition-all active:scale-[0.98]"
                 >
                   Save Changes
                 </button>

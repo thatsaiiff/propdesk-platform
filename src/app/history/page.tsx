@@ -346,7 +346,7 @@ export default function HistoryPage() {
                   { id: "INVESTOR", label: "Investor" },
                   { id: "BUILDER", label: "Builder" },
                   { id: "BROKER", label: "Broker" },
-                  { id: "PROPERTY_OWNER", label: "Property Owner" },
+                  { id: "PROPERTY_OWNER", label: "Business Partner" },
                   { id: "RENTAL_SEEKER", label: "Rental Seeker" },
                 ].map((item) => {
                   const isChecked = selectedRoles.includes(item.id as UserRole);

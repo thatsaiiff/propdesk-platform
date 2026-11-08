@@ -67,8 +67,10 @@ export interface PropertyImage {
 }
 
 export interface UserPreferences {
+  inventoryTypePreference?: "BANK_NBFC" | "NON_BANK_NBFC" | "BOTH";
   builderOpportunityType?: BuilderOpportunityType;
   category?: PropertyCategory;
+  categories?: PropertyCategory[];
   purpose?: PropertyPurpose;
 }
 

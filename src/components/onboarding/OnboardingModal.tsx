@@ -36,7 +36,7 @@ type OnboardingStep =
   | "OTP"
   | "NAME_PHONE"
   | "ROLES"
-  | "BUILDER_OPP"
+  | "INVENTORY_TYPE"
   | "CATEGORY"
   | "PURPOSE";
 
@@ -53,8 +53,9 @@ export default function OnboardingModal({ isOpen, onClose }: OnboardingModalProp
 
   // Selections
   const [selectedRoles, setSelectedRoles] = useState<UserRole[]>([]);
-  const [builderOpp, setBuilderOpp] = useState<BuilderOpportunityType>("BANK_NBFC");
-  const [selectedCategory, setSelectedCategory] = useState<PropertyCategory>("FLAT");
+  const [selectedInventoryType, setSelectedInventoryType] = useState<"BANK_NBFC" | "NON_BANK_NBFC" | "BOTH">("BOTH");
+  const [selectedCategories, setSelectedCategories] = useState<PropertyCategory[]>(["FLAT"]);
+  const [isJvOpportunity, setIsJvOpportunity] = useState(false);
   const [selectedPurpose, setSelectedPurpose] = useState<PropertyPurpose>("BUY");
 
   // State
@@ -123,14 +124,16 @@ export default function OnboardingModal({ isOpen, onClose }: OnboardingModalProp
     setLoading(false);
 
     if (res.success && res.user) {
+      if (res.user.roles && res.user.roles.length > 0) {
+        setSelectedRoles(res.user.roles);
+      }
       if (res.isNewUser || !res.user.name) {
         setStep("NAME_PHONE");
       } else if (!res.user.isOnboarded || res.user.roles.length === 0) {
         setStep("ROLES");
       } else {
-        // User already onboarded, proceed directly to discovery!
-        onClose();
-        router.push("/discover");
+        // First thing user is asked after sign-in: Inventory type!
+        setStep("INVENTORY_TYPE");
       }
     } else {
       setError(res.error || "Incorrect or expired code.");
@@ -180,32 +183,53 @@ export default function OnboardingModal({ isOpen, onClose }: OnboardingModalProp
     setLoading(false);
 
     if (res.success) {
-      // If builder is among the selected roles, route to Builder-Only step!
-      if (selectedRoles.includes("BUILDER")) {
-        setStep("BUILDER_OPP");
-      } else {
-        setStep("CATEGORY");
-      }
+      // Step 1 after sign in: Select Bank / NBFC listed, Non Bank / NBFC listed, Both
+      setStep("INVENTORY_TYPE");
     } else {
       setError(res.error || "Failed to update roles.");
     }
   };
 
-  // Step 5: Builder Opportunity
-  const handleBuilderOppContinue = async () => {
+  // Step 5: Inventory Type Selection
+  const handleInventoryContinue = async () => {
     setLoading(true);
     await updateOnboarding({
-      preferences: { builderOpportunityType: builderOpp },
+      preferences: {
+        inventoryTypePreference: selectedInventoryType,
+        builderOpportunityType: selectedRoles.includes("BUILDER") && isJvOpportunity
+          ? "JOINT_VENTURE"
+          : selectedInventoryType === "BANK_NBFC"
+          ? "BANK_NBFC"
+          : "NON_BANK_NBFC",
+      },
     });
     setLoading(false);
     setStep("CATEGORY");
   };
 
-  // Step 6: Category
+  // Step 6: Multi-Select Categories
+  const toggleCategory = (cat: PropertyCategory) => {
+    setSelectedCategories((prev) =>
+      prev.includes(cat)
+        ? prev.length > 1
+          ? prev.filter((c) => c !== cat)
+          : prev
+        : [...prev, cat]
+    );
+  };
+
   const handleCategoryContinue = async () => {
+    if (selectedCategories.length === 0) {
+      setError("Please select at least one property category.");
+      return;
+    }
+    setError(null);
     setLoading(true);
     await updateOnboarding({
-      preferences: { category: selectedCategory },
+      preferences: {
+        categories: selectedCategories,
+        category: selectedCategories[0],
+      },
     });
     setLoading(false);
     setStep("PURPOSE");
@@ -217,9 +241,15 @@ export default function OnboardingModal({ isOpen, onClose }: OnboardingModalProp
     const res = await updateOnboarding({
       roles: selectedRoles.length > 0 ? selectedRoles : undefined,
       preferences: {
-        category: selectedCategory,
+        inventoryTypePreference: selectedInventoryType,
+        categories: selectedCategories,
+        category: selectedCategories[0] || "FLAT",
         purpose: selectedPurpose,
-        builderOpportunityType: selectedRoles.includes("BUILDER") ? builderOpp : undefined,
+        builderOpportunityType: selectedRoles.includes("BUILDER") && isJvOpportunity
+          ? "JOINT_VENTURE"
+          : selectedInventoryType === "BANK_NBFC"
+          ? "BANK_NBFC"
+          : "NON_BANK_NBFC",
       },
       isOnboarded: true,
     });
@@ -502,7 +532,7 @@ export default function OnboardingModal({ isOpen, onClose }: OnboardingModalProp
                   { id: "INVESTOR", label: "Investor", desc: "Yield capital & commercial growth" },
                   { id: "BUILDER", label: "Builder", desc: "Development land & Joint Ventures" },
                   { id: "BROKER", label: "Broker", desc: "Institutional mandates & client advisory" },
-                  { id: "PROPERTY_OWNER", label: "Property Owner", desc: "Direct owner selling or leasing" },
+                  { id: "PROPERTY_OWNER", label: "Business Partner", desc: "Direct asset partner, owner or co-mandate" },
                   { id: "RENTAL_SEEKER", label: "Rental Seeker", desc: "Grade-A lease or luxury residence" },
                 ].map((item) => {
                   const isSelected = selectedRoles.includes(item.id as UserRole);
@@ -539,24 +569,21 @@ export default function OnboardingModal({ isOpen, onClose }: OnboardingModalProp
             </motion.div>
           )}
 
-          {/* STEP 5: BUILDER-ONLY OPPORTUNITY SELECTION */}
-          {step === "BUILDER_OPP" && (
+          {/* STEP 5: INVENTORY TYPE SELECTION (FIRST STEP AFTER SIGN-IN/ROLES) */}
+          {step === "INVENTORY_TYPE" && (
             <motion.div
-              key="step-builder-opp"
+              key="step-inventory-type"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               className="space-y-5"
             >
               <div>
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full liquid-glass-pill text-[10px] font-bold text-emerald-400 border border-emerald-500/30 mb-2">
-                  <ShieldCheck className="w-3 h-3" /> Exclusive Builder Workflow
-                </div>
                 <h2 className="font-claude-serif text-2xl sm:text-3xl font-bold text-white tracking-tight">
-                  What opportunities are you interested in?
+                  Select Property Portfolio
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-300 mt-1 leading-relaxed">
-                  Select one opportunity channel at a time.
+                  Which listings would you like to explore?
                 </p>
               </div>
 
@@ -564,63 +591,87 @@ export default function OnboardingModal({ isOpen, onClose }: OnboardingModalProp
                 {[
                   {
                     id: "BANK_NBFC",
-                    label: "Bank / NBFC Properties",
-                    desc: "Statutory auction assets, SARFAESI seizures, and debt settlement mandates.",
+                    label: "Bank / NBFC listed Properties",
                     icon: Landmark,
                   },
                   {
                     id: "NON_BANK_NBFC",
-                    label: "Non-Bank / Non-NBFC Properties",
-                    desc: "Direct corporate seller mandates, freehold unencumbered land, and commercial buildings.",
+                    label: "Non Bank / NBFC Listed",
                     icon: Building2,
                   },
                   {
-                    id: "JOINT_VENTURE",
-                    label: "Joint Venture Proposals",
-                    desc: "Confidential revenue-sharing and area-sharing development land covenants (Builder exclusive).",
-                    icon: Lock,
+                    id: "BOTH",
+                    label: "Both",
+                    icon: Layers,
                   },
                 ].map((item) => {
-                  const isSelected = builderOpp === item.id;
+                  const isSelected = selectedInventoryType === item.id;
                   const Icon = item.icon;
                   return (
                     <button
                       key={item.id}
                       type="button"
-                      onClick={() => setBuilderOpp(item.id as BuilderOpportunityType)}
-                      className={`w-full p-4 rounded-2xl text-left transition-all duration-300 flex items-start gap-3.5 border ${
+                      onClick={() => setSelectedInventoryType(item.id as "BANK_NBFC" | "NON_BANK_NBFC" | "BOTH")}
+                      className={`w-full p-4 rounded-2xl text-left transition-all duration-300 flex items-center justify-between border ${
                         isSelected
-                          ? "liquid-glass-btn-royal border-royal-400 text-white shadow-lg"
+                          ? "liquid-glass-btn-royal border-royal-400 text-white shadow-lg scale-[1.01]"
                           : "liquid-glass border-white/10 text-slate-300 hover:border-white/30"
                       }`}
                     >
-                      <div className="w-9 h-9 rounded-xl liquid-glass flex items-center justify-center shrink-0 border border-white/20">
-                        <Icon className="w-4 h-4 text-amber-400" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between">
-                          <h4 className="text-sm font-semibold">{item.label}</h4>
-                          {isSelected && <Check className="w-4 h-4 text-amber-400" />}
+                      <div className="flex items-center gap-3.5">
+                        <div className="w-10 h-10 rounded-xl liquid-glass flex items-center justify-center shrink-0 border border-white/20">
+                          <Icon className="w-5 h-5 text-amber-400" />
                         </div>
-                        <p className="text-xs text-slate-300/80 mt-1">{item.desc}</p>
+                        <span className="text-sm sm:text-base font-semibold">{item.label}</span>
                       </div>
+                      {isSelected && <Check className="w-5 h-5 text-amber-400 shrink-0" />}
                     </button>
                   );
                 })}
               </div>
 
+              {/* Exclusive Builder Joint Venture Opportunity Option */}
+              {selectedRoles.includes("BUILDER") && (
+                <div
+                  onClick={() => setIsJvOpportunity(!isJvOpportunity)}
+                  className={`p-3.5 rounded-2xl border cursor-pointer transition-all flex items-center justify-between ${
+                    isJvOpportunity
+                      ? "bg-emerald-950/40 border-emerald-500/50 text-white"
+                      : "liquid-glass border-white/10 text-slate-300 hover:border-white/20"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center shrink-0 border border-emerald-400/30">
+                      <Lock className="w-4 h-4 text-emerald-400" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs sm:text-sm font-semibold">Joint Venture Proposals</span>
+                        <span className="text-[9px] uppercase tracking-wider font-extrabold text-emerald-300 bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-400/30">
+                          Builder Exclusive
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-300/80">Include confidential revenue & area-sharing covenants</p>
+                    </div>
+                  </div>
+                  <div className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 ${isJvOpportunity ? "bg-emerald-500 border-emerald-400 text-black" : "border-white/30"}`}>
+                    {isJvOpportunity && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                  </div>
+                </div>
+              )}
+
               <button
                 type="button"
-                onClick={handleBuilderOppContinue}
+                onClick={handleInventoryContinue}
                 className="w-full py-3.5 px-6 rounded-xl liquid-glass-btn-royal font-semibold text-sm text-white shadow-lg flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
               >
-                <span>Continue to Category</span>
+                <span>Continue to Categories</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </motion.div>
           )}
 
-          {/* STEP 6: PROPERTY CATEGORY SELECTION */}
+          {/* STEP 6: PROPERTY CATEGORY MULTI-SELECTION (NO PLACEHOLDER TEXT) */}
           {step === "CATEGORY" && (
             <motion.div
               key="step-category"
@@ -634,57 +685,61 @@ export default function OnboardingModal({ isOpen, onClose }: OnboardingModalProp
                   What are you looking for?
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-300 mt-1 leading-relaxed">
-                  Choose the primary property category you want to discover.
+                  Select one or multiple property categories to discover.
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 gap-2 max-h-[50vh] overflow-y-auto pr-1">
+              <div className="grid grid-cols-2 gap-2.5 max-h-[50vh] overflow-y-auto pr-1">
                 {[
-                  { id: "HOUSE", label: "House", desc: "Villas & bungalows", icon: Home },
-                  { id: "FLAT", label: "Flat / Apartment", desc: "Sky residences & suites", icon: Building2 },
-                  { id: "PLOT", label: "Vacant Plot / Land", desc: "Freehold parcels", icon: MapPin },
-                  { id: "INDUSTRIAL_LAND", label: "Industrial Land", desc: "Zoned manufacturing", icon: Layers },
-                  { id: "WAREHOUSE", label: "Warehouse", desc: "PEB logistics sheds", icon: Warehouse },
-                  { id: "FACTORY", label: "Factory", desc: "Operating industrial plants", icon: Factory },
-                  { id: "BUILDING_WITH_LAND", label: "Building with Land", desc: "Commercial complexes", icon: Landmark },
+                  { id: "HOUSE", label: "House", icon: Home },
+                  { id: "FLAT", label: "Flat / Apartment", icon: Building2 },
+                  { id: "PLOT", label: "Vacant Plot / Land", icon: MapPin },
+                  { id: "INDUSTRIAL_LAND", label: "Industrial Land", icon: Layers },
+                  { id: "WAREHOUSE", label: "Warehouse", icon: Warehouse },
+                  { id: "FACTORY", label: "Factory", icon: Factory },
+                  { id: "BUILDING_WITH_LAND", label: "Building with Land", icon: Landmark },
                   { 
                     id: "DISPUTED", 
                     label: "Disputed Property", 
-                    desc: "Bank seizures & recovery", 
                     icon: AlertTriangle,
                     specialTag: "Maximum Discount Opportunities" 
                   },
                 ].map((item) => {
-                  const isSelected = selectedCategory === item.id;
+                  const isSelected = selectedCategories.includes(item.id as PropertyCategory);
                   const Icon = item.icon;
                   return (
                     <button
                       key={item.id}
                       type="button"
-                      onClick={() => setSelectedCategory(item.id as PropertyCategory)}
-                      className={`p-3.5 rounded-2xl text-left transition-all duration-300 border relative ${
+                      onClick={() => toggleCategory(item.id as PropertyCategory)}
+                      className={`p-3.5 rounded-2xl text-left transition-all duration-300 border relative flex flex-col justify-between min-h-[72px] ${
                         isSelected
-                          ? "liquid-glass-btn-royal border-royal-400 text-white shadow-lg"
+                          ? "liquid-glass-btn-royal border-royal-400 text-white shadow-lg scale-[1.01]"
                           : item.specialTag
                           ? "liquid-glass border-amber-500/40 text-amber-200 hover:border-amber-400"
                           : "liquid-glass border-white/10 text-slate-300 hover:border-white/30"
                       }`}
                     >
                       {item.specialTag && (
-                        <div className="mb-1">
-                          <span className="text-[9px] uppercase tracking-wider font-extrabold text-amber-300 bg-amber-500/20 px-2 py-0.5 rounded-full border border-amber-400/40">
+                        <div className="mb-1.5">
+                          <span className="text-[9px] uppercase tracking-wider font-extrabold text-amber-300 bg-amber-500/25 px-2 py-0.5 rounded-full border border-amber-400/40">
                             {item.specialTag}
                           </span>
                         </div>
                       )}
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Icon className={`w-4 h-4 ${item.specialTag ? "text-amber-400" : "text-slate-400"}`} />
+                      <div className="flex items-center justify-between w-full">
+                        <div className="flex items-center gap-2.5">
+                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                            isSelected 
+                              ? "bg-amber-400/20 text-amber-300 border border-amber-400/30" 
+                              : "bg-white/5 text-slate-400 border border-white/10"
+                          }`}>
+                            <Icon className="w-4 h-4" />
+                          </div>
                           <span className="text-xs sm:text-sm font-semibold">{item.label}</span>
                         </div>
                         {isSelected && <Check className="w-4 h-4 text-amber-400 shrink-0" />}
                       </div>
-                      <p className="text-[11px] text-slate-300/80 mt-1 line-clamp-1">{item.desc}</p>
                     </button>
                   );
                 })}
@@ -693,9 +748,10 @@ export default function OnboardingModal({ isOpen, onClose }: OnboardingModalProp
               <button
                 type="button"
                 onClick={handleCategoryContinue}
-                className="w-full py-3.5 px-6 rounded-xl liquid-glass-btn-royal font-semibold text-sm text-white shadow-lg flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+                disabled={selectedCategories.length === 0}
+                className="w-full py-3.5 px-6 rounded-xl liquid-glass-btn-royal font-semibold text-sm text-white shadow-lg flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-50"
               >
-                <span>Continue to Purpose</span>
+                <span>Continue ({selectedCategories.length} selected)</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </motion.div>

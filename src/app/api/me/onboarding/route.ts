@@ -3,6 +3,17 @@ import { getCurrentUserFromRequest } from "@/lib/auth/session";
 import { store } from "@/lib/store";
 import { z } from "zod";
 
+const PropertyCategoryEnum = z.enum([
+  "HOUSE",
+  "FLAT",
+  "PLOT",
+  "INDUSTRIAL_LAND",
+  "WAREHOUSE",
+  "FACTORY",
+  "BUILDING_WITH_LAND",
+  "DISPUTED",
+]);
+
 const OnboardingSchema = z.object({
   name: z.string().min(2, "Name is required").optional(),
   phone: z.string().min(8, "Valid phone number required").optional(),
@@ -15,17 +26,10 @@ const OnboardingSchema = z.object({
     "RENTAL_SEEKER"
   ])).min(1, "Select at least one role").optional(),
   preferences: z.object({
+    inventoryTypePreference: z.enum(["BANK_NBFC", "NON_BANK_NBFC", "BOTH"]).optional(),
     builderOpportunityType: z.enum(["BANK_NBFC", "NON_BANK_NBFC", "JOINT_VENTURE"]).optional(),
-    category: z.enum([
-      "HOUSE",
-      "FLAT",
-      "PLOT",
-      "INDUSTRIAL_LAND",
-      "WAREHOUSE",
-      "FACTORY",
-      "BUILDING_WITH_LAND",
-      "DISPUTED"
-    ]).optional(),
+    category: PropertyCategoryEnum.optional(),
+    categories: z.array(PropertyCategoryEnum).optional(),
     purpose: z.enum(["BUY", "RENT", "BUY_OR_RENT"]).optional(),
   }).optional(),
   isOnboarded: z.boolean().optional(),

@@ -100,7 +100,7 @@ export const AdminListingCreateUpdateSchema = z.object({
   media: z.array(
     z.object({
       id: z.string(),
-      url: z.string().url(),
+      url: z.string().min(5),
       altText: z.string(),
       isCover: z.boolean(),
       sortOrder: z.number(),
