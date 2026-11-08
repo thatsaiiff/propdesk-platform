@@ -225,3 +225,15 @@ model OtpRecord {
 
   @@index([email])
 }
+
+model MediaAsset {
+  id        String   @id @default(cuid())
+  mimeType  String   @default("image/jpeg")
+  data      String   // Base64 encoded optimized image binary
+  sizeBytes Int      @default(0)
+  filename  String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+

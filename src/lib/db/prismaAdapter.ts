@@ -297,6 +297,14 @@ export class PrismaAdapter {
 
       // Images
       if (prop.images && prop.images.length > 0) {
+        const activeIds = prop.images.map((i) => i.id);
+        await prisma.propertyImage.deleteMany({
+          where: {
+            propertyId: prop.id,
+            id: { notIn: activeIds },
+          },
+        }).catch(() => {});
+
         for (const img of prop.images) {
           await prisma.propertyImage.upsert({
             where: { id: img.id },

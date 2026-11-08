@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from "react";
-import { Upload, Image as ImageIcon, Trash2, Plus, ArrowUp, ArrowDown, Sparkles } from "lucide-react";
+import { Upload, Image as ImageIcon, Trash2, ArrowUp, ArrowDown, Sparkles, Loader2, CheckCircle2 } from "lucide-react";
 
 export interface PropertyImageItem {
   id: string;
@@ -15,51 +15,119 @@ interface AdminPhotoManagerProps {
   onChange: (images: PropertyImageItem[]) => void;
 }
 
+/**
+ * Compresses an image client-side to maximum 1920px width/height and 85% quality JPEG.
+ * Reduces 5MB-15MB phone camera photos down to ~150KB-250KB before network transit.
+ */
+async function compressImageFile(file: File): Promise<{ dataUrl: string; mimeType: string }> {
+  return new Promise((resolve, reject) => {
+    if (!file.type.startsWith("image/")) {
+      return reject(new Error("Selected file is not an image"));
+    }
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error("Failed to read file"));
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onerror = () => reject(new Error("Failed to parse image"));
+      img.onload = () => {
+        const maxWidth = 1920;
+        const maxHeight = 1920;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width = Math.round((width * maxHeight) / height);
+            height = maxHeight;
+          }
+        }
+
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          return resolve({ dataUrl: e.target?.result as string, mimeType: file.type || "image/jpeg" });
+        }
+
+        ctx.drawImage(img, 0, 0, width, height);
+        const mimeType = "image/jpeg";
+        const dataUrl = canvas.toDataURL(mimeType, 0.85);
+        resolve({ dataUrl, mimeType });
+      };
+      img.src = e.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
 export default function AdminPhotoManager({ images, onChange }: AdminPhotoManagerProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [urlInput, setUrlInput] = useState("");
   const [labelInput, setLabelInput] = useState("");
-  const [isProcessingFiles, setIsProcessingFiles] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState<string | null>(null);
 
-  // File Upload Handler (multiple files to Base64 Data URL)
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // File Upload Handler with Client-Side Compression & Server Storage
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    setIsProcessingFiles(true);
-    const fileList = Array.from(files);
-    let completed = 0;
-    const newItems: PropertyImageItem[] = [];
+    setIsUploading(true);
+    setUploadStatus("Optimizing photos...");
 
-    fileList.forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const result = event.target?.result as string;
-        if (result) {
-          const cleanName = file.name.replace(/\.[^/.]+$/, "");
-          newItems.push({
-            id: `img-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
-            url: result,
-            label: cleanName || "Property View",
-            sortOrder: images.length + newItems.length + 1,
-          });
+    const fileList = Array.from(files);
+    const uploadedItems: PropertyImageItem[] = [];
+
+    try {
+      for (let i = 0; i < fileList.length; i++) {
+        const file = fileList[i];
+        setUploadStatus(`Uploading photo ${i + 1} of ${fileList.length}...`);
+
+        // Step 1: Compress client-side
+        const { dataUrl, mimeType } = await compressImageFile(file);
+
+        // Step 2: Upload to persistent image storage API
+        const res = await fetch("/api/admin/upload", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            data: dataUrl,
+            filename: file.name,
+            mimeType,
+          }),
+        });
+
+        const data = await res.json();
+        if (!res.ok || !data.success || !data.url) {
+          throw new Error(data.error || `Failed to upload ${file.name}`);
         }
-        completed++;
-        if (completed === fileList.length) {
-          onChange([...images, ...newItems]);
-          setIsProcessingFiles(false);
-          if (fileInputRef.current) fileInputRef.current.value = "";
-        }
-      };
-      reader.onerror = () => {
-        completed++;
-        if (completed === fileList.length) {
-          onChange([...images, ...newItems]);
-          setIsProcessingFiles(false);
-        }
-      };
-      reader.readAsDataURL(file);
-    });
+
+        const cleanName = file.name.replace(/\.[^/.]+$/, "");
+        uploadedItems.push({
+          id: `img-${Date.now()}-${i}-${Math.random().toString(36).substring(2, 7)}`,
+          url: data.url,
+          label: cleanName || "Property View",
+          sortOrder: images.length + uploadedItems.length + 1,
+        });
+      }
+
+      onChange([...images, ...uploadedItems]);
+      setUploadStatus("Photos uploaded & stored successfully!");
+      setTimeout(() => setUploadStatus(null), 3000);
+    } catch (err: any) {
+      console.error("Image upload error:", err);
+      alert(err.message || "Error uploading photos. Please check file format and try again.");
+      setUploadStatus(null);
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
   };
 
   // Add by Direct Web URL
@@ -156,12 +224,28 @@ export default function AdminPhotoManager({ images, onChange }: AdminPhotoManage
         </button>
       </div>
 
+      {/* Upload Status Banner */}
+      {uploadStatus && (
+        <div className="px-3.5 py-2.5 rounded-xl liquid-glass border border-amber-400/30 flex items-center gap-2 text-xs text-amber-200 animate-in fade-in">
+          {isUploading ? (
+            <Loader2 className="w-4 h-4 animate-spin text-amber-400 shrink-0" />
+          ) : (
+            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+          )}
+          <span>{uploadStatus}</span>
+        </div>
+      )}
+
       {/* Upload Zone & URL Adder */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {/* Device File Upload */}
         <div
-          onClick={() => fileInputRef.current?.click()}
-          className="p-4 rounded-2xl liquid-glass border border-dashed border-amber-400/30 hover:border-amber-400/60 bg-amber-500/[0.03] hover:bg-amber-500/[0.08] transition-all cursor-pointer flex flex-col items-center justify-center text-center space-y-1.5"
+          onClick={() => !isUploading && fileInputRef.current?.click()}
+          className={`p-4 rounded-2xl liquid-glass border border-dashed transition-all cursor-pointer flex flex-col items-center justify-center text-center space-y-1.5 ${
+            isUploading
+              ? "opacity-60 pointer-events-none border-amber-400/30 bg-amber-500/[0.02]"
+              : "border-amber-400/30 hover:border-amber-400/60 bg-amber-500/[0.03] hover:bg-amber-500/[0.08]"
+          }`}
         >
           <input
             type="file"
@@ -172,13 +256,13 @@ export default function AdminPhotoManager({ images, onChange }: AdminPhotoManage
             className="hidden"
           />
           <div className="w-9 h-9 rounded-xl bg-amber-400/15 border border-amber-400/30 flex items-center justify-center text-amber-300">
-            <Upload className="w-4 h-4" />
+            {isUploading ? <Loader2 className="w-4 h-4 animate-spin text-amber-400" /> : <Upload className="w-4 h-4" />}
           </div>
           <div>
             <span className="text-xs font-bold text-white block">
-              {isProcessingFiles ? "Processing Images..." : "Upload from Device"}
+              {isUploading ? "Uploading & Storing..." : "Upload from Device / Phone"}
             </span>
-            <span className="text-[10px] text-slate-400">Select multiple JPG, PNG, WEBP</span>
+            <span className="text-[10px] text-slate-400">Auto-compressed JPG, PNG, WEBP</span>
           </div>
         </div>
 

@@ -79,6 +79,8 @@ export async function POST(req: NextRequest) {
       allowedRoles: parsed.data.allowedRoles as any,
     });
 
+    await store.persistPropertyToDb(created);
+
     return NextResponse.json({ success: true, property: created });
   } catch (err) {
     console.error("Admin create property error:", err);
@@ -105,6 +107,8 @@ export async function PUT(req: NextRequest) {
     if (!updated) {
       return NextResponse.json({ success: false, error: "Property not found" }, { status: 404 });
     }
+
+    await store.persistPropertyToDb(updated);
 
     return NextResponse.json({ success: true, property: updated });
   } catch (err) {
