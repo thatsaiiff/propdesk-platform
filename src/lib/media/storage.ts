@@ -32,12 +32,20 @@ export async function saveMediaAsset({
   // 1. Check for Vercel Blob Storage
   if (process.env.BLOB_READ_WRITE_TOKEN) {
     try {
-      const blob = await put(cleanFilename, buffer, {
-        access: "public",
-        contentType: mimeType,
-      });
+      let blob;
+      try {
+        blob = await put(cleanFilename, buffer, {
+          access: "public",
+          contentType: mimeType,
+        });
+      } catch (pubErr) {
+        blob = await put(cleanFilename, buffer, {
+          access: "private" as any,
+          contentType: mimeType,
+        });
+      }
       return {
-        url: blob.url,
+        url: (blob as any).url || (blob as any).downloadUrl,
         id: assetId,
         provider: "vercel_blob",
       };
@@ -80,6 +88,9 @@ export async function saveMediaAsset({
 
   if (isDbActive() && prisma) {
     try {
+      const { ensureDatabaseSchema } = await import("@/lib/db/schemaInit");
+      await ensureDatabaseSchema();
+
       await prisma.mediaAsset.create({
         data: {
           id: assetId,

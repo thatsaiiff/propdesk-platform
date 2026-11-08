@@ -27,6 +27,10 @@ export class PrismaAdapter {
     if (!isDbActive() || !prisma) return null;
 
     try {
+      // Ensure all tables and columns exist in Neon database
+      const { ensureDatabaseSchema } = await import("./schemaInit");
+      await ensureDatabaseSchema();
+
       // Check if DB is initialized
       const userCount = await prisma.user.count();
       if (userCount === 0) {
