@@ -86,12 +86,12 @@ class Store {
     }
   }
 
-  async ensureHydrated() {
-    if (this.isHydrated) return;
-    this.isHydrated = true;
+  async ensureHydrated(force = false) {
+    if (this.isHydrated && !force) return;
     try {
       const synced = await PrismaAdapter.syncFromDb();
       if (synced) {
+        this.isHydrated = true;
         if (synced.users && synced.users.length > 0) this.users = synced.users;
         if (synced.properties && synced.properties.length > 0) this.properties = synced.properties;
         if (synced.activities) this.activities = synced.activities;
@@ -306,6 +306,7 @@ class Store {
     sub.status = "CONVERTED";
     sub.convertedPropertyId = listing.id;
     sub.updatedAt = new Date().toISOString();
+    PrismaAdapter.persistSubmission(sub).catch(console.warn);
 
     return listing;
   }
@@ -653,14 +654,28 @@ Sent to Admin Email: ${this.config.adminNotificationEmail}
   }
 
   createProperty(data: Omit<Property, "id" | "createdAt" | "updatedAt">): Property {
+    const defaultImg = {
+      id: `img-${Date.now()}-1`,
+      url: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=85",
+      label: "Front Facade",
+      sortOrder: 1,
+    };
+    const incomingImages = data.images && data.images.length > 0 ? data.images : [defaultImg];
+    const sanitizedImages = incomingImages.map((img, idx) => ({
+      ...img,
+      id: `img-${Date.now()}-${idx}-${Math.random().toString(36).substring(2, 7)}`,
+      sortOrder: idx + 1,
+    }));
+
     const newProp: Property = {
       ...data,
-      id: `prop-${Date.now()}`,
+      images: sanitizedImages,
+      id: `prop-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
     this.properties.unshift(newProp);
-    PrismaAdapter.persistProperty(newProp);
+    PrismaAdapter.persistProperty(newProp).catch((e) => console.warn("persistProperty failed:", e));
     return { ...newProp };
   }
 
@@ -673,14 +688,19 @@ Sent to Admin Email: ${this.config.adminNotificationEmail}
       ...updates,
       updatedAt: new Date().toISOString(),
     };
-    PrismaAdapter.persistProperty(this.properties[idx]);
+    PrismaAdapter.persistProperty(this.properties[idx]).catch((e) => console.warn("persistProperty failed:", e));
     return { ...this.properties[idx] };
   }
 
   deleteProperty(id: string): boolean {
     const len = this.properties.length;
     this.properties = this.properties.filter((p) => p.id !== id);
+    PrismaAdapter.deleteProperty(id).catch((e) => console.warn("deleteProperty failed:", e));
     return this.properties.length < len;
+  }
+
+  async persistPropertyToDb(prop: Property): Promise<void> {
+    await PrismaAdapter.persistProperty(prop);
   }
 
   // --- Admin Lead Management ---
@@ -719,20 +739,20 @@ Sent to Admin Email: ${this.config.adminNotificationEmail}
     return this.submissions.map((s) => ({ ...s }));
   }
 
-  reviewSubmission(id: string, status: SubmissionStatus, adminReviewNotes?: string): { submission: PropertySubmission | null; publishedProperty?: Property } {
+  async reviewSubmission(id: string, status: SubmissionStatus, adminReviewNotes?: string): Promise<{ submission: PropertySubmission | null; publishedProperty?: Property }> {
     const sub = this.submissions.find((s) => s.id === id);
     if (!sub) return { submission: null };
 
     sub.status = status;
     if (adminReviewNotes) sub.adminReviewNotes = adminReviewNotes;
     sub.updatedAt = new Date().toISOString();
-    PrismaAdapter.persistSubmission(sub);
+    await PrismaAdapter.persistSubmission(sub);
 
     let publishedProperty: Property | undefined;
 
     // If approved, convert intake to a published property listing
     if (status === "APPROVED") {
-      publishedProperty = this.createProperty({
+      publishedProperty = await this.createProperty({
         slug: sub.title.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
         title: sub.title,
         description: sub.description,

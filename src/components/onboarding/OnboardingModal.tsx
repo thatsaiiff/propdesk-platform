@@ -528,12 +528,12 @@ export default function OnboardingModal({ isOpen, onClose }: OnboardingModalProp
 
               <div className="grid grid-cols-2 gap-2.5 max-h-[50vh] overflow-y-auto pr-1">
                 {[
-                  { id: "INDIVIDUAL_BUYER", label: "Individual Buyer", desc: "Private home or asset purchase" },
-                  { id: "INVESTOR", label: "Investor", desc: "Yield capital & commercial growth" },
-                  { id: "BUILDER", label: "Builder", desc: "Development land & Joint Ventures" },
-                  { id: "BROKER", label: "Broker", desc: "Institutional mandates & client advisory" },
-                  { id: "PROPERTY_OWNER", label: "Business Partner", desc: "Direct asset partner, owner or co-mandate" },
-                  { id: "RENTAL_SEEKER", label: "Rental Seeker", desc: "Grade-A lease or luxury residence" },
+                  { id: "INDIVIDUAL_BUYER", label: "Individual Buyer" },
+                  { id: "INVESTOR", label: "Investor" },
+                  { id: "BUILDER", label: "Builder" },
+                  { id: "BROKER", label: "Broker" },
+                  { id: "PROPERTY_OWNER", label: "Business Partner" },
+                  { id: "RENTAL_SEEKER", label: "Rental Seeker" },
                 ].map((item) => {
                   const isSelected = selectedRoles.includes(item.id as UserRole);
                   return (
@@ -541,17 +541,14 @@ export default function OnboardingModal({ isOpen, onClose }: OnboardingModalProp
                       key={item.id}
                       type="button"
                       onClick={() => toggleRole(item.id as UserRole)}
-                      className={`p-3.5 rounded-2xl text-left transition-all duration-300 relative border ${
+                      className={`p-4 rounded-2xl text-left transition-all duration-300 relative border flex items-center justify-between min-h-[54px] ${
                         isSelected
                           ? "liquid-glass-btn-royal border-royal-400 text-white shadow-lg scale-[1.02]"
                           : "liquid-glass border-white/10 text-slate-300 hover:border-white/30"
                       }`}
                     >
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs sm:text-sm font-semibold">{item.label}</span>
-                        {isSelected && <Check className="w-4 h-4 text-amber-400" />}
-                      </div>
-                      <p className="text-[11px] text-slate-300/80 mt-1 line-clamp-1">{item.desc}</p>
+                      <span className="text-xs sm:text-sm font-semibold">{item.label}</span>
+                      {isSelected && <Check className="w-4 h-4 text-amber-400 shrink-0" />}
                     </button>
                   );
                 })}

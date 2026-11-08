@@ -9,6 +9,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Access denied. Admin authorization required." }, { status: 403 });
     }
 
+    await store.ensureHydrated(true);
     const stats = store.getAdminStats();
     const config = store.getConfig();
 

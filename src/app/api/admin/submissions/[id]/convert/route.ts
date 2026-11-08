@@ -14,7 +14,7 @@ export async function POST(
 
   try {
     const { id } = await params;
-    const newListing = store.convertSubmissionToListing(id, user!.id, user!.name);
+    const newListing = await store.convertSubmissionToListing(id, user!.id, user!.name);
     return NextResponse.json({ success: true, listing: newListing });
   } catch (err: any) {
     return NextResponse.json({ error: { code: "SERVER_ERROR", message: err.message } }, { status: 500 });

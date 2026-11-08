@@ -301,6 +301,7 @@ export class PrismaAdapter {
           await prisma.propertyImage.upsert({
             where: { id: img.id },
             update: {
+              propertyId: prop.id,
               url: img.url,
               label: img.label || null,
               sortOrder: img.sortOrder,
@@ -318,6 +319,17 @@ export class PrismaAdapter {
       }
     } catch (e) {
       console.warn("Database persistProperty failed:", e);
+    }
+  }
+
+  static async deleteProperty(propertyId: string) {
+    if (!isDbActive() || !prisma) return;
+    try {
+      await prisma.property.delete({
+        where: { id: propertyId },
+      });
+    } catch (e) {
+      console.warn("Database deleteProperty failed:", e);
     }
   }
 

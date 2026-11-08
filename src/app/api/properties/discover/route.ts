@@ -29,6 +29,7 @@ export async function GET(req: NextRequest) {
       builderOpportunityType: builderOppParam || user.preferences?.builderOpportunityType,
     };
 
+    await store.ensureHydrated();
     const properties = store.getDiscoveryProperties(user.id, filters);
 
     return NextResponse.json({

@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Invalid review decision data" }, { status: 400 });
     }
 
-    const result = store.reviewSubmission(
+    const result = await store.reviewSubmission(
       parsed.data.submissionId,
       parsed.data.status,
       parsed.data.adminReviewNotes

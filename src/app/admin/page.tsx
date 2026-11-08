@@ -188,12 +188,16 @@ export default function AdminPage() {
         body: JSON.stringify(newProp),
       });
       const data = await res.json();
-      if (data.success) {
+      if (data.success && data.property) {
         showNotice("Property created and published successfully!");
         setNewPropertyModal(false);
+        setProperties((prev) => [data.property, ...prev]);
         loadAllAdminData();
       } else {
-        alert(data.error || "Failed to create property");
+        const errorMsg = data.details
+          ? Object.entries(data.details).map(([k, v]) => `${k}: ${v}`).join("\n")
+          : (data.error || "Failed to create property");
+        alert(errorMsg);
       }
     } catch {
       alert("Network error creating property");
@@ -232,12 +236,16 @@ export default function AdminPage() {
         body: JSON.stringify(editingProperty),
       });
       const data = await res.json();
-      if (data.success) {
+      if (data.success && data.property) {
         showNotice("Property updated successfully!");
         setEditingProperty(null);
+        setProperties((prev) => prev.map((p) => (p.id === data.property.id ? data.property : p)));
         loadAllAdminData();
       } else {
-        alert(data.error || "Failed to update property");
+        const errorMsg = data.details
+          ? Object.entries(data.details).map(([k, v]) => `${k}: ${v}`).join("\n")
+          : (data.error || "Failed to update property");
+        alert(errorMsg);
       }
     } catch {
       alert("Error saving property changes");
@@ -253,6 +261,7 @@ export default function AdminPage() {
       const data = await res.json();
       if (data.success) {
         showNotice("Property deleted successfully.");
+        setProperties((prev) => prev.filter((p) => p.id !== propertyId));
         loadAllAdminData();
       } else {
         alert(data.error || "Failed to delete property");
